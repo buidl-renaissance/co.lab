@@ -1,9 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getCollaborationById, updateCollaboration } from '@/db/collaboration';
+import { getCollaborationById } from '@/db/collaboration';
+import { Collaboration } from '@/data/collaboration';
 
 type ResponseData = {
   success: boolean;
-  data?: any;
+  data?: Collaboration;
   error?: string;
 };
 

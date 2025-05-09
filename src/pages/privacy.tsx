@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import Link from 'next/link';
+import Head from 'next/head';
 import { Container, Main, Title, Description, Footer, FooterContent, FooterColumn } from '@/components/Layout';
 
 const PrivacySection = styled.section`
@@ -59,6 +61,11 @@ const PrivacyContent = styled.div`
 const PrivacyPage = () => {
   return (
     <Container>
+      <Head>
+        <title>Privacy Policy - CollabFlow</title>
+        <meta name="description" content="Privacy Policy for CollabFlow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Head>
       <Main>
         <PrivacySection>
           <Title>Privacy Policy</Title>
@@ -138,16 +145,16 @@ const PrivacyPage = () => {
           </FooterColumn>
           <FooterColumn>
             <h3>COMPANY</h3>
-            <a href="/about">About</a>
-            <a href="/blog">Blog</a>
-            <a href="/careers">Careers</a>
-            <a href="/contact">Contact</a>
+            <Link href="/about">About</Link>
+            <Link href="/blog">Blog</Link>
+            <Link href="/careers">Careers</Link>
+            <Link href="/contact">Contact</Link>
           </FooterColumn>
           <FooterColumn>
             <h3>LEGAL</h3>
-            <a href="/terms">Terms</a>
-            <a href="/privacy">Privacy</a>
-            <a href="/cookies">Cookies</a>
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/cookies">Cookies</Link>
           </FooterColumn>
         </FooterContent>
         <p>Concept by John Gulbronson, Nick Robb, and AJ</p>

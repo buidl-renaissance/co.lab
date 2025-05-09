@@ -193,31 +193,6 @@ const SelectTemplatePrompt = styled.div`
   }
 `;
 
-const StickyRecordButton = styled.button`
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: #ff7a59;
-  color: white;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-  z-index: 100;
-
-  &:hover {
-    transform: scale(1.1);
-    background-color: #ff6a45;
-  }
-`;
-
 export const getServerSideProps = async () => {
   return {
     props: {
