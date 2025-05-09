@@ -12,12 +12,12 @@ export async function createCollaboration(collaboration: Omit<Collaboration, 'id
     ...collaboration,
     createdAt: now,
     updatedAt: now,
-    participants: JSON.stringify(collaboration.participants || []),
-    answers: JSON.stringify(collaboration.answers || {}),
-    template: JSON.stringify(collaboration.template),
+    participants: typeof collaboration.participants === 'string' ? JSON.parse(collaboration.participants) : collaboration.participants,
+    answers: typeof collaboration.answers === 'string' ? JSON.parse(collaboration.answers) : collaboration.answers,
+    template: typeof collaboration.template === 'string' ? JSON.parse(collaboration.template) : collaboration.template,
     status: collaboration.status || 'active',
-    analysis: JSON.stringify(collaboration.analysis || {}),
-    transcripts: JSON.stringify(collaboration.transcripts || []),
+    analysis: typeof collaboration.analysis === 'string' ? JSON.parse(collaboration.analysis) : collaboration.analysis,
+    transcripts: typeof collaboration.transcripts === 'string' ? JSON.parse(collaboration.transcripts) : collaboration.transcripts,
     summary: "",
   };
 
@@ -43,9 +43,11 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
   
   return {
     ...result,
-    template: JSON.parse(result.template),
-    analysis: result.analysis ? JSON.parse(result.analysis) : undefined,
-    transcripts: result.transcripts ? JSON.parse(result.transcripts) : []
+    participants: typeof result.participants === 'string' ? JSON.parse(result.participants) : result.participants,
+    answers: typeof result.answers === 'string' ? JSON.parse(result.answers) : result.answers,
+    template: typeof result.template === 'string' ? JSON.parse(result.template) : result.template,
+    analysis: typeof result.analysis === 'string' ? JSON.parse(result.analysis) : result.analysis,
+    transcripts: typeof result.transcripts === 'string' ? JSON.parse(result.transcripts) : result.transcripts
   } as Collaboration;
 }
 
@@ -56,11 +58,11 @@ export async function updateCollaboration(id: string, updates: Partial<Collabora
   const updatedData = {
     ...updates,
     updatedAt: new Date(),
-    participants: updates.participants ? JSON.stringify(updates.participants) : undefined,
-    answers: updates.answers ? JSON.stringify(updates.answers) : undefined,
-    template: updates.template ? JSON.stringify(updates.template) : undefined,
-    analysis: updates.analysis ? JSON.stringify(updates.analysis) : undefined,
-    transcripts: updates.transcripts ? JSON.stringify(updates.transcripts) : undefined,
+    participants: updates.participants ? typeof updates.participants === 'string' ? JSON.stringify(updates.participants) : updates.participants : undefined,
+    answers: updates.answers ? typeof updates.answers === 'string' ? JSON.stringify(updates.answers) : updates.answers : undefined,
+    template: updates.template ? typeof updates.template === 'string' ? JSON.stringify(updates.template) : updates.template : undefined,
+    analysis: updates.analysis ? typeof updates.analysis === 'string' ? JSON.stringify(updates.analysis) : updates.analysis : undefined,
+    transcripts: updates.transcripts ? typeof updates.transcripts === 'string' ? JSON.stringify(updates.transcripts) : updates.transcripts : undefined,
     summary: updates.summary ? updates.summary : undefined,
   };
   
@@ -79,9 +81,9 @@ export async function getAllCollaborations(): Promise<Collaboration[]> {
   
   return results.map(result => ({
     ...result,
-    participants: JSON.parse(result.participants),
-    answers: JSON.parse(result.answers),
-    template: JSON.parse(result.template),
+    participants: typeof result.participants === 'string' ? JSON.parse(result.participants) : result.participants,
+    answers: typeof result.answers === 'string' ? JSON.parse(result.answers) : result.answers,
+    template: typeof result.template === 'string' ? JSON.parse(result.template) : result.template,
     createdAt: new Date(result.createdAt),
     updatedAt: new Date(result.updatedAt)
   })) as Collaboration[];
