@@ -43,8 +43,6 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
   
   return {
     ...result,
-    participants: JSON.parse(result.participants),
-    answers: JSON.parse(result.answers),
     template: JSON.parse(result.template),
     analysis: result.analysis ? JSON.parse(result.analysis) : undefined,
     transcripts: result.transcripts ? JSON.parse(result.transcripts) : []

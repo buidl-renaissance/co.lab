@@ -188,7 +188,7 @@ const CollaborationPage = ({
           <AnalysisSection>
             <h4>Participants</h4>
             <ParticipantsList>
-              {collaboration.participants.map((participant, index) => (
+              {collaboration.analysis.participants?.map((participant, index) => (
                 <Participant key={index}>{participant}</Participant>
               ))}
             </ParticipantsList>
