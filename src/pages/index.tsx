@@ -357,7 +357,7 @@ const CollabFlowHome: React.FC = () => {
 
         <Section>
           <SectionTitle>Built on Open Source</SectionTitle>
-          <Description>
+          <Description style={{ textAlign: "center" }}>
             At Co.Lab, we believe in open collaboration.
           </Description>
           <a
