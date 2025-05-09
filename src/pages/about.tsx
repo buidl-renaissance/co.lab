@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Link from 'next/link';
 import { Container, Main, Section, SectionTitle } from '@/components/Layout';
 import Footer from '@/components/Footer';
 

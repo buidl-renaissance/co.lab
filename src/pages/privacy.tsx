@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Link from 'next/link';
 import Head from 'next/head';
 import { Container, Main, Title, Description } from '@/components/Layout';
 import Footer from '@/components/Footer';
