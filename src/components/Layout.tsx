@@ -1,6 +1,6 @@
-import React, { ReactNode } from 'react';
-import styled from 'styled-components';
-import Head from 'next/head';
+import React, { ReactNode } from "react";
+import styled from "styled-components";
+import Head from "next/head";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,9 +15,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #FAF9F6;
-  color: #1C1C1E;
-  font-family: 'Inter', sans-serif;
+  background-color: #faf9f6;
+  color: #1c1c1e;
+  font-family: "Inter", sans-serif;
   width: 100%;
   overflow-x: hidden;
 `;
@@ -38,15 +38,20 @@ const Section = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+
   @media (min-width: 768px) {
     padding: 5rem 2rem;
   }
 `;
 
-const SectionTitle = styled.h2<{size?: Size}>`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: ${props => props.size === 'small' ? '1.5rem' : props.size === 'default' ? '2rem' : '2.5rem'};
+const SectionTitle = styled.h2<{ size?: Size }>`
+  font-family: "Space Grotesk", sans-serif;
+  font-size: ${(props) =>
+    props.size === "small"
+      ? "1.5rem"
+      : props.size === "default"
+      ? "2rem"
+      : "2.5rem"};
   margin-bottom: 2rem;
   text-align: center;
   position: relative;
@@ -54,17 +59,17 @@ const SectionTitle = styled.h2<{size?: Size}>`
     font-size: 2.5rem;
     margin-bottom: 3rem;
   }
-  
+
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
     width: 60px;
     height: 4px;
-    background-color: #FFE169;
-    
+    background-color: #ffe169;
+
     @media (min-width: 768px) {
       width: 80px;
     }
@@ -88,6 +93,8 @@ const Footer = styled.footer`
     margin: 1rem 0;
     text-align: center;
     @media (min-width: 768px) {
+      text-align: left;
+    }
   }
 `;
 
@@ -97,7 +104,7 @@ const FooterContent = styled.div`
   align-items: center;
   width: 100%;
   margin-bottom: 1.5rem;
-  
+
   @media (min-width: 768px) {
     align-items: self-start;
     flex-direction: row;
@@ -111,7 +118,7 @@ const FooterColumn = styled.div`
   width: 100%;
   margin: 0.5rem 0;
   text-align: center;
-  
+
   @media (min-width: 768px) {
     width: auto;
     flex: 1;
@@ -119,22 +126,22 @@ const FooterColumn = styled.div`
     margin: 0 1.5rem;
     text-align: left;
   }
-  
+
   h3 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     font-size: 1.2rem;
     margin-bottom: 1rem;
-    color: #FFE169;
+    color: #ffe169;
   }
-  
+
   a {
     display: block;
-    color: #FAF9F6;
+    color: #faf9f6;
     margin-bottom: 0.5rem;
     text-decoration: none;
-    
+
     &:hover {
-      color: #6D9DC5;
+      color: #6d9dc5;
     }
   }
 `;
@@ -146,42 +153,44 @@ const Hero = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  background-image: url('/images/sketch-texture.png');
+  background-image: url("/images/sketch-texture.png");
   background-size: cover;
   background-blend-mode: overlay;
   position: relative;
   overflow: hidden;
-  
+
   @media (min-width: 768px) {
     padding: 6rem 2rem;
   }
 `;
 
-const Title = styled.h1<{size?: Size}>`
+const Title = styled.h1<{ size?: Size }>`
   margin: 0;
   line-height: 1.15;
-  font-size: ${({ size = 'default' }) => size === 'small' ? '2rem' : size === 'large' ? '5rem' : '2.5rem'};
-  font-family: 'Space Grotesk', sans-serif;
+  font-size: ${({ size = "default" }) =>
+    size === "small" ? "2rem" : size === "large" ? "5rem" : "2.5rem"};
+  font-family: "Space Grotesk", sans-serif;
   font-weight: bold;
-  
+
   @media (min-width: 768px) {
-    font-size: ${({ size = 'default' }) => size === 'small' ? '3rem' : size === 'large' ? '6rem' : '4.2rem'};
+    font-size: ${({ size = "default" }) =>
+      size === "small" ? "3rem" : size === "large" ? "6rem" : "4.2rem"};
   }
-  
+
   span {
-    color: #FF7A59;
+    color: #ff7a59;
     position: relative;
-    
+
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: -3px;
       left: 0;
       width: 100%;
       height: 2px;
-      background-color: #FF7A59;
+      background-color: #ff7a59;
       transform: skew(-12deg);
-      
+
       @media (min-width: 768px) {
         bottom: -5px;
         height: 3px;
@@ -190,19 +199,24 @@ const Title = styled.h1<{size?: Size}>`
   }
 `;
 
-const Description = styled.p<{size?: Size}>`
+const Description = styled.p<{ size?: Size }>`
   line-height: 1.5;
-  font-size: ${({ size = 'default' }) => size === 'small' ? '0.9rem' : size === 'large' ? '1.3rem' : '1.1rem'};
+  font-size: ${({ size = "default" }) =>
+    size === "small" ? "0.9rem" : size === "large" ? "1.3rem" : "1.1rem"};
   margin: 1rem 0 2rem;
   max-width: 700px;
-  
+
   @media (min-width: 768px) {
-    font-size: ${({ size = 'default' }) => size === 'small' ? '1.2rem' : size === 'large' ? '1.8rem' : '1.5rem'};
+    font-size: ${({ size = "default" }) =>
+      size === "small" ? "1.2rem" : size === "large" ? "1.8rem" : "1.5rem"};
     margin: 1.5rem 0 2.5rem;
   }
 `;
 
-const Layout = ({ children, title = 'Voice Transcription App' }: LayoutProps) => {
+const Layout = ({
+  children,
+  title = "Voice Transcription App",
+}: LayoutProps) => {
   return (
     <Container>
       <Head>
