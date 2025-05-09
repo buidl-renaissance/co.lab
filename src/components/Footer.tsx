@@ -1,20 +1,20 @@
-import React from 'react';
-import Link from 'next/link';
-import styled from 'styled-components';
+import React from "react";
+import Link from "next/link";
+import styled from "styled-components";
 
 const FooterWrapper = styled.footer`
   width: 100%;
   padding: 2rem 1rem;
-  background-color: #1C1C1E;
-  color: #FAF9F6;
+  background-color: #1c1c1e;
+  color: #faf9f6;
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+
   @media (min-width: 768px) {
     padding: 3rem 2rem;
   }
-  
+
   p {
     font-size: 0.9rem;
     margin: 1rem 0;
@@ -79,22 +79,24 @@ const Footer = () => {
       <FooterContent>
         <FooterColumn>
           <h3>Co.Lab</h3>
-          <p>Built for Creators by Creators</p>
-        </FooterColumn>
-        <FooterColumn>
-          <h3>COMPANY</h3>
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>
+          <Link href="/license">License</Link>
         </FooterColumn>
         <FooterColumn>
           <h3>LEGAL</h3>
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>
         </FooterColumn>
+        <FooterColumn>
+          <p>Built for Creators by Creators</p>
+        </FooterColumn>
       </FooterContent>
-      <p>Concept by John Gulbronson, Nick Rob, and AJ</p>
+      <p style={{ marginTop: "1rem", fontSize: "0.8rem", color: "#aaa" }}>
+        &copy; 2025 DPoP Labs LLC
+      </p>
     </FooterWrapper>
   );
 };
 
-export default Footer; 
+export default Footer;
