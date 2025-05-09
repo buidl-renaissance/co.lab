@@ -1,28 +1,5 @@
 import { OpenAI } from "openai";
 import { Template } from "@/data/template";
-// import { z } from "zod";
-// import { zodResponseFormat } from "openai/helpers/zod.mjs";
-
-// const AnalysisResponseSchema = z.object({
-//   title: z.string(),
-//   description: z.string(),
-//   participants: z.array(z.string()),
-//   answers: z.array(
-//     z.object({
-//       question: z.string(),
-//       answer: z.string(),
-//     })
-//   ),
-//   actions: z.array(
-//     z.object({
-//       action: z.string(),
-//       description: z.string(),
-//     })
-//   ),
-//   summary: z.string(),
-// });
-
-// export type AnalysisResponse = z.infer<typeof AnalysisResponseSchema>;
 
 export type AnalysisResponse = {
   title: string;
@@ -58,7 +35,9 @@ export async function analyzeTranscript(
       
       Please extract the following information from the transcript:
 
-      Title of the collaboration based on the transcript and template: ${template.name}
+      Title of the collaboration based on the transcript and template: ${
+        template.name
+      }
 
       A short description of the collaboration.
       
@@ -76,13 +55,15 @@ export async function analyzeTranscript(
       Transcripts:
       ${transcripts.join("\n")}
 
+      A list of action items based on the conversation.
+      
       And a summary of the conversation.
     `;
 
     console.log("Prompt:", prompt);
 
     // Call OpenAI API with parse method
-    const completion = await openai.beta.chat.completions.parse({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o-2024-08-06",
       messages: [
         {
@@ -107,31 +88,42 @@ export async function analyzeTranscript(
                   type: "array", 
                   items: { type: "string" } 
                 },
-                answers: { 
-                  type: "array", 
-                  items: { 
-                    type: "object", 
-                    properties: { 
-                      question: { type: "string" }, 
-                      answer: { type: "string" } 
+                answers: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      question: { type: "string" },
+                      answer: { type: "string" }
                     },
                     required: ["question", "answer"]
-                  } 
+                  }
                 },
-                actions: { 
-                  type: "array", 
-                  items: { type: "string" } 
+                actions: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      action: { type: "string" },
+                      description: { type: "string" }
+                    },
+                    required: ["action", "description"]
+                  }
                 },
                 summary: { type: "string" }
               },
               required: ["title", "description", "participants", "answers", "actions", "summary"]
-            },
+            }
           },
         },
       ],
+      tool_choice: { type: "function", function: { name: "analyzeTranscript" } },
     });
 
-    return completion.choices[0].message.parsed as unknown as AnalysisResponse;
+    const result = completion.choices[0].message.tool_calls?.[0]?.function?.arguments;
+    console.log("Completion:", completion);
+    console.log("Result:", result);
+    return JSON.parse(result as string) as AnalysisResponse;
   } catch (error) {
     console.error("Error analyzing transcript:", error);
     return {
