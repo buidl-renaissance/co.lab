@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import { defaultTemplates, Template } from "@/data/template";
 import {
@@ -224,6 +224,19 @@ const CollabFlowHome: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null
   );
+  const templatesSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToTemplates = () => {
+    if (templatesSectionRef.current) {
+      const yOffset = -20; // Small offset to account for any fixed headers
+      const y = templatesSectionRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      window.scrollTo({
+        top: y,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <Container>
@@ -239,11 +252,9 @@ const CollabFlowHome: React.FC = () => {
           </Description>
 
           <CTAContainer>
-            <a href="#templates">
-              <PrimaryButton>
-                Get Started
-              </PrimaryButton>
-            </a>
+            <PrimaryButton onClick={scrollToTemplates}>
+              Get Started
+            </PrimaryButton>
             {/* <SecondaryButton>Watch Demo</SecondaryButton> */}
           </CTAContainer>
         </Hero>
@@ -278,7 +289,7 @@ const CollabFlowHome: React.FC = () => {
           </HowItWorks>
         </Section>
 
-        <TemplatesSection className="TemplatesSection" id="templates">
+        <TemplatesSection className="TemplatesSection" ref={templatesSectionRef}>
           <SectionTitle>Choose Your Template</SectionTitle>
           <TemplateGrid>
             {defaultTemplates.map((template: Template) => (
@@ -320,11 +331,7 @@ const CollabFlowHome: React.FC = () => {
           <SelectTemplatePrompt>
             <h2>Please select a template to continue</h2>
             <SecondaryButton
-              onClick={() =>
-                document
-                  .querySelector(".TemplatesSection")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
+              onClick={scrollToTemplates}
             >
               Browse Templates
             </SecondaryButton>

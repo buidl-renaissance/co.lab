@@ -121,6 +121,7 @@ const TranscriptItem = styled.div`
   padding: 1rem;
   background-color: #f8f9fa;
   border-radius: 4px;
+  padding-right: 3rem;
 `;
 
 const EditButton = styled.button`
@@ -131,12 +132,28 @@ const EditButton = styled.button`
   border: none;
   color: #6c757d;
   cursor: pointer;
-  padding: 0.25rem;
-  font-size: 1rem;
+  padding: 0.5rem;
+  font-size: 1.25rem;
   transition: color 0.2s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
 
   &:hover {
     color: #0050b3;
+    background-color: rgba(0, 80, 179, 0.1);
+  }
+
+  &:active {
+    background-color: rgba(0, 80, 179, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    font-size: 1.5rem;
   }
 `;
 
@@ -321,10 +338,9 @@ const CollaborationPage = ({
           {collaboration.transcripts?.map((transcript, index) => (
             <TranscriptItem key={index}>
               <EditButton
-                onClick={() =>
-                  setEditingTranscript({ index, text: transcript })
-                }
+                onClick={() => setEditingTranscript({ index, text: transcript })}
                 title="Edit transcript"
+                aria-label="Edit transcript"
               >
                 ✏️
               </EditButton>
