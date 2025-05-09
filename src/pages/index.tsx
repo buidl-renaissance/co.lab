@@ -204,12 +204,12 @@ export const getServerSideProps = async () => {
         keywords:
           "collaboration, project planning, voice-first, creative teams, structured plans",
         openGraph: {
-          title: "CollabFlow - Turn Conversations into Organized Collaboration",
+          title: "Co.Lab - Turn Conversations into Organized Collaboration",
           description:
             "Voice-first project planning for creative teams. Transform freeform conversations into structured, actionable project plans.",
           images: [
             {
-              url: "https://collabflow.com/og-image.png",
+              url: "/co.lab-start.jpg",
               width: 1200,
               height: 630,
               alt: "CollabFlow - Turn Conversations into Organized Collaboration",
