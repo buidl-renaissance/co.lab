@@ -123,7 +123,7 @@ export const getServerSideProps = async (
 ) => {
   const { id } = context.query;
   const collaboration = await getCollaborationById(id as string);
-  console.log("Collaboration:", collaboration);
+  console.log("Collaboration:", collaboration?.transcripts);
 
   if (!collaboration) {
     return {
@@ -189,9 +189,11 @@ const CollaborationPage = ({
           <AnalysisSection>
             <h4>Participants</h4>
             <ParticipantsList>
-              {collaboration.analysis.participants?.map((participant, index) => (
-                <Participant key={index}>{participant}</Participant>
-              ))}
+              {collaboration.analysis.participants?.map(
+                (participant, index) => (
+                  <Participant key={index}>{participant}</Participant>
+                )
+              )}
             </ParticipantsList>
 
             <AnswersList>
@@ -233,11 +235,13 @@ const CollaborationPage = ({
           <SummaryText>{collaboration.summary}</SummaryText>
         </SummarySection>
 
-        <QRCode value={`https://co.lab.builddetroit.xyz/collab/${collaboration.id}`} />
+        <QRCode
+          value={`https://co.lab.builddetroit.xyz/collab/${collaboration.id}`}
+        />
 
         <TranscriptsList>
           <SummaryTitle>Transcripts</SummaryTitle>
-        {collaboration.transcripts?.map((transcript, index) => (
+          {collaboration.transcripts?.map((transcript, index) => (
             <TranscriptItem key={index}>{transcript}</TranscriptItem>
           ))}
         </TranscriptsList>

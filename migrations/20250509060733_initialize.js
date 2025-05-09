@@ -11,12 +11,12 @@ exports.up = function(knex) {
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp("updatedAt").defaultTo(knex.fn.now());
     table.json("answers").notNullable();
-    table.json("participants").notNullable();
+    table.text("participants").notNullable();
     table
       .enum("status", ["active", "completed", "archived"])
       .defaultTo("active");
     table.json("analysis").notNullable();   
-    table.json("transcripts").notNullable();
+    table.text("transcripts").notNullable();
     table.text("summary").notNullable();
   });
 };

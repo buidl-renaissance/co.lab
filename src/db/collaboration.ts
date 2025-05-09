@@ -12,12 +12,12 @@ export async function createCollaboration(collaboration: Omit<Collaboration, 'id
     ...collaboration,
     createdAt: now,
     updatedAt: now,
-    participants: typeof collaboration.participants === 'string' ? JSON.parse(collaboration.participants) : collaboration.participants,
-    answers: typeof collaboration.answers === 'string' ? JSON.parse(collaboration.answers) : collaboration.answers,
-    template: typeof collaboration.template === 'string' ? JSON.parse(collaboration.template) : collaboration.template,
+    participants: JSON.stringify(collaboration.participants),
+    answers: JSON.stringify(collaboration.answers),
+    template: JSON.stringify(collaboration.template),
     status: collaboration.status || 'active',
-    analysis: typeof collaboration.analysis === 'string' ? JSON.parse(collaboration.analysis) : collaboration.analysis,
-    transcripts: typeof collaboration.transcripts === 'string' ? JSON.parse(collaboration.transcripts) : collaboration.transcripts,
+    analysis: JSON.stringify(collaboration.analysis),
+    transcripts: JSON.stringify(collaboration.transcripts),
     summary: "",
   };
 
@@ -41,14 +41,42 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
   
   if (!result) return null;
   
-  return {
-    ...result,
-    participants: typeof result.participants === 'string' ? JSON.parse(result.participants) : result.participants,
-    answers: typeof result.answers === 'string' ? JSON.parse(result.answers) : result.answers,
-    template: typeof result.template === 'string' ? JSON.parse(result.template) : result.template,
-    analysis: typeof result.analysis === 'string' ? JSON.parse(result.analysis) : result.analysis,
-    transcripts: typeof result.transcripts === 'string' ? JSON.parse(result.transcripts) : result.transcripts
-  } as Collaboration;
+  try {
+    // Helper function to safely parse JSON
+    const safeParse = (value: string | object) => {
+      console.log("Value:", value);
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return value;
+        }
+      }
+      return value;
+    };
+
+    console.log("Result:", result);
+
+    return {
+      ...result,
+      participants: safeParse(result.participants),
+      answers: safeParse(result.answers),
+      template: safeParse(result.template),
+      analysis: result.analysis ? safeParse(result.analysis) : undefined,
+      transcripts: result.transcripts ? safeParse(result.transcripts) : [],
+    } as Collaboration;
+  } catch (error) {
+    console.error('Error parsing collaboration data:', error);
+    // Return a safe default if parsing fails
+    return {
+      ...result,
+      participants: [],
+      answers: {},
+      template: {},
+      analysis: undefined,
+      transcripts: [],
+    } as Collaboration;
+  }
 }
 
 export async function updateCollaboration(id: string, updates: Partial<Collaboration>): Promise<Collaboration | null> {
@@ -58,11 +86,11 @@ export async function updateCollaboration(id: string, updates: Partial<Collabora
   const updatedData = {
     ...updates,
     updatedAt: new Date(),
-    participants: updates.participants ? typeof updates.participants === 'string' ? JSON.stringify(updates.participants) : updates.participants : undefined,
-    answers: updates.answers ? typeof updates.answers === 'string' ? JSON.stringify(updates.answers) : updates.answers : undefined,
-    template: updates.template ? typeof updates.template === 'string' ? JSON.stringify(updates.template) : updates.template : undefined,
-    analysis: updates.analysis ? typeof updates.analysis === 'string' ? JSON.stringify(updates.analysis) : updates.analysis : undefined,
-    transcripts: updates.transcripts ? typeof updates.transcripts === 'string' ? JSON.stringify(updates.transcripts) : updates.transcripts : undefined,
+    participants: updates.participants ? typeof updates.participants !== 'string' ? JSON.stringify(updates.participants) : updates.participants : undefined,
+    answers: updates.answers ? typeof updates.answers !== 'string' ? JSON.stringify(updates.answers) : updates.answers : undefined,
+    template: updates.template ? typeof updates.template !== 'string' ? JSON.stringify(updates.template) : updates.template : undefined,
+    analysis: updates.analysis ? typeof updates.analysis !== 'string' ? JSON.stringify(updates.analysis) : updates.analysis : undefined,
+    transcripts: updates.transcripts ? typeof updates.transcripts !== 'string' ? JSON.stringify(updates.transcripts) : updates.transcripts : undefined,
     summary: updates.summary ? updates.summary : undefined,
   };
   
