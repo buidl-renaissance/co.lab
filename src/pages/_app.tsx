@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
           openGraph={{
             images: [
               {
-                url: '/co.lab-start.png',
+                url: '/co.lab-start.jpg',
                 width: 1200,
                 height: 630,
                 alt: 'Collaborative Platform',
