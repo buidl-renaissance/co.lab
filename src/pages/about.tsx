@@ -132,15 +132,15 @@ const AboutPage = () => {
           <FooterColumn>
             <h3>COMPANY</h3>
             <Link href="/about">About</Link>
-            <Link href="/blog">Blog</Link>
-            <Link href="/careers">Careers</Link>
+            {/* <Link href="/blog">Blog</Link>
+            <Link href="/careers">Careers</Link> */}
             <Link href="/contact">Contact</Link>
           </FooterColumn>
           <FooterColumn>
             <h3>LEGAL</h3>
             <Link href="/terms">Terms</Link>
             <Link href="/privacy">Privacy</Link>
-            <Link href="/cookies">Cookies</Link>
+            {/* <Link href="/cookies">Cookies</Link> */}
           </FooterColumn>
         </FooterContent>
         <p>Concept by WiredInSamurai, Nick Rob, and AJ</p>
