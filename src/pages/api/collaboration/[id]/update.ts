@@ -83,7 +83,7 @@ export default async function handler(
 
     return res.status(200).json({
       success: true,
-      data: updatedCollaboration
+      data: updatedCollaboration || undefined
     });
   } catch (error) {
     console.error('Error updating transcript:', error);
