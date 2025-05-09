@@ -1,28 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import Head from 'next/head';
-import { Container, Main, Title, Description, Footer, FooterContent, FooterColumn } from '@/components/Layout';
+import { Container, Main, Section, SectionTitle, Footer, FooterContent, FooterColumn } from '@/components/Layout';
 
-const AboutSection = styled.section`
+const AboutSection = styled(Section)`
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 1rem;
-  
-  @media (min-width: 768px) {
-    padding: 4rem 2rem;
-  }
 `;
 
-const TeamSection = styled.section`
+const TeamSection = styled(Section)`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
   text-align: center;
-  
-  @media (min-width: 768px) {
-    padding: 4rem 2rem;
-  }
 `;
 
 const TeamGrid = styled.div`
@@ -62,27 +51,14 @@ const TeamMember = styled.div`
   }
 `;
 
-const MissionSection = styled.section`
+const MissionSection = styled(Section)`
   background-color: #f5f4f0;
-  padding: 2rem 1rem;
   text-align: center;
-  
-  @media (min-width: 768px) {
-    padding: 4rem 2rem;
-  }
 `;
 
 const MissionContent = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  
-  h2 {
-    font-size: 1.5rem;
-    
-    @media (min-width: 768px) {
-      font-size: 2rem;
-    }
-  }
   
   p {
     font-size: 0.95rem;
@@ -94,25 +70,31 @@ const MissionContent = styled.div`
   }
 `;
 
+export const getServerSideProps = async () => {
+  return {
+    props: {
+      metadata: {
+        title: "About CollabFlow",
+        description: "Learn about CollabFlow and our mission to transform collaborative work",
+      },
+    },
+  };
+};
+
 const AboutPage = () => {
   return (
     <Container>
-      <Head>
-        <title>About CollabFlow</title>
-        <meta name="description" content="Learn about CollabFlow and our mission to transform collaborative work" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </Head>
       <Main>
         <AboutSection>
-          <Title>About CollabFlow</Title>
-          <Description>
+          <SectionTitle>About CollabFlow</SectionTitle>
+          <p>
             We&apos;re building the future of collaborative work, one conversation at a time.
-          </Description>
+          </p>
         </AboutSection>
 
         <MissionSection>
           <MissionContent>
-            <h2>Our Mission</h2>
+            <SectionTitle>Our Mission</SectionTitle>
             <p>
               At CollabFlow, we believe that the best ideas come from natural conversations.
               Our mission is to bridge the gap between free-flowing discussions and structured
@@ -123,7 +105,7 @@ const AboutPage = () => {
         </MissionSection>
 
         <TeamSection>
-          <h2>Meet the Team</h2>
+          <SectionTitle>Meet the Team</SectionTitle>
           <TeamGrid>
             <TeamMember>
               <h3>John Gulbronson</h3>
@@ -167,4 +149,4 @@ const AboutPage = () => {
   );
 };
 
-export default AboutPage; 
+export default AboutPage;
