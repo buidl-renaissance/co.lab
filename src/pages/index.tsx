@@ -21,26 +21,27 @@ const Description = styled(DescriptionText)`
   font-size: 1.3rem;
 `;
 
-const WaveAnimation = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 120px;
-  background: url("/images/voice-wave.svg");
-  background-size: 100% auto;
-  opacity: 0.6;
-  animation: wave 15s linear infinite;
+// const WaveAnimation = styled.div`
+//   position: absolute;
+//   bottom: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 120px;
+//   background: url("/images/voice-wave.svg");
+//   background-size: 100% auto;
+//   opacity: 0.6;
+//   animation: wave 15s linear infinite;
+//   z-index: -1;
 
-  @keyframes wave {
-    0% {
-      background-position: 0 0;
-    }
-    100% {
-      background-position: 100% 0;
-    }
-  }
-`;
+//   @keyframes wave {
+//     0% {
+//       background-position: 0 0;
+//     }
+//     100% {
+//       background-position: 100% 0;
+//     }
+//   }
+// `;
 
 const CTAContainer = styled.div`
   display: flex;
@@ -242,7 +243,7 @@ const CollabFlowHome: React.FC = () => {
     <Container>
       <Main>
         <Hero>
-          <WaveAnimation />
+          {/* <WaveAnimation /> */}
           <Title>
             Turn Conversations into <span>Collaborations</span>
           </Title>
