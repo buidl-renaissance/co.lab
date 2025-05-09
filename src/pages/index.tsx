@@ -5,7 +5,7 @@ import {
   Title,
   Section,
   SectionTitle,
-  Description,
+  Description as DescriptionText,
   Container,
   Main,
   Hero,
@@ -15,6 +15,10 @@ import {
 } from "@/components/Layout";
 import { PrimaryButton, SecondaryButton } from "@/components/Buttons";
 import router from "next/router";
+
+const Description = styled(DescriptionText)`
+  font-size: 1.3rem;
+`;
 
 const WaveAnimation = styled.div`
   position: absolute;
@@ -213,40 +217,13 @@ const StickyRecordButton = styled.button`
   }
 `;
 
-const EmailSignup = styled.div`
-  display: flex;
-  margin: 1rem 0;
-
-  input {
-    padding: 0.8rem 1rem;
-    border: none;
-    border-radius: 4px 0 0 4px;
-    font-size: 1rem;
-    min-width: 250px;
-  }
-
-  button {
-    padding: 0.8rem 1.2rem;
-    background-color: #6d9dc5;
-    color: white;
-    border: none;
-    border-radius: 0 4px 4px 0;
-    font-size: 1rem;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #5c89b0;
-    }
-  }
-`;
-
 export const getServerSideProps = async () => {
   return {
     props: {
       metadata: {
         title: "CollabFlow - Turn Conversations into Organized Collaboration",
         description:
-          "Voice-first project planning for creative teams. Transform freeform conversations into structured, actionable project plans.",
+          "A voice-first project planning tool for creative teams. Transform freeform conversations into structured, actionable project plans.",
         keywords:
           "collaboration, project planning, voice-first, creative teams, structured plans",
         openGraph: {
@@ -286,8 +263,16 @@ const CollabFlowHome: React.FC = () => {
           </Description>
 
           <CTAContainer>
-            <PrimaryButton>Start Recording</PrimaryButton>
-            <SecondaryButton>Watch Demo</SecondaryButton>
+            <PrimaryButton
+              onClick={() =>
+                document
+                  .querySelector(".TemplatesSection")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              Get Started
+            </PrimaryButton>
+            {/* <SecondaryButton>Watch Demo</SecondaryButton> */}
           </CTAContainer>
         </Hero>
 
@@ -384,33 +369,22 @@ const CollabFlowHome: React.FC = () => {
           <FooterColumn>
             <h3>COLLABFLOW</h3>
             <p>Built for Creators by Creators</p>
-            {/* <EmailSignup>
-              <input type="email" placeholder="Your email" />
-              <button>Subscribe</button>
-            </EmailSignup> */}
           </FooterColumn>
-          {/* <FooterColumn>
-            <h3>RESOURCES</h3>
-            <a href="#">Templates</a>
-            <a href="#">Guides</a>
-            <a href="#">API</a>
-            <a href="#">Pricing</a>
-          </FooterColumn> */}
           <FooterColumn>
             <h3>COMPANY</h3>
-            <a href="#">About</a>
-            <a href="#">Blog</a>
-            <a href="#">Careers</a>
-            <a href="#">Contact</a>
+            <a href="/about">About</a>
+            <a href="/blog">Blog</a>
+            <a href="/careers">Careers</a>
+            <a href="/contact">Contact</a>
           </FooterColumn>
           <FooterColumn>
             <h3>LEGAL</h3>
-            <a href="#">Terms</a>
-            <a href="#">Privacy</a>
-            <a href="#">Cookies</a>
+            <a href="/terms">Terms</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/cookies">Cookies</a>
           </FooterColumn>
         </FooterContent>
-        <p>Concept by John Gulbronson, Nick Robb, and AJ</p>
+        <p>Concept by WiredInSamurai, Nick Robinson, and AJ Nicols</p>
       </Footer>
     </Container>
   );

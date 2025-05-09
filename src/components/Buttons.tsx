@@ -41,14 +41,13 @@ const Button = styled.button`
     box-shadow: 0 6px 14px rgba(255, 122, 89, 0.3);
   }
 `;
-
 const PrimaryButton = styled.button`
-  padding: 0.6rem 1.4rem;
+  padding: 0.8rem 1.6rem;
   background-color: #FF7A59;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -69,12 +68,12 @@ const PrimaryButton = styled.button`
 `;
 
 const SecondaryButton = styled.button`
-  padding: 0.6rem 1.4rem;
+  padding: 0.8rem 1.6rem;
   background-color: transparent;
   color: #6d9dc5;
   border: 2px solid #6d9dc5;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

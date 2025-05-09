@@ -7,6 +7,8 @@ interface LayoutProps {
   title?: string;
 }
 
+type Size = "small" | "default" | "large";
+
 const Container = styled.div`
   min-height: 100vh;
   padding: 0;
@@ -42,13 +44,12 @@ const Section = styled.section`
   }
 `;
 
-const SectionTitle = styled.h2`
+const SectionTitle = styled.h2<{size?: Size}>`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 2rem;
+  font-size: ${props => props.size === 'small' ? '1.5rem' : props.size === 'default' ? '2rem' : '2.5rem'};
   margin-bottom: 2rem;
   text-align: center;
   position: relative;
-  
   @media (min-width: 768px) {
     font-size: 2.5rem;
     margin-bottom: 3rem;
@@ -154,15 +155,15 @@ const Hero = styled.div`
   }
 `;
 
-const Title = styled.h1`
+const Title = styled.h1<{size?: Size}>`
   margin: 0;
   line-height: 1.15;
-  font-size: 2.5rem;
+  font-size: ${({ size = 'default' }) => size === 'small' ? '2rem' : size === 'large' ? '5rem' : '2.5rem'};
   font-family: 'Space Grotesk', sans-serif;
   font-weight: bold;
   
   @media (min-width: 768px) {
-    font-size: 4.2rem;
+    font-size: ${({ size = 'default' }) => size === 'small' ? '3rem' : size === 'large' ? '6rem' : '4.2rem'};
   }
   
   span {
@@ -187,14 +188,14 @@ const Title = styled.h1`
   }
 `;
 
-const Description = styled.p`
+const Description = styled.p<{size?: Size}>`
   line-height: 1.5;
-  font-size: 1.1rem;
+  font-size: ${({ size = 'default' }) => size === 'small' ? '0.9rem' : size === 'large' ? '1.3rem' : '1.1rem'};
   margin: 1rem 0 2rem;
   max-width: 700px;
   
   @media (min-width: 768px) {
-    font-size: 1.5rem;
+    font-size: ${({ size = 'default' }) => size === 'small' ? '1.2rem' : size === 'large' ? '1.8rem' : '1.5rem'};
     margin: 1.5rem 0 2.5rem;
   }
 `;
