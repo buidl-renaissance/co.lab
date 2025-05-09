@@ -74,8 +74,8 @@ export const getServerSideProps = async () => {
   return {
     props: {
       metadata: {
-        title: "About CollabFlow",
-        description: "Learn about CollabFlow and our mission to transform collaborative work",
+        title: "About Co.Lab",
+        description: "Learn about Co.Lab and our mission to transform collaborative work",
       },
     },
   };
@@ -86,7 +86,7 @@ const AboutPage = () => {
     <Container>
       <Main>
         <AboutSection>
-          <SectionTitle>About CollabFlow</SectionTitle>
+          <SectionTitle>About Co.Lab</SectionTitle>
           <p>
             We&apos;re building the future of collaborative work, one conversation at a time.
           </p>
@@ -96,7 +96,7 @@ const AboutPage = () => {
           <MissionContent>
             <SectionTitle>Our Mission</SectionTitle>
             <p>
-              At CollabFlow, we believe that the best ideas come from natural conversations.
+              At Co.Lab, we believe that the best ideas come from natural conversations.
               Our mission is to bridge the gap between free-flowing discussions and structured
               project management, making it easier for teams to capture, organize, and act on
               their collaborative ideas.

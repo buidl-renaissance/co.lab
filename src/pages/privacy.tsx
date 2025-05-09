@@ -62,8 +62,8 @@ const PrivacyPage = () => {
   return (
     <Container>
       <Head>
-        <title>Privacy Policy - CollabFlow</title>
-        <meta name="description" content="Privacy Policy for CollabFlow" />
+        <title>Privacy Policy - Co.Lab</title>
+        <meta name="description" content="Privacy Policy for Co.Lab" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <Main>
@@ -131,7 +131,7 @@ const PrivacyPage = () => {
             <h2>6. Contact Us</h2>
             <p>
               If you have any questions about this Privacy Policy, please contact us at:
-              privacy@collabflow.com
+              john@builddetroit.xyz
             </p>
           </PrivacyContent>
         </PrivacySection>
@@ -140,7 +140,7 @@ const PrivacyPage = () => {
       <Footer>
         <FooterContent>
           <FooterColumn>
-            <h3>COLLABFLOW</h3>
+            <h3>CO.LAB</h3>
             <p>Built for Creators by Creators</p>
           </FooterColumn>
           <FooterColumn>
@@ -157,7 +157,7 @@ const PrivacyPage = () => {
             <Link href="/cookies">Cookies</Link>
           </FooterColumn>
         </FooterContent>
-        <p>Concept by John Gulbronson, Nick Robb, and AJ</p>
+        <p>Concept by John Gulbronson, Nick Rob, and AJ</p>
       </Footer>
     </Container>
   );

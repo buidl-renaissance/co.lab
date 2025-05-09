@@ -198,7 +198,7 @@ export const getServerSideProps = async () => {
   return {
     props: {
       metadata: {
-        title: "CollabFlow - Turn Conversations into Organized Collaboration",
+        title: "Co.Lab - Turn Conversations into Organized Collaboration",
         description:
           "A voice-first project planning tool for creative teams. Transform freeform conversations into structured, actionable project plans.",
         keywords:
@@ -212,7 +212,7 @@ export const getServerSideProps = async () => {
               url: "/co.lab-start.jpg",
               width: 1200,
               height: 630,
-              alt: "CollabFlow - Turn Conversations into Organized Collaboration",
+              alt: "Co.Lab - Turn Conversations into Organized Collaboration",
             },
           ],
         },
