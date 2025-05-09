@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import { Modal, ModalBody, ModalFooter, SubmitButton, CancelButton } from "./Modal";
 import { Label, TextArea } from "./Form";
 
