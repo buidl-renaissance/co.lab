@@ -17,6 +17,8 @@ export async function createCollaboration(collaboration: Omit<Collaboration, 'id
     template: JSON.stringify(collaboration.template),
     status: collaboration.status || 'active',
     analysis: JSON.stringify(collaboration.analysis || {}),
+    transcripts: JSON.stringify(collaboration.transcripts || []),
+    summary: "",
   };
 
   await client('collaborations').insert(newCollaboration);
@@ -28,7 +30,9 @@ export async function createCollaboration(collaboration: Omit<Collaboration, 'id
     updatedAt: now,
     participants: collaboration.participants || [],
     answers: collaboration.answers || {},
-    status: collaboration.status || 'active'
+    status: collaboration.status || 'active',
+    transcripts: collaboration.transcripts || [],
+    summary: "",
   } as Collaboration;
 }
 
@@ -42,7 +46,8 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
     participants: JSON.parse(result.participants),
     answers: JSON.parse(result.answers),
     template: JSON.parse(result.template),
-    analysis: JSON.parse(result.analysis),
+    analysis: result.analysis ? JSON.parse(result.analysis) : undefined,
+    transcripts: result.transcripts ? JSON.parse(result.transcripts) : []
   } as Collaboration;
 }
 
@@ -55,7 +60,10 @@ export async function updateCollaboration(id: string, updates: Partial<Collabora
     updatedAt: new Date(),
     participants: updates.participants ? JSON.stringify(updates.participants) : undefined,
     answers: updates.answers ? JSON.stringify(updates.answers) : undefined,
-    template: updates.template ? JSON.stringify(updates.template) : undefined
+    template: updates.template ? JSON.stringify(updates.template) : undefined,
+    analysis: updates.analysis ? JSON.stringify(updates.analysis) : undefined,
+    transcripts: updates.transcripts ? JSON.stringify(updates.transcripts) : undefined,
+    summary: updates.summary ? updates.summary : undefined,
   };
   
   // Remove undefined values

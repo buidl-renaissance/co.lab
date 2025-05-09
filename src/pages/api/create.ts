@@ -37,7 +37,7 @@ export default async function handler(
       });
     }
 
-    const analysis = await analyzeTranscript(transcript, template);
+    const analysis = await analyzeTranscript([transcript], template);
     console.log(analysis);
 
     // Get questions for this template
@@ -56,7 +56,9 @@ export default async function handler(
       participants: analysis.participants,
       answers,
       status: 'active',
-      analysis
+      analysis,
+      transcripts: [transcript],
+      summary: analysis.summary,
     });
 
     return res.status(200).json({

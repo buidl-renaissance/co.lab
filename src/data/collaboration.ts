@@ -12,6 +12,8 @@ export interface Collaboration {
   participants: string[];
   status: "active" | "completed" | "archived";
   analysis?: AnalysisResponse;
+  transcripts?: string[];
+  summary?: string;
 }
 
 // Mock data for collaborations

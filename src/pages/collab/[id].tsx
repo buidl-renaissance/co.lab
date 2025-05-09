@@ -1,12 +1,18 @@
 import React from "react";
 import Head from "next/head";
 import styled from "styled-components";
-import { Container, Main, Title, Description, Section } from "@/components/Layout";
+import {
+  Container,
+  Main,
+  Title,
+  Description,
+  Section,
+} from "@/components/Layout";
 import { GetServerSidePropsContext } from "next";
 import { getCollaborationById } from "@/db/collaboration";
 import { Collaboration } from "@/data/collaboration";
 import AddTranscript from "@/components/AddTranscript";
-
+import { Loading } from "@/components/Loading";
 
 const AnalysisSection = styled(Section)`
   background-color: #f8f9fa;
@@ -40,7 +46,7 @@ const AnswerItem = styled.div`
   padding-bottom: 1rem;
   border-bottom: 1px solid #dee2e6;
   width: 100%;
-  
+
   &:last-child {
     border-bottom: none;
   }
@@ -84,6 +90,33 @@ const StepItem = styled.li`
   word-break: break-word;
 `;
 
+const SummarySection = styled(Section)`
+  background-color: #f8f9fa;
+  text-align: left;
+  align-items: flex-start;
+  padding: 0;
+  margin-top: 1rem;
+`;
+
+const SummaryTitle = styled(SectionTitle)`
+  color: #0050b3;
+`;
+
+const SummaryText = styled.p`
+  margin-bottom: 1rem;
+  word-break: break-word;
+`;
+
+const TranscriptsList = styled.div`
+  margin-top: 1rem;
+  margin-bottom: 6rem;
+`;
+
+const TranscriptItem = styled.div`
+  margin-bottom: 1rem;
+  word-break: break-word;
+`;
+
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -98,7 +131,7 @@ export const getServerSideProps = async (
 
   return {
     props: {
-      collaboration,
+      initialCollaboration: collaboration,
       metadata: {
         title: `Collaboration: ${collaboration.title}`,
         description: collaboration.description,
@@ -108,23 +141,33 @@ export const getServerSideProps = async (
 };
 
 const CollaborationPage = ({
-  collaboration,
+  initialCollaboration,
 }: {
-  collaboration: Collaboration;
+  initialCollaboration: Collaboration;
 }) => {
-
-  const handleAddTranscript = (transcript: string) => {
-    console.log('Transcript added:', transcript);
+  const [collaboration, setCollaboration] =
+    React.useState<Collaboration>(initialCollaboration);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const handleAddTranscript = async (transcript: string) => {
+    console.log("Transcript added:", transcript);
+    setIsLoading(true);
+    const response = await fetch(`/api/collaboration/${collaboration.id}/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ transcript }),
+    });
+    const data = await response.json();
+    setCollaboration(data.data);
+    setIsLoading(false);
   };
 
   return (
     <Container>
       <Head>
         <title>Collaboration: {collaboration.title}</title>
-        <meta
-          name="description"
-          content={collaboration.description}
-        />
+        <meta name="description" content={collaboration.description} />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
@@ -138,23 +181,27 @@ const CollaborationPage = ({
 
         <AddTranscript onSubmit={handleAddTranscript} />
 
+        {isLoading && <Loading />}
+
         {collaboration.analysis && (
-          <AnalysisSection>            
+          <AnalysisSection>
             <h4>Participants</h4>
             <ParticipantsList>
               {collaboration.participants.map((participant, index) => (
                 <Participant key={index}>{participant}</Participant>
               ))}
             </ParticipantsList>
-            
+
             <AnswersList>
               <h4>Key Insights</h4>
-              {collaboration.analysis.answers?.map((item: { question: string, answer: string }, index: number) => (
-                <AnswerItem key={index}>
-                  <Question>{item.question}</Question>
-                  <Answer>{item.answer}</Answer>
-                </AnswerItem>
-              ))}
+              {collaboration.analysis.answers?.map(
+                (item: { question: string; answer: string }, index: number) => (
+                  <AnswerItem key={index}>
+                    <Question>{item.question}</Question>
+                    <Answer>{item.answer}</Answer>
+                  </AnswerItem>
+                )
+              )}
             </AnswersList>
           </AnalysisSection>
         )}
@@ -163,22 +210,33 @@ const CollaborationPage = ({
           <NextStepsTitle>Next Action Steps</NextStepsTitle>
           <StepsList>
             {collaboration.analysis && collaboration.analysis.actions ? (
-              collaboration.analysis.actions.map((action: { action: string, description: string }, index: number) => (
-                <StepItem key={index}>
-                  <strong>{action.action}</strong>: {action.description}
-                </StepItem>
-              ))
+              collaboration.analysis.actions.map(
+                (
+                  action: { action: string; description: string },
+                  index: number
+                ) => (
+                  <StepItem key={index}>
+                    <strong>{action.action}</strong>: {action.description}
+                  </StepItem>
+                )
+              )
             ) : (
-              <>
-                <StepItem>Review the analysis and validate the extracted information</StepItem>
-                <StepItem>Invite identified participants to collaborate</StepItem>
-                <StepItem>Schedule a follow-up meeting to discuss key insights</StepItem>
-                <StepItem>Assign action items based on the collaboration template</StepItem>
-                <StepItem>Set deadlines for each action item</StepItem>
-              </>
+              <StepItem>No action steps found</StepItem>
             )}
           </StepsList>
         </NextStepsSection>
+
+        <SummarySection>
+          <SummaryTitle>Summary</SummaryTitle>
+          <SummaryText>{collaboration.summary}</SummaryText>
+        </SummarySection>
+
+        <TranscriptsList>
+          <SummaryTitle>Transcripts</SummaryTitle>
+        {collaboration.transcripts?.map((transcript, index) => (
+            <TranscriptItem key={index}>{transcript}</TranscriptItem>
+          ))}
+        </TranscriptsList>
       </Main>
     </Container>
   );

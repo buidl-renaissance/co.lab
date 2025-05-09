@@ -15,6 +15,7 @@ import {
 } from "@/components/Layout";
 import { PrimaryButton, SecondaryButton } from "@/components/Buttons";
 import router from "next/router";
+import Link from "next/link";
 
 const Description = styled(DescriptionText)`
   font-size: 1.3rem;
@@ -359,9 +360,6 @@ const CollabFlowHome: React.FC = () => {
           </SelectTemplatePrompt>
         )}
 
-        <StickyRecordButton aria-label="Record a collaboration">
-          🎙️
-        </StickyRecordButton>
       </Main>
 
       <Footer>
@@ -372,16 +370,16 @@ const CollabFlowHome: React.FC = () => {
           </FooterColumn>
           <FooterColumn>
             <h3>COMPANY</h3>
-            <a href="/about">About</a>
-            <a href="/blog">Blog</a>
-            <a href="/careers">Careers</a>
-            <a href="/contact">Contact</a>
+            <Link href="/about">About</Link>
+            <Link href="/blog">Blog</Link>
+            <Link href="/careers">Careers</Link>
+            <Link href="/contact">Contact</Link>
           </FooterColumn>
           <FooterColumn>
             <h3>LEGAL</h3>
-            <a href="/terms">Terms</a>
-            <a href="/privacy">Privacy</a>
-            <a href="/cookies">Cookies</a>
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/cookies">Cookies</Link>
           </FooterColumn>
         </FooterContent>
         <p>Concept by WiredInSamurai, Nick Robinson, and AJ Nicols</p>

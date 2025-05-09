@@ -12,7 +12,8 @@ import {
 } from "@/components/Layout";
 import { Form, FormGroup, Label, TextArea } from "@/components/Form";
 import { GetServerSidePropsContext } from "next";
-import { Button, SecondaryButton, ButtonGroup, PrimaryButton } from "@/components/Buttons";
+import { ButtonGroup, PrimaryButton } from "@/components/Buttons";
+import { Loading } from "@/components/Loading";
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
@@ -90,12 +91,7 @@ const TemplateCreatePage = ({ template }: { template: Template }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {isAnalyzing && (
-        <LoadingOverlay>
-          <Spinner />
-          <LoadingText>Analyzing Transcript...</LoadingText>
-        </LoadingOverlay>
-      )}
+      {isAnalyzing && <Loading />}
 
       <Main>
         <Title style={{ margin: "1rem 0" }}>
@@ -111,7 +107,11 @@ const TemplateCreatePage = ({ template }: { template: Template }) => {
             <QuestionItem key={index}>
               <Label
                 htmlFor={`question_${index}`}
-                style={{ fontSize: "1.1rem", fontWeight: "500" }}
+                style={{
+                  fontSize: "1.1rem",
+                  fontWeight: "500",
+                  marginBottom: "0rem",
+                }}
               >
                 {question}
               </Label>
@@ -159,12 +159,13 @@ const QuestionsList = styled.div`
 `;
 
 const QuestionItem = styled.div`
-  padding: 1.2rem 0;
+  padding: 0.75rem 0;
   border-bottom: 1px solid #eee;
   line-height: 1.6;
 
   &:last-child {
     border-bottom: none;
+    padding-bottom: 0;
   }
 `;
 
@@ -177,43 +178,4 @@ const FormContainer = styled.div`
   padding: 2rem;
   background-color: white;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-`;
-
-const LoadingOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const Spinner = styled.div`
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border-left-color: #ff7a59;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-const LoadingText = styled.h3`
-  font-family: "Space Grotesk", sans-serif;
-  color: #1c1c1e;
-  margin-top: 1rem;
 `;

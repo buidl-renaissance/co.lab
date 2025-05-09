@@ -18,6 +18,8 @@ export const Label = styled.label`
   font-weight: 600;
   font-size: 1rem;
   font-family: 'Space Grotesk', sans-serif;
+  margin-bottom: 0.75rem;
+  display: inline-block;
 `;
 
 export const Input = styled.input`

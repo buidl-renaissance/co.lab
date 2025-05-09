@@ -16,6 +16,8 @@ exports.up = function(knex) {
       .enum("status", ["active", "completed", "archived"])
       .defaultTo("active");
     table.json("analysis").notNullable();   
+    table.json("transcripts").notNullable();
+    table.text("summary").notNullable();
   });
 };
 

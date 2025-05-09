@@ -19,6 +19,7 @@ const AnalysisResponseSchema = z.object({
       description: z.string(),
     })
   ),
+  summary: z.string(),
 });
 
 export type AnalysisResponse = z.infer<typeof AnalysisResponseSchema>;
@@ -35,8 +36,9 @@ const openai = new OpenAI({
  * @returns An object with extracted answers and suggested participants
  */
 export async function analyzeTranscript(
-  transcript: string,
-  template: Template
+  transcripts: string[],
+  template: Template,
+  analysis?: AnalysisResponse
 ): Promise<AnalysisResponse> {
   try {
     // Create a prompt for the AI to analyze the transcript
@@ -49,7 +51,7 @@ export async function analyzeTranscript(
 
       Title of the collaboration based on the transcript and template: ${template.name}
 
-      Description of the collaboration based on the template and the transcript: ${template.description}
+      A short description of the collaboration.
       
       1. Key participants mentioned in the conversation
       2. Answers to these specific questions related to ${template.description}:
@@ -58,10 +60,17 @@ export async function analyzeTranscript(
           ?.map((q: string, i: number) => `   ${i + 1}. ${q}`)
           .join("\n") || ""
       }
+
+      Current Analysis, JSON format:
+      ${JSON.stringify(analysis)}
       
-      Transcript:
-      ${transcript}
+      Transcripts:
+      ${transcripts.join("\n")}
+
+      And a summary of the conversation.
     `;
+
+    console.log("Prompt:", prompt);
 
     // Call OpenAI API with parse method
     const completion = await openai.beta.chat.completions.parse({
@@ -86,6 +95,7 @@ export async function analyzeTranscript(
       answers: [],
       participants: [],
       actions: [],
+      summary: "",
     };
   }
 }
