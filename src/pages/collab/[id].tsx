@@ -123,6 +123,7 @@ export const getServerSideProps = async (
 ) => {
   const { id } = context.query;
   const collaboration = await getCollaborationById(id as string);
+  console.log("Collaboration:", collaboration);
 
   if (!collaboration) {
     return {
