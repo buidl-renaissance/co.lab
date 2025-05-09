@@ -18,7 +18,7 @@ export async function createCollaboration(collaboration: Omit<Collaboration, 'id
     status: collaboration.status || 'active',
     analysis: JSON.stringify(collaboration.analysis),
     transcripts: JSON.stringify(collaboration.transcripts),
-    summary: "",
+    summary: collaboration.summary || "",
   };
 
   await client('collaborations').insert(newCollaboration);
@@ -32,7 +32,7 @@ export async function createCollaboration(collaboration: Omit<Collaboration, 'id
     answers: collaboration.answers || {},
     status: collaboration.status || 'active',
     transcripts: collaboration.transcripts || [],
-    summary: "",
+    summary: collaboration.summary || "",
   } as Collaboration;
 }
 
@@ -64,6 +64,7 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
       template: safeParse(result.template),
       analysis: result.analysis ? safeParse(result.analysis) : undefined,
       transcripts: result.transcripts ? safeParse(result.transcripts) : [],
+      summary: result.summary || "",
     } as Collaboration;
   } catch (error) {
     console.error('Error parsing collaboration data:', error);
@@ -75,6 +76,7 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
       template: {},
       analysis: undefined,
       transcripts: [],
+      summary: "",
     } as Collaboration;
   }
 }
