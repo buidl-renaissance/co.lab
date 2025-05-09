@@ -12,6 +12,16 @@ export default function App({ Component, pageProps }: AppProps) {
           titleTemplate="%s | Collaborative Platform"
           defaultTitle="Collaborative Platform"
           description="A platform for collaborative projects and events"
+          openGraph={{
+            images: [
+              {
+                url: '/co.lab-start.png',
+                width: 1200,
+                height: 630,
+                alt: 'Collaborative Platform',
+              },
+            ],
+          }}
         />
         {metadata && <NextSeo {...metadata} />}
         <Component {...pageProps} />
