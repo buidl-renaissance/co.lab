@@ -9,13 +9,11 @@ import {
   Container,
   Main,
   Hero,
-  Footer,
-  FooterContent,
-  FooterColumn,
 } from "@/components/Layout";
 import { PrimaryButton, SecondaryButton } from "@/components/Buttons";
 import router from "next/router";
 import Link from "next/link";
+import Footer from '@/components/Footer';
 
 const Description = styled(DescriptionText)`
   font-size: 1.3rem;
@@ -230,11 +228,14 @@ const CollabFlowHome: React.FC = () => {
   const scrollToTemplates = () => {
     if (templatesSectionRef.current) {
       const yOffset = -20; // Small offset to account for any fixed headers
-      const y = templatesSectionRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      
+      const y =
+        templatesSectionRef.current.getBoundingClientRect().top +
+        window.pageYOffset +
+        yOffset;
+
       window.scrollTo({
         top: y,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -244,12 +245,16 @@ const CollabFlowHome: React.FC = () => {
       <Main>
         <Hero>
           {/* <WaveAnimation /> */}
+
           <Title>
-            Turn Conversations into <span>Collaborations</span>
+            Co<span>.Lab</span>
           </Title>
 
-          <Description>
-            Voice-first project planning for creative teams
+          <Title></Title>
+
+          <Description style={{ fontSize: "1.5rem" }}>
+            Turn conversations into <span>collaborations</span> with a
+            voice-first project planning for creative teams
           </Description>
 
           <CTAContainer>
@@ -290,7 +295,10 @@ const CollabFlowHome: React.FC = () => {
           </HowItWorks>
         </Section>
 
-        <TemplatesSection className="TemplatesSection" ref={templatesSectionRef}>
+        <TemplatesSection
+          className="TemplatesSection"
+          ref={templatesSectionRef}
+        >
           <SectionTitle>Choose Your Template</SectionTitle>
           <TemplateGrid>
             {defaultTemplates.map((template: Template) => (
@@ -331,9 +339,7 @@ const CollabFlowHome: React.FC = () => {
         ) : (
           <SelectTemplatePrompt>
             <h2>Please select a template to continue</h2>
-            <SecondaryButton
-              onClick={scrollToTemplates}
-            >
+            <SecondaryButton onClick={scrollToTemplates}>
               Browse Templates
             </SecondaryButton>
           </SelectTemplatePrompt>
@@ -379,29 +385,7 @@ const CollabFlowHome: React.FC = () => {
           </a>
         </Section>
       </Main>
-
-      <Footer>
-        <FooterContent>
-          <FooterColumn>
-            <h3>COL.LAB</h3>
-            <p>Built for Creators by Creators</p>
-          </FooterColumn>
-          <FooterColumn>
-            <h3>COMPANY</h3>
-            <Link href="/about">About</Link>
-            {/* <Link href="/blog">Blog</Link>
-            <Link href="/careers">Careers</Link> */}
-            <Link href="/contact">Contact</Link>
-          </FooterColumn>
-          <FooterColumn>
-            <h3>LEGAL</h3>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-            {/* <Link href="/cookies">Cookies</Link> */}
-          </FooterColumn>
-        </FooterContent>
-        <p>Concept by WiredInSamurai, Nick Rob, and AJ</p>
-      </Footer>
+      <Footer />
     </Container>
   );
 };

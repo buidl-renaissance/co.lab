@@ -1,40 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Co.Lab
+
+Co.Lab is a voice-first project planning tool for creative teams. Transform freeform conversations into structured, actionable project plans.
+
+## About
+
+At Co.Lab, we believe that the best ideas come from natural conversations. Our mission is to bridge the gap between free-flowing discussions and structured project management, making it easier for teams to capture, organize, and act on their collaborative ideas.
+
+## Features
+
+- **Talk It Out**: Capture your collaborative conversations naturally, without interrupting your creative flow.
+- **We Structure It**: Our AI automatically organizes your ideas into tasks, timelines, and action items.
+- **You Build Together**: Share the structured plan, assign tasks, and track progress as a team.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (v14 or higher)
+- npm or yarn
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository
+   ```
+   git clone https://github.com/buidl-renaissance/co.lab.git
+   cd co.lab
+   ```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+2. Install dependencies
+   ```
+   npm install
+   # or
+   yarn install
+   ```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+3. Run the development server
+   ```
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+- `/src/components` - Reusable UI components
+- `/src/pages` - Next.js pages and API routes
+- `/src/data` - Data models and templates
+- `/src/styles` - Global styles and theme configuration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+## Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+We welcome contributions from the community! Please feel free to submit a Pull Request.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License - see the [LICENSE](LICENSE) file for details.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+This means you are free to:
+- Share — copy and redistribute the material in any medium or format
+- Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+- Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
+- NonCommercial — You may not use the material for commercial purposes.
+
+## Contact
+
+For questions or feedback, please contact us at john@builddetroit.xyz

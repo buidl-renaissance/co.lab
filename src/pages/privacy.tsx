@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
 import Head from 'next/head';
-import { Container, Main, Title, Description, Footer, FooterContent, FooterColumn } from '@/components/Layout';
+import { Container, Main, Title, Description } from '@/components/Layout';
+import Footer from '@/components/Footer';
 
 const PrivacySection = styled.section`
   max-width: 800px;
@@ -136,29 +137,7 @@ const PrivacyPage = () => {
           </PrivacyContent>
         </PrivacySection>
       </Main>
-
-      <Footer>
-        <FooterContent>
-          <FooterColumn>
-            <h3>CO.LAB</h3>
-            <p>Built for Creators by Creators</p>
-          </FooterColumn>
-          <FooterColumn>
-            <h3>COMPANY</h3>
-            <Link href="/about">About</Link>
-            <Link href="/blog">Blog</Link>
-            <Link href="/careers">Careers</Link>
-            <Link href="/contact">Contact</Link>
-          </FooterColumn>
-          <FooterColumn>
-            <h3>LEGAL</h3>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/cookies">Cookies</Link>
-          </FooterColumn>
-        </FooterContent>
-        <p>Concept by John Gulbronson, Nick Rob, and AJ</p>
-      </Footer>
+      <Footer />
     </Container>
   );
 };

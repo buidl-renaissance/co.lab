@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { Container, Main, Section, SectionTitle, Footer, FooterContent, FooterColumn } from '@/components/Layout';
+import { Container, Main, Section, SectionTitle } from '@/components/Layout';
+import Footer from '@/components/Footer';
 
 const AboutSection = styled(Section)`
   max-width: 800px;
@@ -122,29 +123,7 @@ const AboutPage = () => {
           </TeamGrid>
         </TeamSection>
       </Main>
-
-      <Footer>
-        <FooterContent>
-          <FooterColumn>
-            <h3>CO.LAB</h3>
-            <p>Built for Creators by Creators</p>
-          </FooterColumn>
-          <FooterColumn>
-            <h3>COMPANY</h3>
-            <Link href="/about">About</Link>
-            {/* <Link href="/blog">Blog</Link>
-            <Link href="/careers">Careers</Link> */}
-            <Link href="/contact">Contact</Link>
-          </FooterColumn>
-          <FooterColumn>
-            <h3>LEGAL</h3>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-            {/* <Link href="/cookies">Cookies</Link> */}
-          </FooterColumn>
-        </FooterContent>
-        <p>Concept by WiredInSamurai, Nick Rob, and AJ</p>
-      </Footer>
+      <Footer />
     </Container>
   );
 };
