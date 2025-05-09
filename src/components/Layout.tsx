@@ -70,7 +70,6 @@ const SectionTitle = styled.h2<{size?: Size}>`
     }
   }
 `;
-
 const Footer = styled.footer`
   width: 100%;
   padding: 2rem 1rem;
@@ -88,6 +87,7 @@ const Footer = styled.footer`
     font-size: 0.9rem;
     margin: 1rem 0;
     text-align: center;
+    @media (min-width: 768px) {
   }
 `;
 
@@ -99,11 +99,11 @@ const FooterContent = styled.div`
   margin-bottom: 1.5rem;
   
   @media (min-width: 768px) {
+    align-items: self-start;
     flex-direction: row;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    justify-content: space-around;
     max-width: 1200px;
-    margin-bottom: 2rem;
+    margin: 0 auto 2rem;
   }
 `;
 
@@ -113,8 +113,10 @@ const FooterColumn = styled.div`
   text-align: center;
   
   @media (min-width: 768px) {
-    min-width: 200px;
-    margin: 1rem;
+    width: auto;
+    flex: 1;
+    max-width: 250px;
+    margin: 0 1.5rem;
     text-align: left;
   }
   

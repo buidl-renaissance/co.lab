@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
 import styled from "styled-components";
 import {
@@ -176,6 +176,26 @@ const CollaborationPage = ({
     index: number;
     text: string;
   } | null>(null);
+
+  // Store collaboration in local storage
+  useEffect(() => {
+    // Get existing stored collaborations or initialize empty array
+    const storedCollabs = JSON.parse(localStorage.getItem('collaborations') || '[]');
+    
+    // Check if this collaboration already exists in the array
+    const existingIndex = storedCollabs.findIndex((collab: Collaboration) => collab.id === collaboration.id);
+    
+    if (existingIndex >= 0) {
+      // Update existing collaboration
+      storedCollabs[existingIndex] = collaboration;
+    } else {
+      // Add new collaboration to array
+      storedCollabs.push(collaboration);
+    }
+    
+    // Save updated array back to localStorage
+    localStorage.setItem('collaborations', JSON.stringify(storedCollabs));
+  }, [collaboration]);
 
   const handleAddTranscript = async (transcript: string) => {
     console.log("Transcript added:", transcript);

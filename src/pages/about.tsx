@@ -130,11 +130,11 @@ const AboutPage = () => {
               <p>Builder & Co-Creator</p>
             </TeamMember>
             <TeamMember>
-              <h3>Nick Robb</h3>
+              <h3>Nick Robinson</h3>
               <p>Co-Creator</p>
             </TeamMember>
             <TeamMember>
-              <h3>AJ</h3>
+              <h3>AJ Nichols</h3>
               <p>Co-Creator</p>
             </TeamMember>
           </TeamGrid>
@@ -144,7 +144,7 @@ const AboutPage = () => {
       <Footer>
         <FooterContent>
           <FooterColumn>
-            <h3>COLLABFLOW</h3>
+            <h3>CO.LAB</h3>
             <p>Built for Creators by Creators</p>
           </FooterColumn>
           <FooterColumn>
@@ -161,7 +161,7 @@ const AboutPage = () => {
             <Link href="/cookies">Cookies</Link>
           </FooterColumn>
         </FooterContent>
-        <p>Concept by John Gulbronson, Nick Robb, and AJ</p>
+        <p>Concept by WiredInSamurai, Nick Rob, and AJ</p>
       </Footer>
     </Container>
   );
