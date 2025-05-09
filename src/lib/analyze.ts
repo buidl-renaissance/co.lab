@@ -1,28 +1,37 @@
 import { OpenAI } from "openai";
 import { Template } from "@/data/template";
-import { z } from "zod";
-import { zodResponseFormat } from "openai/helpers/zod.mjs";
+// import { z } from "zod";
+// import { zodResponseFormat } from "openai/helpers/zod.mjs";
 
-const AnalysisResponseSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  participants: z.array(z.string()),
-  answers: z.array(
-    z.object({
-      question: z.string(),
-      answer: z.string(),
-    })
-  ),
-  actions: z.array(
-    z.object({
-      action: z.string(),
-      description: z.string(),
-    })
-  ),
-  summary: z.string(),
-});
+// const AnalysisResponseSchema = z.object({
+//   title: z.string(),
+//   description: z.string(),
+//   participants: z.array(z.string()),
+//   answers: z.array(
+//     z.object({
+//       question: z.string(),
+//       answer: z.string(),
+//     })
+//   ),
+//   actions: z.array(
+//     z.object({
+//       action: z.string(),
+//       description: z.string(),
+//     })
+//   ),
+//   summary: z.string(),
+// });
 
-export type AnalysisResponse = z.infer<typeof AnalysisResponseSchema>;
+// export type AnalysisResponse = z.infer<typeof AnalysisResponseSchema>;
+
+export type AnalysisResponse = {
+  title: string;
+  description: string;
+  participants: string[];
+  answers: { question: string; answer: string }[];
+  actions: { action: string; description: string }[];
+  summary: string;
+};
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -83,7 +92,43 @@ export async function analyzeTranscript(
         },
         { role: "user", content: prompt },
       ],
-      response_format: zodResponseFormat(AnalysisResponseSchema, "analysis"),
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "analyzeTranscript",
+            description: "Analyzes a conversation transcript",
+            parameters: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                participants: { 
+                  type: "array", 
+                  items: { type: "string" } 
+                },
+                answers: { 
+                  type: "array", 
+                  items: { 
+                    type: "object", 
+                    properties: { 
+                      question: { type: "string" }, 
+                      answer: { type: "string" } 
+                    },
+                    required: ["question", "answer"]
+                  } 
+                },
+                actions: { 
+                  type: "array", 
+                  items: { type: "string" } 
+                },
+                summary: { type: "string" }
+              },
+              required: ["title", "description", "participants", "answers", "actions", "summary"]
+            },
+          },
+        },
+      ],
     });
 
     return completion.choices[0].message.parsed as unknown as AnalysisResponse;
