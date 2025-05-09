@@ -239,15 +239,11 @@ const CollabFlowHome: React.FC = () => {
           </Description>
 
           <CTAContainer>
-            <PrimaryButton
-              onClick={() =>
-                document
-                  .querySelector(".TemplatesSection")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-            >
-              Get Started
-            </PrimaryButton>
+            <a href="#templates">
+              <PrimaryButton>
+                Get Started
+              </PrimaryButton>
+            </a>
             {/* <SecondaryButton>Watch Demo</SecondaryButton> */}
           </CTAContainer>
         </Hero>
@@ -282,7 +278,7 @@ const CollabFlowHome: React.FC = () => {
           </HowItWorks>
         </Section>
 
-        <TemplatesSection className="TemplatesSection">
+        <TemplatesSection className="TemplatesSection" id="templates">
           <SectionTitle>Choose Your Template</SectionTitle>
           <TemplateGrid>
             {defaultTemplates.map((template: Template) => (
@@ -335,7 +331,10 @@ const CollabFlowHome: React.FC = () => {
           </SelectTemplatePrompt>
         )}
 
-        <Section id="recent-collaborations" style={{ backgroundColor: "#f5f4f0" }}>
+        <Section
+          id="recent-collaborations"
+          style={{ backgroundColor: "#f5f4f0" }}
+        >
           <SectionTitle>Recent Collaborations</SectionTitle>
           <Description style={{ textAlign: "center", fontSize: "1.2rem" }}>
             Continue working on your recent collaboration sessions or start a
