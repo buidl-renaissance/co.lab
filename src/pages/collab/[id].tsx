@@ -13,6 +13,7 @@ import { getCollaborationById } from "@/db/collaboration";
 import { Collaboration } from "@/data/collaboration";
 import AddTranscript from "@/components/AddTranscript";
 import { Loading } from "@/components/Loading";
+import QRCode from "react-qr-code";
 
 const AnalysisSection = styled(Section)`
   background-color: #f8f9fa;
@@ -230,6 +231,8 @@ const CollaborationPage = ({
           <SummaryTitle>Summary</SummaryTitle>
           <SummaryText>{collaboration.summary}</SummaryText>
         </SummarySection>
+
+        <QRCode value={`https://co.lab.builddetroit.xyz/collab/${collaboration.id}`} />
 
         <TranscriptsList>
           <SummaryTitle>Transcripts</SummaryTitle>
