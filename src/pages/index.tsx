@@ -12,7 +12,6 @@ import {
 } from "@/components/Layout";
 import { PrimaryButton, SecondaryButton } from "@/components/Buttons";
 import router from "next/router";
-import Link from "next/link";
 import Footer from '@/components/Footer';
 
 const Description = styled(DescriptionText)`
