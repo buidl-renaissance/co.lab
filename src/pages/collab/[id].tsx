@@ -12,6 +12,7 @@ import { GetServerSidePropsContext } from "next";
 import { getCollaborationById } from "@/db/collaboration";
 import { Collaboration } from "@/data/collaboration";
 import AddTranscript from "@/components/AddTranscript";
+import EditTranscript from "@/components/EditTranscript";
 import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";
 
@@ -116,6 +117,27 @@ const TranscriptsList = styled.div`
 const TranscriptItem = styled.div`
   margin-bottom: 1rem;
   word-break: break-word;
+  position: relative;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+`;
+
+const EditButton = styled.button`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #0050b3;
+  }
 `;
 
 export const getServerSideProps = async (
@@ -150,6 +172,11 @@ const CollaborationPage = ({
   const [collaboration, setCollaboration] =
     React.useState<Collaboration>(initialCollaboration);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [editingTranscript, setEditingTranscript] = React.useState<{
+    index: number;
+    text: string;
+  } | null>(null);
+
   const handleAddTranscript = async (transcript: string) => {
     console.log("Transcript added:", transcript);
     setIsLoading(true);
@@ -163,6 +190,27 @@ const CollaborationPage = ({
     const data = await response.json();
     setCollaboration(data.data);
     setIsLoading(false);
+  };
+
+  const handleEditTranscript = async (transcript: string) => {
+    if (!editingTranscript) return;
+    
+    setEditingTranscript(null);
+    setIsLoading(true);
+    const response = await fetch(`/api/collaboration/${collaboration.id}/update`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        transcript,
+        transcriptIndex: editingTranscript.index,
+      }),
+    });
+    const data = await response.json();
+    setCollaboration(data.data);
+    setIsLoading(false);
+    setEditingTranscript(null);
   };
 
   return (
@@ -184,6 +232,15 @@ const CollaborationPage = ({
         <AddTranscript onSubmit={handleAddTranscript} />
 
         {isLoading && <Loading />}
+
+        {editingTranscript && (
+          <EditTranscript
+            transcript={editingTranscript.text}
+            onSubmit={handleEditTranscript}
+            onClose={() => setEditingTranscript(null)}
+            isOpen={true}
+          />
+        )}
 
         {collaboration.analysis && (
           <AnalysisSection>
@@ -242,7 +299,17 @@ const CollaborationPage = ({
         <TranscriptsList>
           <SummaryTitle>Transcripts</SummaryTitle>
           {collaboration.transcripts?.map((transcript, index) => (
-            <TranscriptItem key={index}>{transcript}</TranscriptItem>
+            <TranscriptItem key={index}>
+              <EditButton
+                onClick={() =>
+                  setEditingTranscript({ index, text: transcript })
+                }
+                title="Edit transcript"
+              >
+                ✏️
+              </EditButton>
+              {transcript}
+            </TranscriptItem>
           ))}
         </TranscriptsList>
       </Main>
