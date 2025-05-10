@@ -37,7 +37,7 @@ export async function analyzeTranscript(
 
       Title of the collaboration based on the transcript and template: ${
         template.name
-      }
+      }, ${template.description}
 
       A short description of the collaboration.
       
@@ -84,9 +84,9 @@ export async function analyzeTranscript(
               properties: {
                 title: { type: "string" },
                 description: { type: "string" },
-                participants: { 
-                  type: "array", 
-                  items: { type: "string" } 
+                participants: {
+                  type: "array",
+                  items: { type: "string" },
                 },
                 answers: {
                   type: "array",
@@ -94,10 +94,10 @@ export async function analyzeTranscript(
                     type: "object",
                     properties: {
                       question: { type: "string" },
-                      answer: { type: "string" }
+                      answer: { type: "string" },
                     },
-                    required: ["question", "answer"]
-                  }
+                    required: ["question", "answer"],
+                  },
                 },
                 actions: {
                   type: "array",
@@ -105,22 +105,33 @@ export async function analyzeTranscript(
                     type: "object",
                     properties: {
                       action: { type: "string" },
-                      description: { type: "string" }
+                      description: { type: "string" },
                     },
-                    required: ["action", "description"]
-                  }
+                    required: ["action", "description"],
+                  },
                 },
-                summary: { type: "string" }
+                summary: { type: "string" },
               },
-              required: ["title", "description", "participants", "answers", "actions", "summary"]
-            }
+              required: [
+                "title",
+                "description",
+                "participants",
+                "answers",
+                "actions",
+                "summary",
+              ],
+            },
           },
         },
       ],
-      tool_choice: { type: "function", function: { name: "analyzeTranscript" } },
+      tool_choice: {
+        type: "function",
+        function: { name: "analyzeTranscript" },
+      },
     });
 
-    const result = completion.choices[0].message.tool_calls?.[0]?.function?.arguments;
+    const result =
+      completion.choices[0].message.tool_calls?.[0]?.function?.arguments;
     console.log("Completion:", completion);
     console.log("Result:", result);
     return JSON.parse(result as string) as AnalysisResponse;

@@ -54,6 +54,7 @@ export const templateQuestions = {
     "Will there be any follow-up activities or resources?",
   ],
   webproduct: [
+    "What is the name of your web product?",
     "What problem does your web product solve?",
     "Who is your target user or audience?",
     "What are the key features and functionality?",
