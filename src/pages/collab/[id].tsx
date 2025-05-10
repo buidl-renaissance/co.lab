@@ -7,6 +7,7 @@ import {
   Title,
   Description,
   Section,
+  SectionTitle,
 } from "@/components/Layout";
 import { GetServerSidePropsContext } from "next";
 import { getCollaborationById, getAllCollaborations } from "@/db/collaboration";
@@ -16,6 +17,7 @@ import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";
 import MobileNav from "@/components/MobileNav";
 import Transcriber from "@/components/Transcriber";
+import NextSteps from "@/components/NextSteps";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -78,40 +80,6 @@ const Question = styled.h4`
 const Answer = styled.p`
   color: ${({ theme }) => theme.textSecondary};
   word-break: break-word;
-`;
-
-const NextStepsSection = styled(Section)`
-  background: ${({ theme }) => theme.surface};
-  border-left: 4px solid ${({ theme }) => theme.accent};
-  text-align: left;
-  align-items: flex-start;
-  padding: 1rem;
-  width: 100%;
-  max-width: 900px;
-  margin: 1.5rem auto;
-`;
-
-const SectionTitle = styled.h3`
-  margin-bottom: 1rem;
-  word-break: break-word;
-  color: ${({ theme }) => theme.text};
-`;
-
-const NextStepsTitle = styled(SectionTitle)`
-  color: ${({ theme }) => theme.accent};
-`;
-
-const StepsList = styled.ul`
-  padding-left: 1.5rem;
-  margin-right: 1rem;
-  width: 100%;
-  color: ${({ theme }) => theme.text};
-`;
-
-const StepItem = styled.li<{ completed: boolean }>`
-  margin-bottom: 0.5rem;
-  word-break: break-word;
-  text-decoration: ${({ completed }) => completed ? 'line-through' : 'none'};
 `;
 
 const SummarySection = styled(Section)`
@@ -381,25 +349,7 @@ const CollaborationPage = ({
             </AnalysisSection>
           )}
 
-          <NextStepsSection>
-            <NextStepsTitle>Next Action Steps</NextStepsTitle>
-            <StepsList>
-              {collaboration.analysis?.actions && collaboration.analysis.actions?.length > 0 ? (
-                collaboration.analysis.actions.map(
-                  (
-                    action: { action: string; description: string; completed: boolean },
-                    index: number
-                  ) => (
-                    <StepItem key={index} completed={action.completed}>
-                      <strong>{action.action}</strong>: {action.description}
-                    </StepItem>
-                  )
-                )
-              ) : (
-                <StepItem completed={false}>No action steps found</StepItem>
-              )}
-            </StepsList>
-          </NextStepsSection>
+          <NextSteps actions={collaboration.analysis?.actions} />
 
           {collaboration.analysis?.features && collaboration.analysis.features.length > 0 && (
             <FeaturesSection>
