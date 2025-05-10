@@ -30,7 +30,7 @@ export const lightTheme: DefaultTheme = {
 
 export const darkTheme: DefaultTheme = {
   background: '#1c1c1e',
-  backgroundAlt: '#2c2c2e',
+  backgroundAlt: '#676767',
   text: '#ffffff',
   textSecondary: '#a0a0a0',
   border: '#2c2c2e',
