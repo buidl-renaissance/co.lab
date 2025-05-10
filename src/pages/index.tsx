@@ -13,6 +13,7 @@ import { PrimaryButton } from "@/components/Buttons";
 import router from "next/router";
 import Footer from '@/components/Footer';
 import Templates from "@/components/Templates";
+import CoLab from "@/components/CoLab";
 
 const Container = styled(LayoutContainer)`
   padding: 0rem;
@@ -153,11 +154,7 @@ const CollabFlowHome: React.FC = () => {
         <Hero>
           {/* <WaveAnimation /> */}
 
-          <Title>
-            Co<span>.Lab</span>
-          </Title>
-
-          <Title></Title>
+          <CoLab />
 
           <Description style={{ fontSize: "1.5rem" }}>
             Turn conversations into <span>collaborations</span> with a
