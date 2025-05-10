@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { PrimaryButton } from './Buttons';
 
 interface MobileNavProps {
   collaborations: Array<{
@@ -42,18 +43,26 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
           <CloseButton onClick={() => setIsOpen(false)}>×</CloseButton>
         </DrawerHeader>
 
-        <CollaborationsList>
-          {collaborations.map((collab) => (
-            <CollaborationItem
-              key={collab.id}
-              active={router.query.id === collab.id}
-            >
-              <CollaborationLink href={`/collab/${collab.id}`}>
+        <DrawerContent>
+          <DrawerSection>
+            {collaborations.map(collab => (
+              <DrawerLink
+                key={collab.id}
+                href={`/collab/${collab.id}`}
+                onClick={() => setIsOpen(false)}
+              >
                 {collab.title}
-              </CollaborationLink>
-            </CollaborationItem>
-          ))}
-        </CollaborationsList>
+              </DrawerLink>
+            ))}
+          </DrawerSection>
+
+          <CreateButton onClick={() => {
+            setIsOpen(false);
+            router.push('/create');
+          }}>
+            Create New Collaboration
+          </CreateButton>
+        </DrawerContent>
       </Drawer>
     </>
   );
@@ -187,23 +196,24 @@ const CloseButton = styled.button`
   }
 `;
 
-const CollaborationsList = styled.div`
+const DrawerContent = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 1rem 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
-const CollaborationItem = styled.div<{ active: boolean }>`
-  padding: 0.5rem 1rem;
-  background-color: ${props => props.active ? '#f0f0f0' : 'transparent'};
-  border-left: 3px solid ${props => props.active ? '#ff7a59' : 'transparent'};
+const DrawerSection = styled.div`
+  margin-bottom: 2rem;
 `;
 
-const CollaborationLink = styled.a`
+const DrawerLink = styled.a`
   color: #1C1C1E;
   text-decoration: none;
   display: block;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
@@ -212,4 +222,11 @@ const CollaborationLink = styled.a`
   &:hover {
     color: #ff7a59;
   }
+`;
+
+const CreateButton = styled(PrimaryButton)`
+  margin-top: auto;
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
 `; 

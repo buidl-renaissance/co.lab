@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
-import { defaultTemplates, Template } from "@/data/template";
 import {
   Title,
   Section,
@@ -10,9 +9,10 @@ import {
   Main,
   Hero,
 } from "@/components/Layout";
-import { PrimaryButton, SecondaryButton } from "@/components/Buttons";
+import { PrimaryButton } from "@/components/Buttons";
 import router from "next/router";
 import Footer from '@/components/Footer';
+import Templates from "@/components/Templates";
 
 const Description = styled(DescriptionText)`
   font-size: 1.3rem;
@@ -92,105 +92,6 @@ const TemplatesSection = styled(Section)`
   background-color: #f5f4f0;
 `;
 
-const TemplateGrid = styled.div`
-  display: flex;
-  overflow-x: auto;
-  gap: 1.5rem;
-  padding: 1rem 0;
-  width: 100%;
-  max-width: 1200px;
-  scrollbar-width: thin;
-
-  &::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #6d9dc5;
-    border-radius: 6px;
-  }
-`;
-
-const TemplateCard = styled.div<{ selected: boolean }>`
-  min-width: 280px;
-  padding: 1.5rem;
-  border-radius: 12px;
-  border: 2px solid ${(props) => (props.selected ? "#FF7A59" : "#e0e0e0")};
-  background-color: white;
-  box-shadow: ${(props) =>
-    props.selected
-      ? "0 8px 20px rgba(255, 122, 89, 0.15)"
-      : "0 4px 12px rgba(0, 0, 0, 0.05)"};
-  transition: all 0.3s ease;
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-    border-color: ${(props) => (props.selected ? "#FF7A59" : "#6D9DC5")};
-  }
-
-  h3 {
-    font-family: "Space Grotesk", sans-serif;
-    margin: 0 0 1rem 0;
-    font-size: 1.4rem;
-    color: ${(props) => (props.selected ? "#FF7A59" : "#1C1C1E")};
-  }
-
-  p {
-    margin: 0;
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-`;
-
-const TemplateTag = styled.span`
-  display: inline-block;
-  background-color: #ffe169;
-  color: #1c1c1e;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const StartSession = styled.div`
-  margin: 3rem 0;
-  text-align: center;
-  padding: 2rem;
-  background-color: #ffe169;
-  border-radius: 12px;
-  max-width: 800px;
-  width: 90%;
-
-  h2 {
-    font-family: "Space Grotesk", sans-serif;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-  }
-`;
-
-const SelectTemplatePrompt = styled.div`
-  margin: 3rem 0;
-  text-align: center;
-  padding: 2rem;
-  background-color: #f5f4f0;
-  border-radius: 12px;
-  max-width: 800px;
-  width: 90%;
-  border: 2px dashed #6d9dc5;
-
-  h2 {
-    font-family: "Space Grotesk", sans-serif;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    color: #6d9dc5;
-  }
-`;
-
 export const getServerSideProps = async () => {
   return {
     props: {
@@ -219,9 +120,6 @@ export const getServerSideProps = async () => {
 };
 
 const CollabFlowHome: React.FC = () => {
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    null
-  );
   const templatesSectionRef = useRef<HTMLDivElement>(null);
 
   const scrollToTemplates = () => {
@@ -294,55 +192,9 @@ const CollabFlowHome: React.FC = () => {
           </HowItWorks>
         </Section>
 
-        <TemplatesSection
-          className="TemplatesSection"
-          ref={templatesSectionRef}
-        >
-          <SectionTitle>Choose Your Template</SectionTitle>
-          <TemplateGrid>
-            {defaultTemplates.map((template: Template) => (
-              <TemplateCard
-                key={template.id}
-                selected={selectedTemplate?.id === template.id}
-                onClick={() => setSelectedTemplate(template)}
-              >
-                <TemplateTag>{template.tag}</TemplateTag>
-                <h3>{template.name}</h3>
-                <p>
-                  Pre-configured structure and prompts designed specifically for{" "}
-                  {template.name.toLowerCase()} collaborations.
-                </p>
-              </TemplateCard>
-            ))}
-          </TemplateGrid>
+        <TemplatesSection ref={templatesSectionRef}>
+          <Templates />
         </TemplatesSection>
-
-        {selectedTemplate ? (
-          <StartSession>
-            <h2>
-              Ready to start your{" "}
-              {
-                defaultTemplates.find((t) => t.id === selectedTemplate?.id)
-                  ?.name
-              }{" "}
-              session?
-            </h2>
-            <PrimaryButton
-              onClick={() => {
-                router.push(`/create/${selectedTemplate?.id}`);
-              }}
-            >
-              Start Recording Session
-            </PrimaryButton>
-          </StartSession>
-        ) : (
-          <SelectTemplatePrompt>
-            <h2>Please select a template to continue</h2>
-            <SecondaryButton onClick={scrollToTemplates}>
-              Browse Templates
-            </SecondaryButton>
-          </SelectTemplatePrompt>
-        )}
 
         <Section
           id="recent-collaborations"

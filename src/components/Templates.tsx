@@ -1,38 +1,75 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Template, defaultTemplates } from "@/data/template";
+import { PrimaryButton } from "./Buttons";
+import { SecondaryButton } from "./Buttons";
+import router from "next/router";
 
 interface TemplatesProps {
-    templates?: Template[];
-    selectedTemplate?: string;
-    setSelectedTemplate?: (id: string) => void;
-  }  
+  templates?: Template[];
+  selectedTemplate?: Template | null;
+  setSelectedTemplate?: (template: Template) => void;
+}
 
 const Templates: React.FC<TemplatesProps> = ({
   templates = defaultTemplates,
-  selectedTemplate,
-  setSelectedTemplate,
 }) => {
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null
+  );
+
+  const scrollToTemplates = () => {
+    const templatesSection = document.getElementById("templates-section");
+    if (templatesSection) {
+      templatesSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+  
   return (
-    <TemplatesSection>
-      <SectionTitle>Choose Your Template</SectionTitle>
-      <TemplateGrid>
-        {templates.map((template) => (
-          <TemplateCard
-            key={template.id}
-            selected={selectedTemplate === template.id}
-            onClick={() => setSelectedTemplate?.(template.id)}
+    <>
+      <TemplatesSection id="templates-section">
+        <SectionTitle>Choose Your Template</SectionTitle>
+        <TemplateGrid>
+          {templates.map((template) => (
+            <TemplateCard
+              key={template.id}
+              selected={selectedTemplate?.id === template.id}
+              onClick={() => setSelectedTemplate?.(template)}
+            >
+              <TemplateTag>{template.tag}</TemplateTag>
+              <h3>{template.name}</h3>
+              <p>
+                Pre-configured structure and prompts designed specifically for{" "}
+                {template.name.toLowerCase()} collaborations.
+              </p>
+            </TemplateCard>
+          ))}
+        </TemplateGrid>
+      </TemplatesSection>
+      {selectedTemplate ? (
+        <StartSession>
+          <h2>
+            Ready to start your{" "}
+            {defaultTemplates.find((t) => t.id === selectedTemplate?.id)?.name}{" "}
+            session?
+          </h2>
+          <PrimaryButton
+            onClick={() => {
+              router.push(`/create/${selectedTemplate?.id}`);
+            }}
           >
-            <TemplateTag>{template.tag}</TemplateTag>
-            <h3>{template.name}</h3>
-            <p>
-              Pre-configured structure and prompts designed specifically for{" "}
-              {template.name.toLowerCase()} collaborations.
-            </p>
-          </TemplateCard>
-        ))}
-      </TemplateGrid>
-    </TemplatesSection>
+            Start Recording Session
+          </PrimaryButton>
+        </StartSession>
+      ) : (
+        <SelectTemplatePrompt>
+          <h2>Please select a template to continue</h2>
+          <SecondaryButton onClick={scrollToTemplates}>
+            Browse Templates
+          </SecondaryButton>
+        </SelectTemplatePrompt>
+      )}
+    </>
   );
 };
 
@@ -129,4 +166,39 @@ const TemplateTag = styled.span`
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+`;
+
+
+const StartSession = styled.div`
+  margin: 3rem 0;
+  text-align: center;
+  padding: 2rem;
+  background-color: #ffe169;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 90%;
+
+  h2 {
+    font-family: "Space Grotesk", sans-serif;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+`;
+
+const SelectTemplatePrompt = styled.div`
+  margin: 3rem 0;
+  text-align: center;
+  padding: 2rem;
+  background-color: #f5f4f0;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 90%;
+  border: 2px dashed #6d9dc5;
+
+  h2 {
+    font-family: "Space Grotesk", sans-serif;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    color: #6d9dc5;
+  }
 `;
