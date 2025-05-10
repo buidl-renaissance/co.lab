@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import styled from "styled-components";
 import {
@@ -9,12 +9,13 @@ import {
   Section,
 } from "@/components/Layout";
 import { GetServerSidePropsContext } from "next";
-import { getCollaborationById } from "@/db/collaboration";
+import { getCollaborationById, getAllCollaborations } from "@/db/collaboration";
 import { Collaboration } from "@/data/collaboration";
 import AddTranscript from "@/components/AddTranscript";
 import EditTranscript from "@/components/EditTranscript";
 import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";
+import MobileNav from "@/components/MobileNav";
 
 const AnalysisSection = styled(Section)`
   background-color: #f8f9fa;
@@ -185,7 +186,7 @@ export const getServerSideProps = async (
 ) => {
   const { id } = context.query;
   const collaboration = await getCollaborationById(id as string);
-  console.log("Collaboration:", collaboration?.transcripts);
+  const allCollaborations = await getAllCollaborations();
 
   if (!collaboration) {
     return {
@@ -196,6 +197,10 @@ export const getServerSideProps = async (
   return {
     props: {
       initialCollaboration: collaboration,
+      allCollaborations: allCollaborations.map(collab => ({
+        id: collab.id,
+        title: collab.title
+      })),
       metadata: {
         title: `Collaboration: ${collaboration.title}`,
         description: collaboration.description,
@@ -206,13 +211,14 @@ export const getServerSideProps = async (
 
 const CollaborationPage = ({
   initialCollaboration,
+  allCollaborations,
 }: {
   initialCollaboration: Collaboration;
+  allCollaborations: Array<{ id: string; title: string; }>;
 }) => {
-  const [collaboration, setCollaboration] =
-    React.useState<Collaboration>(initialCollaboration);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [editingTranscript, setEditingTranscript] = React.useState<{
+  const [collaboration, setCollaboration] = useState<Collaboration>(initialCollaboration);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingTranscript, setEditingTranscript] = useState<{
     index: number;
     text: string;
   } | null>(null);
@@ -276,11 +282,12 @@ const CollaborationPage = ({
   return (
     <Container>
       <Head>
-        <title>Collaboration: {collaboration.title}</title>
+        <title>{collaboration.title} | Co.Lab</title>
         <meta name="description" content={collaboration.description} />
         <link rel="icon" href="/favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
+
+      <MobileNav collaborations={allCollaborations} />
 
       <Main>
         <Title>

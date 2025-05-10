@@ -22,14 +22,19 @@ const Container = styled.div`
   overflow-x: hidden;
 `;
 
-const Main = styled.main`
+export const Main = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 100%;
-  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  @media (max-width: 768px) {
+    padding-top: calc(60px + 2rem);
+  }
 `;
 
 const Section = styled.section`
@@ -163,7 +168,6 @@ const Layout = ({
 export default Layout;
 export {
   Container,
-  Main,
   Section,
   SectionTitle,
   Hero,
