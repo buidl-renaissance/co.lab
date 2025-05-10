@@ -168,9 +168,10 @@ const QRCodeContainer = styled.div`
 
 const FeaturesSection = styled(Section)`
   background: ${({ theme }) => theme.surface};
+  border-left: 4px solid ${({ theme }) => theme.accent};
   text-align: left;
   align-items: flex-start;
-  padding: 0;
+  padding: 1rem;
   width: 100%;
   max-width: 900px;
   margin: 1.5rem auto;
@@ -185,9 +186,7 @@ const FeaturesList = styled.ul`
   margin-right: 1rem;
   width: 100%;
   color: ${({ theme }) => theme.text};
-  border-left: 4px solid ${({ theme }) => theme.accent};
   list-style-type: disc;
-  padding-left: 1rem;
 `;
 
 const FeatureItem = styled.li`
@@ -385,7 +384,7 @@ const CollaborationPage = ({
           <NextStepsSection>
             <NextStepsTitle>Next Action Steps</NextStepsTitle>
             <StepsList>
-              {collaboration.analysis && collaboration.analysis.actions ? (
+              {collaboration.analysis?.actions && collaboration.analysis.actions?.length > 0 ? (
                 collaboration.analysis.actions.map(
                   (
                     action: { action: string; description: string; completed: boolean },
