@@ -53,6 +53,14 @@ export const templateQuestions = {
     "What materials or preparation will participants need?",
     "Will there be any follow-up activities or resources?",
   ],
+  webproduct: [
+    "What problem does your web product solve?",
+    "Who is your target user or audience?",
+    "What are the key features and functionality?",
+    "What is your timeline for development and launch?",
+    "How will you measure success and user satisfaction?",
+    "What technologies or platforms will you use?",
+  ],
 };
 
 export const defaultTemplates = [
@@ -90,6 +98,13 @@ export const defaultTemplates = [
     tag: "Education",
     description:
       "Design and deliver interactive learning experiences with clear objectives and participant resources.",
+  },
+  {
+    id: "webproduct",
+    name: "Build a Web Product",
+    tag: "Technology",
+    description:
+      "Develop user-focused web applications with collaborative planning, feature prioritization, and user feedback integration.",
   },
 ].map((t) => ({
   ...t,
