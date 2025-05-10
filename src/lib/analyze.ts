@@ -27,6 +27,22 @@ export async function analyzeTranscript(
   analysis?: AnalysisResponse
 ): Promise<AnalysisResponse> {
   try {
+    const lastTranscript = transcripts[transcripts.length - 1];
+    const otherTranscripts = transcripts.slice(0, transcripts.length - 1);
+
+    const transcriptPrompt = transcripts.length > 1 ? `
+      Previous Transcripts:
+      ${otherTranscripts.join("\n")}
+
+      Update the analysis with the latest transcript:
+      ${lastTranscript}
+
+      The current analysis, JSON format: ${JSON.stringify(analysis)}
+    ` : `
+      Transcript:
+      ${lastTranscript}
+    `;
+
     // Create a prompt for the AI to analyze the transcript
     const prompt = `
       You are an AI assistant helping to analyze a conversation transcript for a ${
@@ -49,15 +65,9 @@ export async function analyzeTranscript(
           .join("\n") || ""
       }
 
-      Current Analysis, JSON format:
-      ${JSON.stringify(analysis)}
+      A list of action items (or next steps), and a summary of the conversation.
       
-      Transcripts:
-      ${transcripts.join("\n")}
-
-      A list of action items based on the conversation.
-      
-      And a summary of the conversation.
+      ${transcriptPrompt}
     `;
 
     console.log("Prompt:", prompt);

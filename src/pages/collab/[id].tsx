@@ -21,6 +21,9 @@ const AnalysisSection = styled(Section)`
   text-align: left;
   align-items: flex-start;
   padding: 0;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 `;
 
 const ParticipantsList = styled.div`
@@ -28,6 +31,7 @@ const ParticipantsList = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  width: 100%;
 `;
 
 const Participant = styled.div`
@@ -71,6 +75,9 @@ const NextStepsSection = styled(Section)`
   text-align: left;
   align-items: flex-start;
   padding: 1rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 1.5rem auto;
 `;
 
 const SectionTitle = styled.h3`
@@ -85,6 +92,7 @@ const NextStepsTitle = styled(SectionTitle)`
 const StepsList = styled.ul`
   padding-left: 1.5rem;
   margin-right: 1rem;
+  width: 100%;
 `;
 
 const StepItem = styled.li`
@@ -98,6 +106,9 @@ const SummarySection = styled(Section)`
   align-items: flex-start;
   padding: 0;
   margin-top: 1rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 1.5rem auto;
 `;
 
 const SummaryTitle = styled(SectionTitle)`
@@ -107,11 +118,15 @@ const SummaryTitle = styled(SectionTitle)`
 const SummaryText = styled.p`
   margin-bottom: 1rem;
   word-break: break-word;
+  width: 100%;
 `;
 
 const TranscriptsList = styled.div`
   margin-top: 1rem;
   margin-bottom: 6rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 1.5rem auto 6rem;
 `;
 
 const TranscriptItem = styled.div`
@@ -122,6 +137,14 @@ const TranscriptItem = styled.div`
   background-color: #f8f9fa;
   border-radius: 4px;
   padding-right: 3rem;
+  width: 100%;
+`;
+
+const QRCodeContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 2rem auto;
 `;
 
 const EditButton = styled.button`
@@ -329,9 +352,11 @@ const CollaborationPage = ({
           <SummaryText>{collaboration.summary}</SummaryText>
         </SummarySection>
 
-        <QRCode
-          value={`https://co.lab.builddetroit.xyz/collab/${collaboration.id}`}
-        />
+        <QRCodeContainer>
+          <QRCode
+            value={`https://co.lab.builddetroit.xyz/collab/${collaboration.id}`}
+          />
+        </QRCodeContainer>
 
         <TranscriptsList>
           <SummaryTitle>Transcripts</SummaryTitle>
