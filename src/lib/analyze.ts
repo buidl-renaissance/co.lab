@@ -34,7 +34,7 @@ export async function analyzeTranscript(
       Previous Transcripts:
       ${otherTranscripts.join("\n")}
 
-      Update the analysis with the latest transcript:
+      Update the analysis with the latest transcript, including the title, description, participants, answers to the questions, action items and summary:
       ${lastTranscript}
 
       The current analysis, JSON format: ${JSON.stringify(analysis)}
