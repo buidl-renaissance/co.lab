@@ -8,6 +8,7 @@ export type AnalysisResponse = {
   answers: { question: string; answer: string }[];
   actions: { action: string; description: string }[];
   summary: string;
+  features?: string[]; // Added optional features array for product templates
 };
 
 // Initialize OpenAI client
@@ -66,6 +67,7 @@ export async function analyzeTranscript(
       }
 
       A list of action items (or next steps), and a summary of the conversation.
+      ${template.name.toLowerCase().includes('product') ? 'Also extract a list of product features mentioned in the conversation.' : ''}
       
       ${transcriptPrompt}
     `;
@@ -120,6 +122,11 @@ export async function analyzeTranscript(
                     required: ["action", "description"],
                   },
                 },
+                features: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of product features mentioned in the conversation (for product templates only)"
+                },
                 summary: { type: "string" },
               },
               required: [
@@ -154,6 +161,7 @@ export async function analyzeTranscript(
       participants: [],
       actions: [],
       summary: "",
+      features: [],
     };
   }
 }

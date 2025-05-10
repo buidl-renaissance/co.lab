@@ -16,6 +16,18 @@ import EditTranscript from "@/components/EditTranscript";
 import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";
 import MobileNav from "@/components/MobileNav";
+import DesktopSidebar from "@/components/DesktopSidebar";
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-left: 170px;
+
+  @media (max-width: 768px) {
+    padding-left: 0;
+  }
+`;
 
 const AnalysisSection = styled(Section)`
   background-color: #f8f9fa;
@@ -288,99 +300,102 @@ const CollaborationPage = ({
       </Head>
 
       <MobileNav collaborations={allCollaborations} />
+      <DesktopSidebar collaborations={allCollaborations} />
 
-      <Main>
-        <Title>
-          <span>{collaboration.title}</span>
-        </Title>
+      <ContentWrapper>
+        <Main>
+          <Title>
+            <span>{collaboration.title}</span>
+          </Title>
 
-        <Description>{collaboration.description}</Description>
+          <Description>{collaboration.description}</Description>
 
-        <AddTranscript onSubmit={handleAddTranscript} />
+          <AddTranscript onSubmit={handleAddTranscript} />
 
-        {isLoading && <Loading />}
+          {isLoading && <Loading />}
 
-        {editingTranscript && (
-          <EditTranscript
-            transcript={editingTranscript.text}
-            onSubmit={handleEditTranscript}
-            onClose={() => setEditingTranscript(null)}
-            isOpen={true}
-          />
-        )}
+          {editingTranscript && (
+            <EditTranscript
+              transcript={editingTranscript.text}
+              onSubmit={handleEditTranscript}
+              onClose={() => setEditingTranscript(null)}
+              isOpen={true}
+            />
+          )}
 
-        {collaboration.analysis && (
-          <AnalysisSection>
-            <h4>Participants</h4>
-            <ParticipantsList>
-              {collaboration.analysis.participants?.map(
-                (participant, index) => (
-                  <Participant key={index}>{participant}</Participant>
+          {collaboration.analysis && (
+            <AnalysisSection>
+              <h4>Participants</h4>
+              <ParticipantsList>
+                {collaboration.analysis.participants?.map(
+                  (participant, index) => (
+                    <Participant key={index}>{participant}</Participant>
+                  )
+                )}
+              </ParticipantsList>
+
+              <AnswersList>
+                <h4>Key Insights</h4>
+                {collaboration.analysis.answers?.map(
+                  (item: { question: string; answer: string }, index: number) => (
+                    <AnswerItem key={index}>
+                      <Question>{item.question}</Question>
+                      <Answer>{item.answer}</Answer>
+                    </AnswerItem>
+                  )
+                )}
+              </AnswersList>
+            </AnalysisSection>
+          )}
+
+          <NextStepsSection>
+            <NextStepsTitle>Next Action Steps</NextStepsTitle>
+            <StepsList>
+              {collaboration.analysis && collaboration.analysis.actions ? (
+                collaboration.analysis.actions.map(
+                  (
+                    action: { action: string; description: string },
+                    index: number
+                  ) => (
+                    <StepItem key={index}>
+                      <strong>{action.action}</strong>: {action.description}
+                    </StepItem>
+                  )
                 )
+              ) : (
+                <StepItem>No action steps found</StepItem>
               )}
-            </ParticipantsList>
+            </StepsList>
+          </NextStepsSection>
 
-            <AnswersList>
-              <h4>Key Insights</h4>
-              {collaboration.analysis.answers?.map(
-                (item: { question: string; answer: string }, index: number) => (
-                  <AnswerItem key={index}>
-                    <Question>{item.question}</Question>
-                    <Answer>{item.answer}</Answer>
-                  </AnswerItem>
-                )
-              )}
-            </AnswersList>
-          </AnalysisSection>
-        )}
+          <SummarySection>
+            <SummaryTitle>Summary</SummaryTitle>
+            <SummaryText>{collaboration.summary}</SummaryText>
+          </SummarySection>
 
-        <NextStepsSection>
-          <NextStepsTitle>Next Action Steps</NextStepsTitle>
-          <StepsList>
-            {collaboration.analysis && collaboration.analysis.actions ? (
-              collaboration.analysis.actions.map(
-                (
-                  action: { action: string; description: string },
-                  index: number
-                ) => (
-                  <StepItem key={index}>
-                    <strong>{action.action}</strong>: {action.description}
-                  </StepItem>
-                )
-              )
-            ) : (
-              <StepItem>No action steps found</StepItem>
-            )}
-          </StepsList>
-        </NextStepsSection>
+          <QRCodeContainer>
+            <QRCode
+              value={`https://co.lab.builddetroit.xyz/collab/${collaboration.id}`}
+            />
+          </QRCodeContainer>
 
-        <SummarySection>
-          <SummaryTitle>Summary</SummaryTitle>
-          <SummaryText>{collaboration.summary}</SummaryText>
-        </SummarySection>
-
-        <QRCodeContainer>
-          <QRCode
-            value={`https://co.lab.builddetroit.xyz/collab/${collaboration.id}`}
-          />
-        </QRCodeContainer>
-
-        <TranscriptsList>
-          <SummaryTitle>Transcripts</SummaryTitle>
-          {collaboration.transcripts?.map((transcript, index) => (
-            <TranscriptItem key={index}>
-              <EditButton
-                onClick={() => setEditingTranscript({ index, text: transcript })}
-                title="Edit transcript"
-                aria-label="Edit transcript"
-              >
-                ✏️
-              </EditButton>
-              {transcript}
-            </TranscriptItem>
-          ))}
-        </TranscriptsList>
-      </Main>
+          <TranscriptsList>
+            <SummaryTitle>Transcripts</SummaryTitle>
+            {collaboration.transcripts?.map((transcript, index) => (
+              <TranscriptItem key={index}>
+                <EditButton
+                  onClick={() => setEditingTranscript({ index, text: transcript })}
+                  title="Edit transcript"
+                  aria-label="Edit transcript"
+                >
+                  ✏️
+                </EditButton>
+                {transcript}
+              </TranscriptItem>
+            ))}
+          </TranscriptsList>
+        </Main>
+      </ContentWrapper>
     </Container>
   );
 };
