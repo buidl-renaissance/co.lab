@@ -17,6 +17,7 @@ import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";
 import MobileNav from "@/components/MobileNav";
 import DesktopSidebar from "@/components/DesktopSidebar";
+import Transcriber from "@/components/Transcriber";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -158,6 +159,31 @@ const QRCodeContainer = styled.div`
   justify-content: center;
   width: 100%;
   margin: 2rem auto;
+`;
+
+const FeaturesSection = styled(Section)`
+  background-color: #f8f9fa;
+  text-align: left;
+  align-items: flex-start;
+  padding: 0;
+  width: 100%;
+  max-width: 900px;
+  margin: 1.5rem auto;
+`;
+
+const FeaturesTitle = styled(SectionTitle)`
+  color: #0050b3;
+`;
+
+const FeaturesList = styled.ul`
+  padding-left: 1.5rem;
+  margin-right: 1rem;
+  width: 100%;
+`;
+
+const FeatureItem = styled.li`
+  margin-bottom: 0.5rem;
+  word-break: break-word;
 `;
 
 const EditButton = styled.button`
@@ -310,7 +336,7 @@ const CollaborationPage = ({
 
           <Description>{collaboration.description}</Description>
 
-          <AddTranscript onSubmit={handleAddTranscript} />
+          <Transcriber onTranscriptSubmit={handleAddTranscript} />
 
           {isLoading && <Loading />}
 
@@ -367,6 +393,19 @@ const CollaborationPage = ({
               )}
             </StepsList>
           </NextStepsSection>
+
+          {collaboration.analysis?.features && collaboration.analysis.features.length > 0 && (
+            <FeaturesSection>
+              <FeaturesTitle>Features</FeaturesTitle>
+              <FeaturesList>
+                {collaboration.analysis.features.map((feature, index) => (
+                  <FeatureItem key={index}>
+                    {feature}
+                  </FeatureItem>
+                ))}
+              </FeaturesList>
+            </FeaturesSection>
+          )}
 
           <SummarySection>
             <SummaryTitle>Summary</SummaryTitle>

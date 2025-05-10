@@ -33,7 +33,7 @@ export const Main = styled.main`
   padding: 2rem 1rem;
 
   @media (max-width: 768px) {
-    padding-top: calc(60px + 2rem);
+    padding-top: calc(60px + 1rem);
   }
 `;
 
