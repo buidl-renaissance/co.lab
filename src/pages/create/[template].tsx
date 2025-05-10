@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useRouter } from "next/router";
 import { defaultTemplates, templateQuestions, Template } from "@/data/template";
 import {
-  Container,
+  Container as LayoutContainer,
   Main,
   Title,
   Description,
@@ -179,6 +179,10 @@ const TemplateCreatePage = ({ template }: { template: Template }) => {
 };
 
 export default TemplateCreatePage;
+
+const Container = styled(LayoutContainer)`
+  background-color: ${({ theme }) => theme.surface};
+`;
 
 const QuestionsList = styled.div`
   width: 100%;

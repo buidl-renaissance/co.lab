@@ -20,39 +20,41 @@ export const Label = styled.label`
   font-family: 'Space Grotesk', sans-serif;
   margin-bottom: 0.75rem;
   display: inline-block;
+  color: ${({ theme }) => theme.text};
 `;
 
 export const Input = styled.input`
   padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: ${({ theme }) => theme.borderRadius};
   font-size: 1rem;
   width: 100%;
   transition: all 0.2s ease;
-  background-color: #f5f4f0;
+  background-color: ${({ theme }) => theme.surface};
+  color: ${({ theme }) => theme.text};
   
   &:focus {
-    border-color: #6D9DC5;
-    box-shadow: 0 0 0 2px rgba(109, 157, 197, 0.2);
+    border-color: ${({ theme }) => theme.accent};
+    box-shadow: 0 0 0 2px ${({ theme }) => `${theme.accent}33`};
     outline: none;
   }
 `;
 
 export const TextArea = styled.textarea`
   padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: ${({ theme }) => theme.borderRadius};
   font-size: 1rem;
   width: 100%;
   min-height: 120px;
   resize: vertical;
   transition: all 0.2s ease;
-  background-color: #f5f4f0;
-  color: #1c1c1e;
+  background-color: ${({ theme }) => theme.surface};
+  color: ${({ theme }) => theme.text};
 
   &:focus {
-    border-color: #6D9DC5;
-    box-shadow: 0 0 0 2px rgba(109, 157, 197, 0.2);
+    border-color: ${({ theme }) => theme.accent};
+    box-shadow: 0 0 0 2px ${({ theme }) => `${theme.accent}33`};
     outline: none;
   }
 `;

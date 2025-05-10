@@ -6,9 +6,10 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  title?: string;
 }
 
-export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, children, title = "Add Transcript" }: ModalProps) => {
   if (!isOpen) return null;
 
   const handleClose = () => {
@@ -19,7 +20,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     <ModalOverlay>
       <ModalContent>
         <ModalHeader>
-          <h3>Add Transcript</h3>
+          <h3>{title}</h3>
           <CloseButton onClick={handleClose}>×</CloseButton>
         </ModalHeader>
         {children}
@@ -33,7 +34,7 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
 `;
 
 const ModalBody = styled.div`
@@ -42,7 +43,7 @@ const ModalBody = styled.div`
 
 const ModalFooter = styled.div`
   padding: 1rem 1.5rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid ${({ theme }) => theme.border};
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
@@ -54,7 +55,7 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${({ theme }) => theme.overlay};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,13 +63,13 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background-color: white;
-  border-radius: 8px;
+  background-color: ${({ theme }) => theme.background};
+  border-radius: ${({ theme }) => theme.borderRadius};
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px ${({ theme }) => theme.shadow};
 `;
 
 const CloseButton = styled.button`
@@ -76,30 +77,30 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: ${({ theme }) => theme.textSecondary};
 
   &:hover {
-    color: #1c1c1e;
+    color: ${({ theme }) => theme.text};
   }
 `;
 
 const CancelButton = styled(Button)`
-  background-color: white;
-  color: #666;
-  border: 1px solid #ddd;
+  background-color: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.textSecondary};
+  border: 1px solid ${({ theme }) => theme.border};
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: ${({ theme }) => theme.surface};
   }
 `;
 
 const SubmitButton = styled(Button)`
-  background-color: #ff7a59;
+  background-color: ${({ theme }) => theme.accent};
   color: white;
   border: none;
 
   &:hover {
-    background-color: #e86c4d;
+    background-color: ${({ theme }) => theme.accent}dd;
   }
 `;
 
