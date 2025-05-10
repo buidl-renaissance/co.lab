@@ -6,7 +6,7 @@ export type AnalysisResponse = {
   description: string;
   participants: string[];
   answers: { question: string; answer: string }[];
-  actions: { action: string; description: string }[];
+  actions: { action: string; description: string, completed: boolean }[];
   summary: string;
   features?: string[]; // Added optional features array for product templates
 };
@@ -37,6 +37,8 @@ export async function analyzeTranscript(
 
       Update the analysis with the latest transcript, including the title, description, participants, answers to the questions, action items and summary:
       ${lastTranscript}
+
+      Be sure to look for completed tasks and actions, and mark them as such.
 
       The current analysis, JSON format: ${JSON.stringify(analysis)}
     ` : `
@@ -118,8 +120,9 @@ export async function analyzeTranscript(
                     properties: {
                       action: { type: "string" },
                       description: { type: "string" },
+                      completed: { type: "boolean" },
                     },
-                    required: ["action", "description"],
+                    required: ["action", "description", "completed"],
                   },
                 },
                 features: {

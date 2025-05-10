@@ -108,9 +108,10 @@ const StepsList = styled.ul`
   color: ${({ theme }) => theme.text};
 `;
 
-const StepItem = styled.li`
+const StepItem = styled.li<{ completed: boolean }>`
   margin-bottom: 0.5rem;
   word-break: break-word;
+  text-decoration: ${({ completed }) => completed ? 'line-through' : 'none'};
 `;
 
 const SummarySection = styled(Section)`
@@ -384,10 +385,10 @@ const CollaborationPage = ({
               {collaboration.analysis && collaboration.analysis.actions ? (
                 collaboration.analysis.actions.map(
                   (
-                    action: { action: string; description: string },
+                    action: { action: string; description: string; completed: boolean },
                     index: number
                   ) => (
-                    <StepItem key={index}>
+                    <StepItem key={index} completed={action.completed}>
                       <strong>{action.action}</strong>: {action.description}
                     </StepItem>
                   )
