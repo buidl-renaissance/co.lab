@@ -11,7 +11,6 @@ import {
 import { GetServerSidePropsContext } from "next";
 import { getCollaborationById, getAllCollaborations } from "@/db/collaboration";
 import { Collaboration } from "@/data/collaboration";
-import AddTranscript from "@/components/AddTranscript";
 import EditTranscript from "@/components/EditTranscript";
 import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";

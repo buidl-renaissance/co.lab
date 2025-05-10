@@ -77,9 +77,9 @@ const EnhancedNav: React.FC<EnhancedNavProps> = ({ templates, collaborations }) 
             </MenuButton>
           )}
 
-          {/* <CreateButton onClick={() => router.push('/create')}>
+          <CreateButton onClick={() => router.push('/create')}>
             Create New
-          </CreateButton> */}
+          </CreateButton>
         </MenuSection>
       </NavBar>
     </NavContainer>
