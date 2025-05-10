@@ -1,16 +1,24 @@
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
-import { Modal, ModalBody, ModalFooter, SubmitButton, CancelButton } from "./Modal";
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+  SubmitButton,
+  CancelButton,
+} from "./Modal";
 import { Label, TextArea } from "./Form";
 
 interface AddTranscriptProps {
   onSubmit?: (transcript: string) => void;
 }
 
+type Tabs = "text" | "audio";
+
 const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [activeTab, setActiveTab] = useState<'text' | 'audio'>('text');
+  const [activeTab, setActiveTab] = useState<Tabs>("audio");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -26,7 +34,7 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTranscript("");
-    setActiveTab('text');
+    setActiveTab("audio");
     setIsRecording(false);
     setRecordingTime(0);
     setAudioUrl(null);
@@ -34,7 +42,9 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
       clearInterval(timerRef.current);
     }
     if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
     }
   };
 
@@ -50,19 +60,32 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          channelCount: 1,
-          sampleRate: 16000,
-          sampleSize: 16,
-        } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true, // Simplified audio constraints for better compatibility
       });
-      
+
+      // Check for Safari
+      const isSafari = /^((?!chrome|android).)*safari/i.test(
+        navigator.userAgent
+      );
+
+      // Use different MIME types based on browser
+      let mimeType = "audio/webm;codecs=opus";
+      if (isSafari) {
+        mimeType = "audio/mp4";
+      }
+
+      // Check if the browser supports the requested MIME type
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        // Fallback to default MIME type
+        mimeType = "";
+      }
+
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus',
-        audioBitsPerSecond: 16000
+        mimeType,
+        audioBitsPerSecond: 128000, // Increased bitrate for better quality
       });
-      
+
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -73,32 +96,54 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: mimeType || "audio/mp4", // Fallback type for Safari
+        });
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
       };
 
-      mediaRecorder.start(1000); // Collect data in 1-second chunks
+      // Start recording with smaller chunks for better memory management
+      mediaRecorder.start(500);
       setIsRecording(true);
       setRecordingTime(0);
-      
+
       // Start timer
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => prev + 1);
       }, 1000);
     } catch (error) {
-      console.error('Error accessing microphone:', error);
-      alert('Error accessing microphone. Please ensure you have granted microphone permissions.');
+      console.error("Error accessing microphone:", error);
+      alert(
+        "Error accessing microphone. Please ensure you have granted microphone permissions."
+      );
+      setIsRecording(false);
+      setRecordingTime(0);
     }
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-      setIsRecording(false);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+      try {
+        // Ensure we're in a recording state
+        if (mediaRecorderRef.current.state === "recording") {
+          mediaRecorderRef.current.stop();
+        }
+
+        // Stop all tracks
+        const tracks = mediaRecorderRef.current.stream.getTracks();
+        tracks.forEach((track) => {
+          track.stop();
+          track.enabled = false;
+        });
+
+        setIsRecording(false);
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      } catch (error) {
+        console.error("Error stopping recording:", error);
+        alert("Error stopping recording. Please try again.");
       }
     }
   };
@@ -106,35 +151,37 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
   const handleAudioSubmit = async () => {
     if (audioChunksRef.current.length > 0) {
       setIsTranscribing(true);
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
-      
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: "audio/mp4", // Use MP4 format for Safari compatibility
+      });
+
       // Convert blob to base64
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
         const base64Audio = reader.result as string;
-        
+
         try {
-          const response = await fetch('/api/transcribe', {
-            method: 'POST',
+          const response = await fetch("/api/transcribe", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({ audio: base64Audio }),
           });
 
           const data = await response.json();
-          
+
           if (data.success && data.transcript) {
             setTranscript(data.transcript);
-            setActiveTab('text'); // Switch to text tab to show transcribed text
+            setActiveTab("text"); // Switch to text tab to show transcribed text
           } else {
-            console.error('Error transcribing audio:', data.error);
-            alert('Error transcribing audio. Please try again.');
+            console.error("Error transcribing audio:", data.error);
+            alert("Error transcribing audio. Please try again.");
           }
         } catch (error) {
-          console.error('Error sending audio for transcription:', error);
-          alert('Error sending audio for transcription. Please try again.');
+          console.error("Error sending audio for transcription:", error);
+          alert("Error sending audio for transcription. Please try again.");
         } finally {
           setIsTranscribing(false);
         }
@@ -145,7 +192,9 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   return (
@@ -156,21 +205,21 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
         <form onSubmit={handleSubmit}>
           <ModalBody>
             <TabContainer>
-              <TabButton 
-                active={activeTab === 'text'} 
-                onClick={() => setActiveTab('text')}
-              >
-                Text Input
-              </TabButton>
-              <TabButton 
-                active={activeTab === 'audio'} 
-                onClick={() => setActiveTab('audio')}
+              <TabButton
+                active={activeTab === "audio"}
+                onClick={() => setActiveTab("audio")}
               >
                 Record Audio
               </TabButton>
+              <TabButton
+                active={activeTab === "text"}
+                onClick={() => setActiveTab("text")}
+              >
+                Text Input
+              </TabButton>
             </TabContainer>
 
-            {activeTab === 'text' ? (
+            {activeTab === "text" ? (
               <>
                 <Label htmlFor="transcript">Paste your transcript below:</Label>
                 <TextArea
@@ -189,7 +238,7 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
                     Start Recording
                   </RecordButton>
                 )}
-                
+
                 {isRecording && (
                   <>
                     <RecordingIndicator>
@@ -207,12 +256,12 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
                     <AudioPreview>
                       <audio src={audioUrl} controls />
                     </AudioPreview>
-                    <SubmitButton 
-                      type="button" 
+                    <SubmitButton
+                      type="button"
                       onClick={handleAudioSubmit}
                       disabled={isTranscribing}
                     >
-                      {isTranscribing ? 'Transcribing...' : 'Transcribe Audio'}
+                      {isTranscribing ? "Transcribing..." : "Transcribe Audio"}
                     </SubmitButton>
                   </>
                 )}
@@ -224,8 +273,8 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
             <CancelButton type="button" onClick={handleCloseModal}>
               Cancel
             </CancelButton>
-            <SubmitButton 
-              type="submit" 
+            <SubmitButton
+              type="submit"
               disabled={!transcript.trim() || isTranscribing}
             >
               Submit
@@ -273,14 +322,14 @@ const TabContainer = styled.div`
 const TabButton = styled.button<{ active: boolean }>`
   padding: 0.5rem 1rem;
   border: none;
-  background-color: ${props => props.active ? '#ff7a59' : '#f0f0f0'};
-  color: ${props => props.active ? 'white' : '#333'};
+  background-color: ${(props) => (props.active ? "#ff7a59" : "#f0f0f0")};
+  color: ${(props) => (props.active ? "white" : "#333")};
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: ${props => props.active ? '#ff6a45' : '#e0e0e0'};
+    background-color: ${(props) => (props.active ? "#ff6a45" : "#e0e0e0")};
   }
 `;
 
