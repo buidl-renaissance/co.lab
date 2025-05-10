@@ -15,8 +15,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #faf9f6;
-  color: #1c1c1e;
+  background: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.text};
   font-family: "Inter", sans-serif;
   width: 100%;
   overflow-x: hidden;

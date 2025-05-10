@@ -203,7 +203,7 @@ export default Transcriber;
 const FloatingRecordButton = styled.button`
   position: fixed;
   bottom: 2rem;
-  right: 2rem;
+  right: 7rem;
   width: 60px;
   height: 60px;
   border-radius: 50%;

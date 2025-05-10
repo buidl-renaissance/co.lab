@@ -3,12 +3,15 @@ import type { AppProps } from "next/app";
 import { DefaultSeo, NextSeo } from "next-seo";
 import { StyleSheetManager } from "styled-components";
 import { Analytics } from "@vercel/analytics/react";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { GlobalStyle } from "@/styles/globalStyles";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { metadata } = pageProps;
   return (
-    <>
+    <ThemeProvider>
       <StyleSheetManager shouldForwardProp={(prop) => !prop.startsWith('$')}>
+        <GlobalStyle />
         <DefaultSeo
           titleTemplate="%s | Collaborative Platform"
           defaultTitle="Collaborative Platform"
@@ -28,6 +31,6 @@ export default function App({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </StyleSheetManager>
       <Analytics />
-    </>
+    </ThemeProvider>
   );
 }

@@ -30,7 +30,6 @@ const ContentWrapper = styled.div`
 `;
 
 const AnalysisSection = styled(Section)`
-  background-color: #f8f9fa;
   text-align: left;
   align-items: flex-start;
   padding: 0;
@@ -48,11 +47,13 @@ const ParticipantsList = styled.div`
 `;
 
 const Participant = styled.div`
-  background-color: #e9ecef;
+  background: ${({ theme }) => theme.surface};
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
+  color: ${({ theme }) => theme.text};
+  border: 1px solid ${({ theme }) => theme.border};
 `;
 
 const AnswersList = styled.div`
@@ -63,7 +64,7 @@ const AnswersList = styled.div`
 const AnswerItem = styled.div`
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   width: 100%;
 
   &:last-child {
@@ -75,16 +76,17 @@ const Question = styled.h4`
   margin-bottom: 0.5rem;
   font-weight: 600;
   word-break: break-word;
+  color: ${({ theme }) => theme.text};
 `;
 
 const Answer = styled.p`
-  color: #495057;
+  color: ${({ theme }) => theme.textSecondary};
   word-break: break-word;
 `;
 
 const NextStepsSection = styled(Section)`
-  background-color: #e6f7ff;
-  border-left: 4px solid #1890ff;
+  background: ${({ theme }) => theme.surface};
+  border-left: 4px solid ${({ theme }) => theme.accent};
   text-align: left;
   align-items: flex-start;
   padding: 1rem;
@@ -96,16 +98,18 @@ const NextStepsSection = styled(Section)`
 const SectionTitle = styled.h3`
   margin-bottom: 1rem;
   word-break: break-word;
+  color: ${({ theme }) => theme.text};
 `;
 
 const NextStepsTitle = styled(SectionTitle)`
-  color: #0050b3;
+  color: ${({ theme }) => theme.accent};
 `;
 
 const StepsList = styled.ul`
   padding-left: 1.5rem;
   margin-right: 1rem;
   width: 100%;
+  color: ${({ theme }) => theme.text};
 `;
 
 const StepItem = styled.li`
@@ -114,7 +118,6 @@ const StepItem = styled.li`
 `;
 
 const SummarySection = styled(Section)`
-  background-color: #f8f9fa;
   text-align: left;
   align-items: flex-start;
   padding: 0;
@@ -125,13 +128,14 @@ const SummarySection = styled(Section)`
 `;
 
 const SummaryTitle = styled(SectionTitle)`
-  color: #0050b3;
+  color: ${({ theme }) => theme.accent};
 `;
 
 const SummaryText = styled.p`
   margin-bottom: 1rem;
   word-break: break-word;
   width: 100%;
+  color: ${({ theme }) => theme.text};
 `;
 
 const TranscriptsList = styled.div`
@@ -147,10 +151,11 @@ const TranscriptItem = styled.div`
   word-break: break-word;
   position: relative;
   padding: 1rem;
-  background-color: #f8f9fa;
+  background: ${({ theme }) => theme.surface};
   border-radius: 4px;
   padding-right: 3rem;
   width: 100%;
+  border: 1px solid ${({ theme }) => theme.border};
 `;
 
 const QRCodeContainer = styled.div`
@@ -158,10 +163,14 @@ const QRCodeContainer = styled.div`
   justify-content: center;
   width: 100%;
   margin: 2rem auto;
+  background: ${({ theme }) => theme.background};
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: ${({ theme }) => theme.shadow};
 `;
 
 const FeaturesSection = styled(Section)`
-  background-color: #f8f9fa;
+  background: ${({ theme }) => theme.surface};
   text-align: left;
   align-items: flex-start;
   padding: 0;
@@ -171,13 +180,14 @@ const FeaturesSection = styled(Section)`
 `;
 
 const FeaturesTitle = styled(SectionTitle)`
-  color: #0050b3;
+  color: ${({ theme }) => theme.accent};
 `;
 
 const FeaturesList = styled.ul`
   padding-left: 1.5rem;
   margin-right: 1rem;
   width: 100%;
+  color: ${({ theme }) => theme.text};
 `;
 
 const FeatureItem = styled.li`
@@ -191,11 +201,11 @@ const EditButton = styled.button`
   right: 0.5rem;
   background: none;
   border: none;
-  color: #6c757d;
+  color: ${({ theme }) => theme.textSecondary};
   cursor: pointer;
   padding: 0.5rem;
   font-size: 1.25rem;
-  transition: color 0.2s;
+  transition: all 0.2s;
   min-width: 44px;
   min-height: 44px;
   display: flex;
@@ -204,12 +214,12 @@ const EditButton = styled.button`
   border-radius: 4px;
 
   &:hover {
-    color: #0050b3;
-    background-color: rgba(0, 80, 179, 0.1);
+    color: ${({ theme }) => theme.accent};
+    background: ${({ theme }) => theme.surface};
   }
 
   &:active {
-    background-color: rgba(0, 80, 179, 0.2);
+    background: ${({ theme }) => theme.border};
   }
 
   @media (max-width: 768px) {
