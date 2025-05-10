@@ -24,7 +24,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
 
   return (
     <>
-      <NavBar style={{ transform: isOpen ? 'translateX(280px)' : 'translateX(0)' }}>
+      <NavBar>
         <NavContent>
           <MenuButton onClick={() => setIsOpen(true)}>
             <MenuIcon>☰</MenuIcon>
