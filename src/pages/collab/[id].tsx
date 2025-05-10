@@ -185,6 +185,9 @@ const FeaturesList = styled.ul`
   margin-right: 1rem;
   width: 100%;
   color: ${({ theme }) => theme.text};
+  border-left: 4px solid ${({ theme }) => theme.accent};
+  list-style-type: disc;
+  padding-left: 1rem;
 `;
 
 const FeatureItem = styled.li`
