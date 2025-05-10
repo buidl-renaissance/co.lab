@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Section } from '@/components/Layout';
+import SectionHeader from '@/components/SectionHeader';
 
 interface Action {
   action: string;
@@ -24,7 +25,7 @@ const NextSteps: React.FC<NextStepsProps> = ({ actions = [] }) => {
   return (
     <NextStepsSection>
       <HeaderContainer>
-        <NextStepsTitle>Next Action Steps</NextStepsTitle>
+        <SectionHeader compact>Next Action Steps</SectionHeader>
         {actions.length > 0 && completedCount > 0 && (
           <ToggleButton onClick={() => setShowCompleted(!showCompleted)}>
             {showCompleted ? 'Hide Completed' : 'Show Completed'}
@@ -66,13 +67,7 @@ const HeaderContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 1rem;
-`;
-
-const NextStepsTitle = styled.h3`
-  margin-bottom: 0;
-  word-break: break-word;
-  color: ${({ theme }) => theme.accent};
+  margin-bottom: 0.5rem;
 `;
 
 const ToggleButton = styled.button`

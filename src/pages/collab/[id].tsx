@@ -18,6 +18,7 @@ import QRCode from "react-qr-code";
 import MobileNav from "@/components/MobileNav";
 import Transcriber from "@/components/Transcriber";
 import NextSteps from "@/components/NextSteps";
+import SectionHeader from "@/components/SectionHeader";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -52,6 +53,13 @@ const Participant = styled.div`
   margin-bottom: 0.5rem;
   color: ${({ theme }) => theme.text};
   border: 1px solid ${({ theme }) => theme.border};
+  box-shadow: 0 2px 4px ${({ theme }) => theme.shadow};
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    border-color: ${({ theme }) => theme.accent};
+  }
 `;
 
 const AnswersList = styled.div`
@@ -64,9 +72,11 @@ const AnswerItem = styled.div`
   padding-bottom: 1rem;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   width: 100%;
+  transition: background-color 0.2s ease;
 
   &:last-child {
     border-bottom: none;
+    margin-bottom: 0;
   }
 `;
 
@@ -75,11 +85,14 @@ const Question = styled.h4`
   font-weight: 600;
   word-break: break-word;
   color: ${({ theme }) => theme.text};
+  font-size: 0.95rem;
 `;
 
 const Answer = styled.p`
   color: ${({ theme }) => theme.textSecondary};
   word-break: break-word;
+  font-size: 0.9rem;
+  line-height: 1.5;
 `;
 
 const SummarySection = styled(Section)`
@@ -90,10 +103,6 @@ const SummarySection = styled(Section)`
   width: 100%;
   max-width: 900px;
   margin: 1.5rem auto;
-`;
-
-const SummaryTitle = styled(SectionTitle)`
-  color: ${({ theme }) => theme.accent};
 `;
 
 const SummaryText = styled.p`
@@ -326,7 +335,7 @@ const CollaborationPage = ({
 
           {collaboration.analysis && (
             <AnalysisSection>
-              <h4>Participants</h4>
+              <SectionHeader>Participants</SectionHeader>
               <ParticipantsList>
                 {collaboration.analysis.participants?.map(
                   (participant, index) => (
@@ -336,7 +345,7 @@ const CollaborationPage = ({
               </ParticipantsList>
 
               <AnswersList>
-                <h4>Key Insights</h4>
+                <SectionHeader>Key Insights</SectionHeader>
                 {collaboration.analysis.answers?.map(
                   (item: { question: string; answer: string }, index: number) => (
                     <AnswerItem key={index}>
@@ -365,7 +374,7 @@ const CollaborationPage = ({
           )}
 
           <SummarySection>
-            <SummaryTitle>Summary</SummaryTitle>
+            <SectionHeader>Summary</SectionHeader>
             <SummaryText>{collaboration.summary}</SummaryText>
           </SummarySection>
 
@@ -376,7 +385,7 @@ const CollaborationPage = ({
           </QRCodeContainer>
 
           <TranscriptsList>
-            <SummaryTitle>Transcripts</SummaryTitle>
+            <SectionHeader>Transcripts</SectionHeader>
             {collaboration.transcripts?.map((transcript, index) => (
               <TranscriptItem key={index}>
                 <EditButton
