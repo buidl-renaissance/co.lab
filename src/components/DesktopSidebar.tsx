@@ -24,7 +24,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ collaborations }) => {
         {collaborations.map((collab) => (
           <CollaborationLink key={collab.id} href={`/collab/${collab.id}`}>
             <CollaborationItem active={router.query.id === collab.id}>
-              {collab.title}
+              <CollaborationTitle>{collab.title}</CollaborationTitle>
             </CollaborationItem>
           </CollaborationLink>
         ))}
@@ -78,10 +78,16 @@ const CollaborationItem = styled.div<{ active: boolean }>`
   background-color: ${(props) => (props.active ? "#f0f0f0" : "transparent")};
   border-left: 3px solid
     ${(props) => (props.active ? "#ff7a59" : "transparent")};
-  text-overflow: ellipsis;
   &:hover {
     background-color: #f4f4f4;
   }
+`;
+
+const CollaborationTitle = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
 `;
 
 const CollaborationLink = styled.a`
@@ -89,9 +95,6 @@ const CollaborationLink = styled.a`
   text-decoration: none;
   display: block;
   font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 
   &:hover {
     color: #ff7a59;
