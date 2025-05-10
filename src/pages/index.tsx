@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
 import {
-  Title,
   Section,
   SectionTitle,
   Description as DescriptionText,
