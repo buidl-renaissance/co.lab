@@ -11,7 +11,7 @@ type Size = "small" | "default" | "large";
 
 const Container = styled.div`
   min-height: 100vh;
-  padding: 0;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,28 +22,28 @@ const Container = styled.div`
   overflow-x: hidden;
 `;
 
-export const Main = styled.main`
+export const Main = styled.main<{ full?: boolean, layout?: 'left' | 'center' }>`
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: ${({ layout }) => layout === 'left' ? 'flex-start' : 'center'};
   width: 100%;
-  max-width: 1200px;
+  max-width: ${({ full }) => (full ? "100%" : "1200px")};
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 0rem;
 
   @media (max-width: 768px) {
     padding-top: calc(60px + 1rem);
   }
 `;
 
-const Section = styled.section`
+const Section = styled.section<{ alt?: boolean }>`
   width: 100%;
   padding: 3rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-
+  background: ${({ theme, alt }) => (alt ? theme.backgroundAlt : theme.background)};
   @media (min-width: 768px) {
     padding: 5rem 2rem;
   }
@@ -83,7 +83,7 @@ const SectionTitle = styled.h2<{ size?: Size }>`
 
 const Hero = styled.div`
   width: 100%;
-  padding: 3rem 1rem;
+  padding: 3rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;

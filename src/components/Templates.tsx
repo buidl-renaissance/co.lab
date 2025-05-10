@@ -77,11 +77,11 @@ export default Templates;
 
 const TemplatesSection = styled.section`
   width: 100%;
-  padding: 5rem 2rem;
+  padding: 2rem 0rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f5f4f0;
+  background: ${({ theme }) => theme.surface};
 `;
 
 const SectionTitle = styled.h2`
@@ -90,6 +90,7 @@ const SectionTitle = styled.h2`
   margin-bottom: 3rem;
   text-align: center;
   position: relative;
+  color: ${({ theme }) => theme.text};
 
   &::after {
     content: "";
@@ -99,7 +100,7 @@ const SectionTitle = styled.h2`
     transform: translateX(-50%);
     width: 80px;
     height: 4px;
-    background-color: #ffe169;
+    background: ${({ theme }) => theme.accent};
   }
 `;
 
@@ -109,16 +110,12 @@ const TemplateGrid = styled.div`
   gap: 1.5rem;
   padding: 1rem 0;
   width: 100%;
-  max-width: 1200px;
-  scrollbar-width: thin;
-
+  /* max-width: 1200px; */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  
   &::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #6d9dc5;
-    border-radius: 6px;
+    display: none; /* Chrome, Safari and Opera */
   }
 `;
 
@@ -126,39 +123,48 @@ const TemplateCard = styled.div<{ selected: boolean }>`
   min-width: 280px;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 2px solid ${(props) => (props.selected ? "#FF7A59" : "#e0e0e0")};
-  background-color: white;
-  box-shadow: ${(props) =>
-    props.selected
-      ? "0 8px 20px rgba(255, 122, 89, 0.15)"
-      : "0 4px 12px rgba(0, 0, 0, 0.05)"};
+  border: 2px solid ${({ selected, theme }) => selected ? theme.accent : theme.border};
+  background: ${({ theme }) => theme.background};
+  box-shadow: ${({ selected, theme }) =>
+    selected
+      ? `0 8px 20px ${theme.accent}26`
+      : `0 4px 12px ${theme.shadow}`};
   transition: all 0.3s ease;
   cursor: pointer;
 
+  &:first-child {
+    margin-left: 2rem;
+  }
+
+  &:last-child {
+    margin-right: 2rem;
+  }
+
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-    border-color: ${(props) => (props.selected ? "#FF7A59" : "#6D9DC5")};
+    box-shadow: ${({ theme }) => `0 12px 24px ${theme.shadow}`};
+    border-color: ${({ selected, theme }) => selected ? theme.accent : theme.accent};
   }
 
   h3 {
     font-family: "Space Grotesk", sans-serif;
     margin: 0 0 1rem 0;
     font-size: 1.4rem;
-    color: ${(props) => (props.selected ? "#FF7A59" : "#1C1C1E")};
+    color: ${({ selected, theme }) => selected ? theme.accent : theme.text};
   }
 
   p {
     margin: 0;
     font-size: 1rem;
     line-height: 1.5;
+    color: ${({ theme }) => theme.textSecondary};
   }
 `;
 
 const TemplateTag = styled.span`
   display: inline-block;
-  background-color: #ffe169;
-  color: #1c1c1e;
+  background: ${({ theme }) => theme.accent};
+  color: white;
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -168,12 +174,11 @@ const TemplateTag = styled.span`
   letter-spacing: 0.5px;
 `;
 
-
 const StartSession = styled.div`
-  margin: 3rem 0;
+  margin: 1rem 0;
   text-align: center;
   padding: 2rem;
-  background-color: #ffe169;
+  background: ${({ theme }) => theme.background};
   border-radius: 12px;
   max-width: 800px;
   width: 90%;
@@ -182,23 +187,25 @@ const StartSession = styled.div`
     font-family: "Space Grotesk", sans-serif;
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
+    color: white;
   }
 `;
 
 const SelectTemplatePrompt = styled.div`
+  margin-top: 1rem !important;
   margin: 3rem 0;
   text-align: center;
   padding: 2rem;
-  background-color: #f5f4f0;
+  background: ${({ theme }) => theme.surface};
   border-radius: 12px;
   max-width: 800px;
   width: 90%;
-  border: 2px dashed #6d9dc5;
+  border: 2px dashed ${({ theme }) => theme.accent};
 
   h2 {
     font-family: "Space Grotesk", sans-serif;
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
-    color: #6d9dc5;
+    color: ${({ theme }) => theme.accent};
   }
 `;

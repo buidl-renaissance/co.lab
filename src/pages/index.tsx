@@ -5,7 +5,7 @@ import {
   Section,
   SectionTitle,
   Description as DescriptionText,
-  Container,
+  Container as LayoutContainer,
   Main,
   Hero,
 } from "@/components/Layout";
@@ -14,31 +14,14 @@ import router from "next/router";
 import Footer from '@/components/Footer';
 import Templates from "@/components/Templates";
 
-const Description = styled(DescriptionText)`
-  font-size: 1.3rem;
+const Container = styled(LayoutContainer)`
+  padding: 0rem;
 `;
 
-// const WaveAnimation = styled.div`
-//   position: absolute;
-//   bottom: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 120px;
-//   background: url("/images/voice-wave.svg");
-//   background-size: 100% auto;
-//   opacity: 0.6;
-//   animation: wave 15s linear infinite;
-//   z-index: -1;
-
-//   @keyframes wave {
-//     0% {
-//       background-position: 0 0;
-//     }
-//     100% {
-//       background-position: 100% 0;
-//     }
-//   }
-// `;
+const Description = styled(DescriptionText)`
+  font-size: 1.3rem;
+  color: ${({ theme }) => theme.text};
+`;
 
 const CTAContainer = styled.div`
   display: flex;
@@ -67,7 +50,7 @@ const StepNumber = styled.div`
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: #6d9dc5;
+  background: ${({ theme }) => theme.accent};
   color: white;
   display: flex;
   justify-content: center;
@@ -81,15 +64,42 @@ const StepTitle = styled.h3`
   font-family: "Space Grotesk", sans-serif;
   font-size: 1.5rem;
   margin-bottom: 1rem;
+  color: ${({ theme }) => theme.text};
 `;
 
 const StepDescription = styled.p`
   font-size: 1.1rem;
   line-height: 1.5;
+  color: ${({ theme }) => theme.textSecondary};
 `;
 
 const TemplatesSection = styled(Section)`
-  background-color: #f5f4f0;
+  background: ${({ theme }) => theme.surface};
+  padding: 2rem 0rem;
+`;
+
+const RecentCollaborationsSection = styled(Section)`
+  background: ${({ theme }) => theme.background};
+`;
+
+const GitHubLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  color: ${({ theme }) => theme.text};
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-top: 1rem;
+
+  &:hover {
+    color: ${({ theme }) => theme.accent};
+    background: ${({ theme }) => theme.surface};
+  }
+
+  svg {
+    margin-right: 8px;
+  }
 `;
 
 export const getServerSideProps = async () => {
@@ -139,7 +149,7 @@ const CollabFlowHome: React.FC = () => {
 
   return (
     <Container>
-      <Main>
+      <Main full>
         <Hero>
           {/* <WaveAnimation /> */}
 
@@ -196,10 +206,7 @@ const CollabFlowHome: React.FC = () => {
           <Templates />
         </TemplatesSection>
 
-        <Section
-          id="recent-collaborations"
-          style={{ backgroundColor: "#f5f4f0" }}
-        >
+        <RecentCollaborationsSection id="recent-collaborations">
           <SectionTitle>Recent Collaborations</SectionTitle>
           <Description style={{ textAlign: "center", fontSize: "1.2rem" }}>
             Continue working on your recent collaboration sessions or start a
@@ -210,14 +217,14 @@ const CollabFlowHome: React.FC = () => {
               View My Collaborations
             </PrimaryButton>
           </CTAContainer>
-        </Section>
+        </RecentCollaborationsSection>
 
-        <Section>
+        <Section alt>
           <SectionTitle>Built on Open Source</SectionTitle>
           <Description style={{ textAlign: "center" }}>
             At Co.Lab, we believe in open collaboration.
           </Description>
-          <a
+          <GitHubLink
             href="https://github.com/buidl-renaissance/co.lab"
             target="_blank"
             rel="noopener noreferrer"
@@ -228,12 +235,11 @@ const CollabFlowHome: React.FC = () => {
               height="24"
               viewBox="0 0 24 24"
               fill="currentColor"
-              style={{ marginRight: "8px", verticalAlign: "middle" }}
             >
               <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
             </svg>
             View on GitHub
-          </a>
+          </GitHubLink>
         </Section>
       </Main>
       <Footer />

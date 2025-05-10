@@ -1,11 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Container, Main, Section, SectionTitle } from '@/components/Layout';
+import { Container as LayoutContainer, Main, Section, SectionTitle } from '@/components/Layout';
 import Footer from '@/components/Footer';
+
+const Container = styled(LayoutContainer)`
+  padding: 0px;
+`;
 
 const AboutSection = styled(Section)`
   max-width: 800px;
   margin: 0 auto;
+  text-align: center;
 `;
 
 const TeamSection = styled(Section)`
@@ -17,7 +22,7 @@ const TeamSection = styled(Section)`
 const TeamGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  gap: 0.5rem;
   margin-top: 2rem;
   
   @media (min-width: 768px) {
@@ -52,7 +57,6 @@ const TeamMember = styled.div`
 `;
 
 const MissionSection = styled(Section)`
-  background-color: #f5f4f0;
   text-align: center;
 `;
 
@@ -104,7 +108,7 @@ const AboutPage = () => {
           </MissionContent>
         </MissionSection>
 
-        <TeamSection>
+        <TeamSection alt>
           <SectionTitle>Meet the Team</SectionTitle>
           <TeamGrid>
             <TeamMember>

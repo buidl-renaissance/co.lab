@@ -1,51 +1,10 @@
 import React, { useState, useEffect } from "react";
-import styled, { ThemeProvider, createGlobalStyle, DefaultTheme } from "styled-components";
+import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { PrimaryButton } from "./Buttons";
 import { useTheme } from "@/contexts/ThemeContext";
-
-// Theme types and variables
-declare module 'styled-components' {
-  export interface DefaultTheme {
-    background: string;
-    text: string;
-    backgroundAlt: string;
-    textSecondary: string;
-    border: string;
-    borderRadius: string;
-    surface: string;
-    accent: string;
-    shadow: string;
-    overlay: string;
-  }
-}
-
-const lightTheme: DefaultTheme = {
-  background: '#ffffff',
-  text: '#1c1c1e',
-  backgroundAlt: '#afafaf',
-  textSecondary: '#666666',
-  border: '#e0e0e0',
-  borderRadius: '8px',
-  surface: '#f5f5f5',
-  accent: '#ff7a59',
-  shadow: 'rgba(0, 0, 0, 0.1)',
-  overlay: 'rgba(0, 0, 0, 0.5)',
-};
-
-const darkTheme: DefaultTheme = {
-  background: '#1c1c1e',
-  text: '#ffffff',
-  backgroundAlt: '#515151',
-  textSecondary: '#a0a0a0',
-  border: '#2c2c2e',
-  borderRadius: '8px',
-  surface: '#2c2c2e',
-  accent: '#ff7a59',
-  shadow: 'rgba(0, 0, 0, 0.3)',
-  overlay: 'rgba(0, 0, 0, 0.7)',
-};
+import { lightTheme, darkTheme } from "@/styles/theme";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -296,6 +255,7 @@ const Drawer = styled.div<{ isOpen: boolean; position: "left" | "right" }>`
   transition: transform 0.3s ease-in-out;
   z-index: 101;
   box-shadow: ${({ theme }) => theme.shadow};
+  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
 `;
 
 const DrawerHeader = styled.div`

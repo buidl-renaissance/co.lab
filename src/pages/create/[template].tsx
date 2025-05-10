@@ -20,6 +20,8 @@ import {
 import { Loading } from "@/components/Loading";
 import Transcriber from "@/components/Transcriber";
 import { Modal } from "@/components/Modal";
+import MobileNav from "@/components/MobileNav";
+import { useCollaborations } from "@/hooks/useCollaborations";
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
@@ -46,6 +48,8 @@ const TemplateCreatePage = ({ template }: { template: Template }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [manuallyInput, setManuallyInput] = useState(false);
+  const { collaborations } = useCollaborations();
+
   if (!template) {
     return <div>Template not found</div>;
   }
@@ -103,10 +107,12 @@ const TemplateCreatePage = ({ template }: { template: Template }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <MobileNav collaborations={collaborations} />
+
       {isAnalyzing && <Loading />}
 
       <Main style={{ paddingBottom: "8rem" }}>
-        <Title style={{ margin: "1rem 0" }}>
+        <Title style={{ margin: "1rem 0", marginTop: "3rem" }}>
           <span>{template.name}</span>
         </Title>
 
@@ -178,16 +184,16 @@ const QuestionsList = styled.div`
   width: 100%;
   max-width: 800px;
   margin: 2rem auto;
-  border: 1px solid #ddd;
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   padding: 2rem;
-  background-color: white;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  background-color: ${({ theme }) => theme.background};
+  box-shadow: 0 6px 16px ${({ theme }) => theme.shadow};
 `;
 
 const QuestionItem = styled.div`
   padding: 0.75rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   line-height: 1.6;
 
   &:last-child {
@@ -201,7 +207,7 @@ const FormContainer = styled.div`
   max-width: 800px;
   border-radius: 12px;
   padding: 2rem;
-  background-color: white;
+  background-color: ${({ theme }) => theme.background};
 `;
 
 const RecordingContainer = styled.div`

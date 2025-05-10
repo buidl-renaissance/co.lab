@@ -15,17 +15,13 @@ import EditTranscript from "@/components/EditTranscript";
 import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";
 import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
 import Transcriber from "@/components/Transcriber";
 
 const ContentWrapper = styled.div`
   width: 100%;
   max-width: 900px;
-  margin: 0 auto;
-  padding-left: 170px;
-
-  @media (max-width: 768px) {
-    padding-left: 0;
+  @media (min-width: 768px) {
+    margin-top: 3rem;
   }
 `;
 
@@ -335,10 +331,9 @@ const CollaborationPage = ({
       </Head>
 
       <MobileNav collaborations={allCollaborations} />
-      <DesktopSidebar collaborations={allCollaborations} />
 
       <ContentWrapper>
-        <Main>
+        <Main layout="left">
           <Title>
             <span>{collaboration.title}</span>
           </Title>
