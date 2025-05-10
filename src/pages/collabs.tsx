@@ -5,18 +5,12 @@ import Link from "next/link";
 import { Container, Main, Title, Description } from "@/components/Layout";
 import { Collaboration } from "@/data/collaboration";
 import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
 
 const ContentWrapper = styled.div`
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding-left: 170px;
-
-  @media (max-width: 768px) {
-    padding-left: 0;
-    padding-bottom: 6rem;
-  }
+  padding: 2rem 1rem;
 `;
 
 const CollabsList = styled.div`
@@ -97,10 +91,9 @@ const CollabsPage = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
-      <DesktopSidebar collaborations={collaborations} />
       <MobileNav collaborations={collaborations} />
 
-      <Main>
+      <Main layout="left">
         <ContentWrapper>
           <Title>
             <span>My Collaborations</span>
