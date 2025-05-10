@@ -10,6 +10,7 @@ interface AddTranscriptProps {
 const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [activeTab, setActiveTab] = useState<'text' | 'audio'>('text');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -25,11 +26,15 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTranscript("");
+    setActiveTab('text');
     setIsRecording(false);
     setRecordingTime(0);
     setAudioUrl(null);
     if (timerRef.current) {
       clearInterval(timerRef.current);
+    }
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
   };
 
@@ -45,8 +50,19 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000,
+          sampleSize: 16,
+        } 
+      });
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: 16000
+      });
+      
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -57,12 +73,12 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(1000); // Collect data in 1-second chunks
       setIsRecording(true);
       setRecordingTime(0);
       
@@ -90,7 +106,7 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
   const handleAudioSubmit = async () => {
     if (audioChunksRef.current.length > 0) {
       setIsTranscribing(true);
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
       
       // Convert blob to base64
       const reader = new FileReader();
@@ -111,6 +127,7 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
           
           if (data.success && data.transcript) {
             setTranscript(data.transcript);
+            setActiveTab('text'); // Switch to text tab to show transcribed text
           } else {
             console.error('Error transcribing audio:', data.error);
             alert('Error transcribing audio. Please try again.');
@@ -140,20 +157,20 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
           <ModalBody>
             <TabContainer>
               <TabButton 
-                active={!isRecording} 
-                onClick={() => setIsRecording(false)}
+                active={activeTab === 'text'} 
+                onClick={() => setActiveTab('text')}
               >
                 Text Input
               </TabButton>
               <TabButton 
-                active={isRecording} 
-                onClick={() => setIsRecording(true)}
+                active={activeTab === 'audio'} 
+                onClick={() => setActiveTab('audio')}
               >
                 Record Audio
               </TabButton>
             </TabContainer>
 
-            {!isRecording ? (
+            {activeTab === 'text' ? (
               <>
                 <Label htmlFor="transcript">Paste your transcript below:</Label>
                 <TextArea
@@ -202,14 +219,18 @@ const AddTranscript: React.FC<AddTranscriptProps> = ({ onSubmit }) => {
               </RecordingContainer>
             )}
           </ModalBody>
-          {!isRecording && (
-            <ModalFooter>
-              <CancelButton type="button" onClick={handleCloseModal}>
-                Cancel
-              </CancelButton>
-              <SubmitButton type="submit">Submit</SubmitButton>
-            </ModalFooter>
-          )}
+
+          <ModalFooter>
+            <CancelButton type="button" onClick={handleCloseModal}>
+              Cancel
+            </CancelButton>
+            <SubmitButton 
+              type="submit" 
+              disabled={!transcript.trim() || isTranscribing}
+            >
+              Submit
+            </SubmitButton>
+          </ModalFooter>
         </form>
       </Modal>
     </>
