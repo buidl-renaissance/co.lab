@@ -394,7 +394,7 @@ const CollaborationPage = ({
                   )
                 )
               ) : (
-                <StepItem>No action steps found</StepItem>
+                <StepItem completed={false}>No action steps found</StepItem>
               )}
             </StepsList>
           </NextStepsSection>
