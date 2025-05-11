@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
-export const Loading = () => {
+export const Loading = ({ text }: { text?: string }) => {
   return (
     <LoadingOverlay>
       <Spinner />
-      <LoadingText>Analyzing Transcript...</LoadingText>
+      <LoadingText>{text || "Analyzing Transcript..."}</LoadingText>
     </LoadingOverlay>
   );
 };

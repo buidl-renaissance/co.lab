@@ -359,7 +359,7 @@ const CollaborationPage = ({
   if (isInitialLoad) {
     return (
       <Container>
-        <Loading />
+        <Loading text="Loading collaboration..." />
       </Container>
     );
   }
