@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Section } from '@/components/Layout';
 import SectionHeader from '@/components/SectionHeader';
@@ -11,10 +11,26 @@ interface Action {
 
 interface NextStepsProps {
   actions?: Action[];
+  collaborationId: string;
 }
 
-const NextSteps: React.FC<NextStepsProps> = ({ actions = [] }) => {
+const NextSteps: React.FC<NextStepsProps> = ({ actions = [], collaborationId }) => {
   const [showCompleted, setShowCompleted] = useState(true);
+  
+  // Load the showCompleted state from localStorage on mount
+  useEffect(() => {
+    const storedState = localStorage.getItem(`nextSteps_${collaborationId}`);
+    if (storedState !== null) {
+      setShowCompleted(JSON.parse(storedState));
+    }
+  }, [collaborationId]);
+
+  // Update localStorage when showCompleted changes
+  const handleToggleCompleted = () => {
+    const newState = !showCompleted;
+    setShowCompleted(newState);
+    localStorage.setItem(`nextSteps_${collaborationId}`, JSON.stringify(newState));
+  };
   
   const filteredActions = showCompleted 
     ? actions 
@@ -27,7 +43,7 @@ const NextSteps: React.FC<NextStepsProps> = ({ actions = [] }) => {
       <HeaderContainer>
         <SectionHeader compact>Next Action Steps</SectionHeader>
         {actions.length > 0 && completedCount > 0 && (
-          <ToggleButton onClick={() => setShowCompleted(!showCompleted)}>
+          <ToggleButton onClick={handleToggleCompleted}>
             {showCompleted ? 'Hide Completed' : 'Show Completed'}
           </ToggleButton>
         )}

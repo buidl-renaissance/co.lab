@@ -357,7 +357,7 @@ const CollaborationPage = ({
             </AnalysisSection>
           )}
 
-          <NextSteps actions={collaboration.analysis?.actions} />
+          <NextSteps actions={collaboration.analysis?.actions} collaborationId={collaboration.id} />
 
           {collaboration.analysis?.features && collaboration.analysis.features.length > 0 && (
             <FeaturesSection>
