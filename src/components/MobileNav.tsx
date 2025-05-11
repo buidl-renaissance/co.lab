@@ -42,6 +42,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
       
       setSortedCollaborations(sorted);
     } catch (error) {
+      console.error('Error sorting collaborations:', error);
       // If localStorage is not available (SSR), just use the original order
       setSortedCollaborations(collaborations);
     }
