@@ -55,7 +55,7 @@ const Participant = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   box-shadow: 0 2px 4px ${({ theme }) => theme.shadow};
   transition: transform 0.2s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     border-color: ${({ theme }) => theme.accent};
@@ -225,13 +225,24 @@ export const getServerSideProps = async (
   return {
     props: {
       initialCollaboration: collaboration,
-      allCollaborations: allCollaborations.map(collab => ({
+      allCollaborations: allCollaborations.map((collab) => ({
         id: collab.id,
-        title: collab.title
+        title: collab.title,
       })),
       metadata: {
         title: `Collaboration: ${collaboration.title}`,
         description: collaboration.description,
+        openGraph: {
+          title: `Collaboration: ${collaboration.title}`,
+          description: collaboration.description,
+          images: [
+            {
+              url: "/co.lab-thumb.jpg",
+              width: 1200,
+              height: 630,
+            },
+          ],
+        },
       },
     },
   };
@@ -242,10 +253,11 @@ const CollaborationPage = ({
   allCollaborations,
 }: {
   initialCollaboration: Collaboration;
-  allCollaborations: Array<{ id: string; title: string; }>;
+  allCollaborations: Array<{ id: string; title: string }>;
 }) => {
   const router = useRouter();
-  const [collaboration, setCollaboration] = useState<Collaboration>(initialCollaboration);
+  const [collaboration, setCollaboration] =
+    useState<Collaboration>(initialCollaboration);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
@@ -258,28 +270,36 @@ const CollaborationPage = ({
   useEffect(() => {
     const loadCollaboration = async () => {
       if (!router.isReady) return;
-      
+
       setIsInitialLoad(true);
       setShowLoadingScreen(true);
       try {
         const response = await fetch(`/api/collaboration/${router.query.id}`);
         const data = await response.json();
-        
+
         if (data.success && data.data) {
           setCollaboration(data.data);
         } else {
           // Fallback to localStorage if API fails
-          const storedCollabs = JSON.parse(localStorage.getItem('collaborations') || '[]');
-          const storedCollab = storedCollabs.find((c: Collaboration) => c.id === router.query.id);
+          const storedCollabs = JSON.parse(
+            localStorage.getItem("collaborations") || "[]"
+          );
+          const storedCollab = storedCollabs.find(
+            (c: Collaboration) => c.id === router.query.id
+          );
           if (storedCollab) {
             setCollaboration(storedCollab);
           }
         }
       } catch (error) {
-        console.error('Error loading collaboration:', error);
+        console.error("Error loading collaboration:", error);
         // Fallback to localStorage if API fails
-        const storedCollabs = JSON.parse(localStorage.getItem('collaborations') || '[]');
-        const storedCollab = storedCollabs.find((c: Collaboration) => c.id === router.query.id);
+        const storedCollabs = JSON.parse(
+          localStorage.getItem("collaborations") || "[]"
+        );
+        const storedCollab = storedCollabs.find(
+          (c: Collaboration) => c.id === router.query.id
+        );
         if (storedCollab) {
           setCollaboration(storedCollab);
         }
@@ -298,13 +318,17 @@ const CollaborationPage = ({
   // Store collaboration in local storage
   useEffect(() => {
     if (!collaboration) return;
-    
+
     // Get existing stored collaborations or initialize empty array
-    const storedCollabs = JSON.parse(localStorage.getItem('collaborations') || '[]');
-    
+    const storedCollabs = JSON.parse(
+      localStorage.getItem("collaborations") || "[]"
+    );
+
     // Check if this collaboration already exists in the array
-    const existingIndex = storedCollabs.findIndex((collab: Collaboration) => collab.id === collaboration.id);
-    
+    const existingIndex = storedCollabs.findIndex(
+      (collab: Collaboration) => collab.id === collaboration.id
+    );
+
     if (existingIndex >= 0) {
       // Update existing collaboration
       storedCollabs[existingIndex] = collaboration;
@@ -312,28 +336,31 @@ const CollaborationPage = ({
       // Add new collaboration to array
       storedCollabs.push(collaboration);
     }
-    
+
     // Save updated array back to localStorage
-    localStorage.setItem('collaborations', JSON.stringify(storedCollabs));
+    localStorage.setItem("collaborations", JSON.stringify(storedCollabs));
   }, [collaboration]);
 
   const handleAddTranscript = async (transcript: string) => {
     console.log("Transcript added:", transcript);
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/collaboration/${collaboration.id}/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ transcript }),
-      });
+      const response = await fetch(
+        `/api/collaboration/${collaboration.id}/add`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ transcript }),
+        }
+      );
       const data = await response.json();
       if (data.success && data.data) {
         setCollaboration(data.data);
       }
     } catch (error) {
-      console.error('Error adding transcript:', error);
+      console.error("Error adding transcript:", error);
     } finally {
       setIsLoading(false);
     }
@@ -341,26 +368,29 @@ const CollaborationPage = ({
 
   const handleEditTranscript = async (transcript: string) => {
     if (!editingTranscript) return;
-    
+
     setEditingTranscript(null);
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/collaboration/${collaboration.id}/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          transcript,
-          transcriptIndex: editingTranscript.index,
-        }),
-      });
+      const response = await fetch(
+        `/api/collaboration/${collaboration.id}/update`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transcript,
+            transcriptIndex: editingTranscript.index,
+          }),
+        }
+      );
       const data = await response.json();
       if (data.success && data.data) {
         setCollaboration(data.data);
       }
     } catch (error) {
-      console.error('Error updating transcript:', error);
+      console.error("Error updating transcript:", error);
     } finally {
       setIsLoading(false);
       setEditingTranscript(null);
@@ -382,7 +412,9 @@ const CollaborationPage = ({
       <Container>
         <Main layout="left">
           <Title>Collaboration Not Found</Title>
-          <Description>The requested collaboration could not be found.</Description>
+          <Description>
+            The requested collaboration could not be found.
+          </Description>
         </Main>
       </Container>
     );
@@ -433,7 +465,10 @@ const CollaborationPage = ({
               <AnswersList>
                 <SectionHeader>Key Insights</SectionHeader>
                 {collaboration.analysis.answers?.map(
-                  (item: { question: string; answer: string }, index: number) => (
+                  (
+                    item: { question: string; answer: string },
+                    index: number
+                  ) => (
                     <AnswerItem key={index}>
                       <Question>{item.question}</Question>
                       <Answer>{item.answer}</Answer>
@@ -444,20 +479,22 @@ const CollaborationPage = ({
             </AnalysisSection>
           )}
 
-          <NextSteps actions={collaboration.analysis?.actions} collaborationId={collaboration.id} />
+          <NextSteps
+            actions={collaboration.analysis?.actions}
+            collaborationId={collaboration.id}
+          />
 
-          {collaboration.analysis?.features && collaboration.analysis.features.length > 0 && (
-            <FeaturesSection>
-              <FeaturesTitle>Features</FeaturesTitle>
-              <FeaturesList>
-                {collaboration.analysis.features.map((feature, index) => (
-                  <FeatureItem key={index}>
-                    {feature}
-                  </FeatureItem>
-                ))}
-              </FeaturesList>
-            </FeaturesSection>
-          )}
+          {collaboration.analysis?.features &&
+            collaboration.analysis.features.length > 0 && (
+              <FeaturesSection>
+                <FeaturesTitle>Features</FeaturesTitle>
+                <FeaturesList>
+                  {collaboration.analysis.features.map((feature, index) => (
+                    <FeatureItem key={index}>{feature}</FeatureItem>
+                  ))}
+                </FeaturesList>
+              </FeaturesSection>
+            )}
 
           {collaboration.summary && (
             <SummarySection>
@@ -477,7 +514,9 @@ const CollaborationPage = ({
             {collaboration.transcripts?.map((transcript, index) => (
               <TranscriptItem key={index}>
                 <EditButton
-                  onClick={() => setEditingTranscript({ index, text: transcript })}
+                  onClick={() =>
+                    setEditingTranscript({ index, text: transcript })
+                  }
                   title="Edit transcript"
                   aria-label="Edit transcript"
                 >
