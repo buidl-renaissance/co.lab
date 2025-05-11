@@ -4,12 +4,14 @@ import { Main as LayoutMain, Title, Description, Hero } from "@/components/Layou
 import MobileNav from "@/components/MobileNav";
 import Templates from "@/components/Templates";
 import styled from "styled-components";
+import { useCollaborations } from "@/hooks/useCollaborations";
 
 const Main = styled(LayoutMain)`
   background-color: ${({ theme }) => theme.surface};
 `;
 
 const CreatePage = () => {
+  const { collaborations } = useCollaborations(); 
   return (
     <>
       <Head>
@@ -21,7 +23,7 @@ const CreatePage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <MobileNav collaborations={[]} />
+      <MobileNav collaborations={collaborations} />
 
       <Main full style={{ paddingTop: "88px" }}>
         <Hero>          
