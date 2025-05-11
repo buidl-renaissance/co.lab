@@ -28,6 +28,17 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
+  // Sort collaborations by last opened
+  const sortedCollaborations = React.useMemo(() => {
+    const openedTimestamps = JSON.parse(localStorage.getItem('collaborationOpenedTimestamps') || '{}');
+    
+    return [...collaborations].sort((a, b) => {
+      const timeA = openedTimestamps[a.id] || 0;
+      const timeB = openedTimestamps[b.id] || 0;
+      return timeB - timeA; // Sort in descending order (most recent first)
+    });
+  }, [collaborations]);
+
   // Load preferences from localStorage on component mount
   useEffect(() => {
     try {
@@ -96,7 +107,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
 
         <DrawerContent>
           <DrawerSection>
-            {collaborations.map((collab) => (
+            {sortedCollaborations.map((collab) => (
               <DrawerLink
                 key={collab.id}
                 href={`/collab/${collab.id}`}

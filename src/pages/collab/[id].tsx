@@ -266,6 +266,20 @@ const CollaborationPage = ({
     text: string;
   } | null>(null);
 
+  // Track when collaboration is opened
+  useEffect(() => {
+    if (!router.isReady || !collaboration) return;
+
+    // Get existing opened timestamps or initialize empty object
+    const openedTimestamps = JSON.parse(localStorage.getItem('collaborationOpenedTimestamps') || '{}');
+    
+    // Update timestamp for current collaboration
+    openedTimestamps[collaboration.id] = Date.now();
+    
+    // Save back to localStorage
+    localStorage.setItem('collaborationOpenedTimestamps', JSON.stringify(openedTimestamps));
+  }, [router.isReady, collaboration]);
+
   // Load collaboration data when route changes
   useEffect(() => {
     const loadCollaboration = async () => {
