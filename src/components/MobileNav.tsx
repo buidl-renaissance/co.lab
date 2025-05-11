@@ -27,16 +27,24 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
   const [drawerPosition, setDrawerPosition] = useState<"left" | "right">("left");
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const [sortedCollaborations, setSortedCollaborations] = useState(collaborations);
 
   // Sort collaborations by last opened
-  const sortedCollaborations = React.useMemo(() => {
-    const openedTimestamps = JSON.parse(localStorage.getItem('collaborationOpenedTimestamps') || '{}');
-    
-    return [...collaborations].sort((a, b) => {
-      const timeA = openedTimestamps[a.id] || 0;
-      const timeB = openedTimestamps[b.id] || 0;
-      return timeB - timeA; // Sort in descending order (most recent first)
-    });
+  useEffect(() => {
+    try {
+      const openedTimestamps = JSON.parse(localStorage.getItem('collaborationOpenedTimestamps') || '{}');
+      
+      const sorted = [...collaborations].sort((a, b) => {
+        const timeA = openedTimestamps[a.id] || 0;
+        const timeB = openedTimestamps[b.id] || 0;
+        return timeB - timeA; // Sort in descending order (most recent first)
+      });
+      
+      setSortedCollaborations(sorted);
+    } catch (error) {
+      // If localStorage is not available (SSR), just use the original order
+      setSortedCollaborations(collaborations);
+    }
   }, [collaborations]);
 
   // Load preferences from localStorage on component mount
