@@ -40,6 +40,18 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
     }
   }, []);
 
+  // Handle body scroll when drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Close drawer when route changes
   useEffect(() => {
     const handleRouteChange = () => setIsOpen(false);
@@ -256,6 +268,10 @@ const Drawer = styled.div<{ isOpen: boolean; position: "left" | "right" }>`
   z-index: 101;
   box-shadow: ${({ theme }) => theme.shadow};
   opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  touch-action: none;
 `;
 
 const DrawerHeader = styled.div`
@@ -264,6 +280,7 @@ const DrawerHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 const DrawerTitle = styled.h2`
@@ -287,15 +304,38 @@ const CloseButton = styled.button`
 `;
 
 const DrawerContent = styled.div`
-  height: calc(100% - 61px);
+  flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  position: relative;
 `;
 
 const DrawerSection = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => `${theme.border} transparent`};
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.border};
+    border-radius: 3px;
+  }
+
+  /* Prevent scroll chaining */
+  overscroll-behavior-y: contain;
+  -ms-overflow-style: none;
 `;
 
 const DrawerLink = styled(Link)`
@@ -314,6 +354,7 @@ const DrawerLink = styled(Link)`
 const DrawerActions = styled.div`
   padding: 20px;
   border-top: 1px solid ${({ theme }) => theme.border};
+  flex-shrink: 0;
 `;
 
 const ActionButtonsContainer = styled.div`

@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import { Main as LayoutMain, Title, Description } from "@/components/Layout";
+import { Main as LayoutMain, Title, Description, Hero } from "@/components/Layout";
 import MobileNav from "@/components/MobileNav";
 import Templates from "@/components/Templates";
 import styled from "styled-components";
@@ -24,10 +24,12 @@ const CreatePage = () => {
       <MobileNav collaborations={[]} />
 
       <Main full style={{ paddingTop: "88px" }}>
-        <Title>Create New Collaboration</Title>
-        <Description>
-          Choose a template to get started with your new collaboration
+        <Hero>          
+          <Title>Create New Collaboration</Title>
+          <Description>
+            Choose a template to get started with your new collaboration
         </Description>
+        </Hero>
 
         <Templates />
       </Main>
