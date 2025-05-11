@@ -7,7 +7,6 @@ import {
   Title,
   Description,
   Section,
-  SectionTitle,
 } from "@/components/Layout";
 import { GetServerSidePropsContext } from "next";
 import { getCollaborationById, getAllCollaborations } from "@/db/collaboration";
@@ -154,7 +153,7 @@ const FeaturesSection = styled(Section)`
   margin: 1.5rem auto;
 `;
 
-const FeaturesTitle = styled(SectionTitle)`
+const FeaturesTitle = styled(SectionHeader)`
   color: ${({ theme }) => theme.accent};
 `;
 
@@ -373,10 +372,12 @@ const CollaborationPage = ({
             </FeaturesSection>
           )}
 
-          <SummarySection>
-            <SectionHeader>Summary</SectionHeader>
-            <SummaryText>{collaboration.summary}</SummaryText>
-          </SummarySection>
+          {collaboration.summary && (
+            <SummarySection>
+              <SectionHeader>Summary</SectionHeader>
+              <SummaryText>{collaboration.summary}</SummaryText>
+            </SummarySection>
+          )}
 
           <QRCodeContainer>
             <QRCode
