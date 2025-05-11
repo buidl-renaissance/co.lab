@@ -117,7 +117,7 @@ export const getServerSideProps = async () => {
             "Voice-first project planning for creative teams. Transform freeform conversations into structured, actionable project plans.",
           images: [
             {
-              url: "/co.lab-start.jpg",
+              url: "/co.lab-thumb.jpg",
               width: 1200,
               height: 630,
               alt: "Co.Lab - Turn Conversations into Organized Collaboration",

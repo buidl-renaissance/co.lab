@@ -101,6 +101,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
                 key={collab.id}
                 href={`/collab/${collab.id}`}
                 onClick={() => setIsOpen(false)}
+                isActive={router.query.id === collab.id}
               >
                 {collab.title}
               </DrawerLink>
@@ -338,16 +339,20 @@ const DrawerSection = styled.div`
   -ms-overflow-style: none;
 `;
 
-const DrawerLink = styled(Link)`
+const DrawerLink = styled(Link)<{ isActive: boolean }>`
   display: block;
   padding: 12px 0;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme, isActive }) => isActive ? theme.accent : theme.text};
   text-decoration: none;
   border-bottom: 1px solid ${({ theme }) => theme.border};
-  transition: color 0.2s;
+  transition: all 0.2s;
+  background: ${({ theme, isActive }) => isActive ? theme.surface : 'transparent'};
+  padding-left: 1rem;
+  border-left: 3px solid ${({ theme, isActive }) => isActive ? theme.accent : 'transparent'};
 
   &:hover {
     color: ${({ theme }) => theme.accent};
+    background: ${({ theme }) => theme.surface};
   }
 `;
 
