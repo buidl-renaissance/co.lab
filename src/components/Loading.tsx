@@ -15,7 +15,7 @@ const LoadingOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: ${({ theme }) => theme.background}e6;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -24,11 +24,11 @@ const LoadingOverlay = styled.div`
 `;
 
 const Spinner = styled.div`
-  border: 4px solid rgba(0, 0, 0, 0.1);
+  border: 4px solid ${({ theme }) => theme.border};
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border-left-color: #ff7a59;
+  border-left-color: ${({ theme }) => theme.accent};
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 
@@ -44,7 +44,7 @@ const Spinner = styled.div`
 
 const LoadingText = styled.h3`
   font-family: "Space Grotesk", sans-serif;
-  color: #1c1c1e;
+  color: ${({ theme }) => theme.text};
   margin-top: 1rem;
 `;
 
