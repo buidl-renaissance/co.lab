@@ -204,6 +204,11 @@ const EditButton = styled.button`
   }
 `;
 
+const FadeOutContainer = styled.div<{ isVisible: boolean }>`
+  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+  transition: opacity 300ms ease-out;
+`;
+
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -243,6 +248,7 @@ const CollaborationPage = ({
   const [collaboration, setCollaboration] = useState<Collaboration>(initialCollaboration);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [editingTranscript, setEditingTranscript] = useState<{
     index: number;
     text: string;
@@ -254,6 +260,7 @@ const CollaborationPage = ({
       if (!router.isReady) return;
       
       setIsInitialLoad(true);
+      setShowLoadingScreen(true);
       try {
         const response = await fetch(`/api/collaboration/${router.query.id}`);
         const data = await response.json();
@@ -278,6 +285,10 @@ const CollaborationPage = ({
         }
       } finally {
         setIsInitialLoad(false);
+        // Start fade out animation
+        setTimeout(() => {
+          setShowLoadingScreen(false);
+        }, 300);
       }
     };
 
@@ -356,10 +367,12 @@ const CollaborationPage = ({
     }
   };
 
-  if (isInitialLoad) {
+  if (isInitialLoad || showLoadingScreen) {
     return (
       <Container>
-        <Loading text="Loading collaboration..." />
+        <FadeOutContainer isVisible={showLoadingScreen}>
+          <Loading text="Loading collaboration..." />
+        </FadeOutContainer>
       </Container>
     );
   }
