@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { Modal, ModalBody, ModalFooter, SubmitButton, CancelButton } from "./Modal";
-import { Label, TextArea } from "./Form";
+import { TextArea } from "./Form";
 
 interface TranscriberProps {
   onTranscriptReady?: (transcript: string) => void;
@@ -15,9 +15,47 @@ const Transcriber: React.FC<TranscriberProps> = ({ onTranscriptReady, onTranscri
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [showManualButton, setShowManualButton] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('showManualTranscriptButton') === 'true';
+    } catch (error) {
+      console.error('Error reading manual transcript button setting:', error);
+      return false;
+    }
+  });
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Listen for changes to the setting
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent | CustomEvent) => {
+      try {
+        if (event instanceof StorageEvent) {
+          // Handle cross-tab changes
+          if (event.key === 'showManualTranscriptButton') {
+            setShowManualButton(event.newValue === 'true');
+          }
+        } else {
+          // Handle same-window changes
+          setShowManualButton(event.detail);
+        }
+      } catch (error) {
+        console.error('Error reading manual transcript button setting:', error);
+      }
+    };
+
+    // Listen for cross-tab changes
+    window.addEventListener('storage', handleStorageChange as EventListener);
+    // Listen for same-window changes
+    window.addEventListener('manualTranscriptSettingChanged', handleStorageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange as EventListener);
+      window.removeEventListener('manualTranscriptSettingChanged', handleStorageChange as EventListener);
+    };
+  }, []);
 
   const startRecording = async () => {
     try {
@@ -142,12 +180,23 @@ const Transcriber: React.FC<TranscriberProps> = ({ onTranscriptReady, onTranscri
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleManualInput = () => {
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       {!isRecording && (
-        <FloatingRecordButton onClick={startRecording}>
-          🎙️
-        </FloatingRecordButton>
+        <ButtonContainer>
+          {showManualButton && (
+            <FloatingTextButton onClick={handleManualInput}>
+              ✏️
+            </FloatingTextButton>
+          )}
+          <FloatingRecordButton onClick={startRecording}>
+            🎙️
+          </FloatingRecordButton>
+        </ButtonContainer>
       )}
       
       {isRecording && (
@@ -173,24 +222,21 @@ const Transcriber: React.FC<TranscriberProps> = ({ onTranscriptReady, onTranscri
             </AudioPreview>
           )}
           
-          {transcript && !isTranscribing && (
-            <TranscriptContainer>
-              <Label htmlFor="transcript">Transcript</Label>
-              <TextArea
-                id="transcript"
-                value={transcript}
-                onChange={(e) => setTranscript(e.target.value)}
-                rows={6}
-              />
-            </TranscriptContainer>
-          )}
+          <TranscriptContainer>
+            {/* <Label htmlFor="transcript">Transcript</Label> */}
+            <TextArea
+              id="transcript"
+              value={transcript}
+              onChange={(e) => setTranscript(e.target.value)}
+              rows={6}
+              placeholder="Enter your transcript here..."
+            />
+          </TranscriptContainer>
         </ModalBody>
         
         <ModalFooter>
           <CancelButton onClick={handleCloseModal}>Cancel</CancelButton>
-          {transcript && !isTranscribing && (
-            <SubmitButton onClick={handleSubmit}>Use Transcript</SubmitButton>
-          )}
+          <UseTranscriptButton onClick={handleSubmit}>Use Transcript</UseTranscriptButton>
         </ModalFooter>
       </Modal>
     </>
@@ -201,9 +247,6 @@ export default Transcriber;
 
 // Styled Components
 const FloatingRecordButton = styled.button`
-  position: fixed;
-  bottom: 2rem;
-  right: 7rem;
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -216,7 +259,6 @@ const FloatingRecordButton = styled.button`
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  z-index: 100;
   font-size: 1.5rem;
 
   &:hover {
@@ -338,5 +380,26 @@ const TranscribingStatus = styled.div`
 
 const TranscriptContainer = styled.div`
   width: 100%;
-  margin-top: 1rem;
+`;
+
+const UseTranscriptButton = styled(SubmitButton)`
+  padding: 0.6rem 0.4rem;
+`;
+
+const ButtonContainer = styled.div`
+  position: fixed;
+  bottom: 2rem;
+  right: 6.2rem;
+  display: flex;
+  gap: 1rem;
+  z-index: 100;
+`;
+
+const FloatingTextButton = styled(FloatingRecordButton)`
+  background-color: #ffd700;
+  
+  &:hover {
+    background-color: #ffcc00;
+    transform: scale(1.05);
+  }
 `;

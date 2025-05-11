@@ -25,6 +25,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [drawerPosition, setDrawerPosition] = useState<"left" | "right">("left");
+  const [showManualTranscript, setShowManualTranscript] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const [sortedCollaborations, setSortedCollaborations] = useState(collaborations);
@@ -55,6 +56,8 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
       if (savedPosition === "left" || savedPosition === "right") {
         setDrawerPosition(savedPosition);
       }
+      const savedShowManual = localStorage.getItem("showManualTranscriptButton");
+      setShowManualTranscript(savedShowManual === "true");
     } catch (error) {
       console.error("Error loading settings from localStorage:", error);
     }
@@ -86,6 +89,18 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
       localStorage.setItem("drawerPosition", newPosition);
     } catch (error) {
       console.error("Error saving drawer position to localStorage:", error);
+    }
+  };
+
+  const toggleManualTranscript = () => {
+    try {
+      const newValue = !showManualTranscript;
+      setShowManualTranscript(newValue);
+      localStorage.setItem("showManualTranscriptButton", String(newValue));
+      // Dispatch custom event for same-window updates
+      window.dispatchEvent(new CustomEvent('manualTranscriptSettingChanged', { detail: newValue }));
+    } catch (error) {
+      console.error("Error saving manual transcript setting to localStorage:", error);
     }
   };
 
@@ -192,6 +207,24 @@ const MobileNav: React.FC<MobileNavProps> = ({ collaborations }) => {
                 </SegmentButton>
               </SegmentedControl>
             </SettingItem>
+
+            <SettingItem>
+              <SettingLabel>Manual Transcript Button</SettingLabel>
+              <SegmentedControl>
+                <SegmentButton 
+                  isActive={showManualTranscript} 
+                  onClick={toggleManualTranscript}
+                >
+                  Show
+                </SegmentButton>
+                <SegmentButton 
+                  isActive={!showManualTranscript} 
+                  onClick={toggleManualTranscript}
+                >
+                  Hide
+                </SegmentButton>
+              </SegmentedControl>
+            </SettingItem>
           </SettingsSection>
         </ModalContent>
       </SettingsModal>
@@ -236,7 +269,7 @@ const Brand = styled.h1`
 const FloatingMenuButton = styled.button`
   position: fixed;
   bottom: 2rem;
-  right: 2rem;
+  right: 1.5rem;
   width: 60px;
   height: 60px;
   border-radius: 50%;

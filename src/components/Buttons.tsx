@@ -24,7 +24,6 @@ const Button = styled.button`
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(255, 122, 89, 0.2);
   align-self: center;
-  margin-top: 1.5rem;
   width: 100%;
   max-width: 250px;
 
@@ -41,6 +40,7 @@ const Button = styled.button`
     box-shadow: 0 6px 14px rgba(255, 122, 89, 0.3);
   }
 `;
+
 const PrimaryButton = styled.button`
   padding: 0.8rem 1.6rem;
   background-color: #FF7A59;
