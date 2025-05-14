@@ -40,7 +40,7 @@ export async function analyzeTranscript(
       Update the analysis with the latest transcript, including the title, description, participants, answers to the questions, action items and summary:
       ${lastTranscript}
 
-      Be sure to look for completed tasks and actions, and mark them as such.
+      Be sure to look for completed action items, and mark them as such. Look out for the word "done" or "completed" to mark an action as completed. Also, look out for the word "next" to mark an action as a next step.
 
       The current analysis, JSON format: ${JSON.stringify(analysis)}
     `
@@ -93,16 +93,7 @@ export async function analyzeTranscript(
 You are a helpful assistant that analyzes conversation transcripts to help a user organize their collaboration. 
 You will be given a transcript of a conversation and a template for the collaboration.
 You will need to extract the information from the transcript and return it in a structured format. 
-You will also be given a list of previous transcripts and a summary of the collaboration. 
-You will need to update the summary with the latest transcript and return the updated summary. 
-When analyzing the transcript, you will need to look for completed tasks and actions, and mark them as such. 
-You will also need to look for new participants and add them to the participants list. 
-You will also need to look for new questions and add them to the questions list. 
-You will also need to look for new action items and add them to the action items list.
-Look out for the word "done" or "completed" to mark an action as completed. 
-Also, look out for the word "next" to mark an action as a next step.
-You will also need to look for new features and add them to the features list. 
-You will also need to look for new insights and add them to the insights list.`,
+`,
         },
         { role: "user", content: prompt },
       ],
