@@ -6,7 +6,7 @@ export type AnalysisResponse = {
   description: string;
   participants: string[];
   answers: { question: string; answer: string }[];
-  actions: { action: string; description: string, completed: boolean }[];
+  actions: { action: string; description: string; completed: boolean }[];
   summary: string;
   features?: string[]; // Added optional features array for product templates
 };
@@ -31,7 +31,9 @@ export async function analyzeTranscript(
     const lastTranscript = transcripts[transcripts.length - 1];
     const otherTranscripts = transcripts.slice(0, transcripts.length - 1);
 
-    const transcriptPrompt = transcripts.length > 1 ? `
+    const transcriptPrompt =
+      transcripts.length > 1
+        ? `
       Previous Transcripts:
       ${otherTranscripts.join("\n")}
 
@@ -41,7 +43,8 @@ export async function analyzeTranscript(
       Be sure to look for completed tasks and actions, and mark them as such.
 
       The current analysis, JSON format: ${JSON.stringify(analysis)}
-    ` : `
+    `
+        : `
       Transcript:
       ${lastTranscript}
     `;
@@ -69,7 +72,11 @@ export async function analyzeTranscript(
       }
 
       A list of action items (or next steps), and a summary of the conversation.
-      ${template.name.toLowerCase().includes('product') ? 'Also extract a list of product features mentioned in the conversation.' : ''}
+      ${
+        template.name.toLowerCase().includes("product")
+          ? "Also extract a list of product features mentioned in the conversation."
+          : ""
+      }
       
       ${transcriptPrompt}
     `;
@@ -82,8 +89,20 @@ export async function analyzeTranscript(
       messages: [
         {
           role: "system",
-          content:
-            "You are a helpful assistant that analyzes conversation transcripts.",
+          content: `
+You are a helpful assistant that analyzes conversation transcripts to help a user organize their collaboration. 
+You will be given a transcript of a conversation and a template for the collaboration.
+You will need to extract the information from the transcript and return it in a structured format. 
+You will also be given a list of previous transcripts and a summary of the collaboration. 
+You will need to update the summary with the latest transcript and return the updated summary. 
+When analyzing the transcript, you will need to look for completed tasks and actions, and mark them as such. 
+You will also need to look for new participants and add them to the participants list. 
+You will also need to look for new questions and add them to the questions list. 
+You will also need to look for new action items and add them to the action items list.
+Look out for the word "done" or "completed" to mark an action as completed. 
+Also, look out for the word "next" to mark an action as a next step.
+You will also need to look for new features and add them to the features list. 
+You will also need to look for new insights and add them to the insights list.`,
         },
         { role: "user", content: prompt },
       ],
@@ -128,7 +147,8 @@ export async function analyzeTranscript(
                 features: {
                   type: "array",
                   items: { type: "string" },
-                  description: "List of product features mentioned in the conversation (for product templates only)"
+                  description:
+                    "List of product features mentioned in the conversation (for product templates only)",
                 },
                 summary: { type: "string" },
               },

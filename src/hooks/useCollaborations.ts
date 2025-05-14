@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Collaboration } from '@/data/collaboration';
 
 /**
- * Hook to manage collaborations from localStorage and API
+ * Hook to manage collaborations from localStorage
  * @returns Object containing collaborations and methods to manage them
  */
 export const useCollaborations = () => {
@@ -12,31 +12,18 @@ export const useCollaborations = () => {
 
   // Load collaborations from localStorage on initial render
   useEffect(() => {
-    const loadCollaborations = async () => {
-      try {
-        setIsLoading(true);
-        
-        // First try to get from localStorage
-        const storedCollabs = localStorage.getItem('collaborations');
-        const localCollabs = storedCollabs ? JSON.parse(storedCollabs) : [];
-        
-        setCollaborations(localCollabs);
-        setError(null);
-      } catch (err) {
-        console.error('Error loading collaborations:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error occurred');
-        
-        // Fallback to localStorage if API fails
-        const storedCollabs = localStorage.getItem('collaborations');
-        if (storedCollabs) {
-          setCollaborations(JSON.parse(storedCollabs));
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadCollaborations();
+    try {
+      setIsLoading(true);
+      const storedCollabs = localStorage.getItem('collaborations');
+      const localCollabs = storedCollabs ? JSON.parse(storedCollabs) : [];
+      setCollaborations(localCollabs);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading collaborations:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   // Add a new collaboration
