@@ -66,6 +66,26 @@ Under the following terms:
 - Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
 - NonCommercial — You may not use the material for commercial purposes.
 
+## MCP API
+
+This app exposes a lightweight Model Context Protocol–style endpoint that lets AI agents list and call tools backed by the existing collaboration APIs.
+
+- **Endpoint**: `POST /api/mcp`
+- **Protocol**: JSON-RPC 2.0 with MCP-style methods:
+  - `tools/list` — returns the available tools and their schemas.
+  - `tools/call` — invokes a tool by name with structured arguments.
+
+When the optional `MCP_API_KEY` environment variable is set, callers must include either:
+
+- `Authorization: Bearer <MCP_API_KEY>` header, or
+- `x-mcp-api-key: <MCP_API_KEY>` header.
+
+The endpoint applies a simple in-memory rate limit per IP and logs each call (method, id, IP, and duration) as structured JSON to stdout.
+
+To run a quick self-test of the MCP tooling from application code, you can call:
+
+- `runMcpSelfTest()` from `src/lib/mcp/testHarness.ts`
+
 ## Contact
 
 For questions or feedback, please contact us at john@builddetroit.xyz
