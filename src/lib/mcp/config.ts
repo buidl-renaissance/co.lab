@@ -76,7 +76,7 @@ export function registerMcpTools() {
       return {
         success: true,
         data: collaborations,
-      } as JsonValue;
+      } as unknown as JsonValue;
     },
   );
 
@@ -94,13 +94,13 @@ export function registerMcpTools() {
         return {
           success: false,
           error: 'Collaboration not found',
-        } as JsonValue;
+        } as unknown as JsonValue;
       }
 
       return {
         success: true,
         data: collaboration,
-      } as JsonValue;
+      } as unknown as JsonValue;
     },
   );
 
@@ -144,7 +144,7 @@ export function registerMcpTools() {
       return {
         success: true,
         data: collaboration,
-      } as JsonValue;
+      } as unknown as JsonValue;
     },
   );
 

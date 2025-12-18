@@ -3,6 +3,7 @@ import {
   JsonRpcRequest,
   JsonRpcResponse,
   JsonRpcErrorObject,
+  JsonValue,
 } from '@/lib/mcp/types';
 import { globalToolRegistry } from '@/lib/mcp/registry';
 import { registerMcpTools, toolDefinitions } from '@/lib/mcp/config';
@@ -133,7 +134,7 @@ export default async function handler(
 
       const result = await globalToolRegistry.callTool({
         name,
-        arguments: args,
+        arguments: args as JsonValue | undefined,
       });
 
       res.status(200).json({
@@ -155,8 +156,6 @@ export default async function handler(
     );
   } finally {
     const durationMs = Date.now() - start;
-    // Basic structured logging for MCP calls
-    // eslint-disable-next-line no-console
     console.log(
       JSON.stringify({
         type: 'mcp_call',
