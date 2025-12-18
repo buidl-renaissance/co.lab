@@ -187,7 +187,7 @@ const StartSession = styled.div`
     font-family: "Space Grotesk", sans-serif;
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
-    color: white;
+    color: ${({ theme }) => theme.text};
   }
 `;
 
