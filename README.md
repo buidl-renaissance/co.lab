@@ -50,6 +50,26 @@ At Co.Lab, we believe that the best ideas come from natural conversations. Our m
 - `/src/data` - Data models and templates
 - `/src/styles` - Global styles and theme configuration
 
+## Farcaster Mini App / Frame
+
+This app exposes a simple Farcaster mini app (Frame) that lets users start in Co.Lab directly from Farcaster:
+
+- **Frame URL**: `/frames` (e.g., `https://your-app.vercel.app/frames`)
+- **Initial action**: A \"Start a Collab\" button that posts to `/api/frames/start` and then redirects users into the main `/collabs` page.
+
+Environment variables used:
+
+- `NEXT_PUBLIC_APP_URL` — canonical base URL for the deployed app (used when generating absolute URLs for frame metadata and images).
+- `FARCASTER_SIGNER_UUID` — reserved for future authenticated Farcaster interactions.
+- `NEYNAR_API_KEY` — reserved for future Neynar-powered verification and user data.
+
+To test the frame:
+
+1. Deploy the app to Vercel and set `NEXT_PUBLIC_APP_URL` to the deployed URL.
+2. Open the deployed `/frames` URL in a browser to confirm the basic page renders.
+3. Create a test cast in Warpcast that links to the full `/frames` URL and verify that the frame renders with the \"Start a Collab\" button.
+4. Press the button to confirm that the mini app redirects into your `/collabs` page as expected.
+
 ## Contributing
 
 We welcome contributions from the community! Please feel free to submit a Pull Request.
