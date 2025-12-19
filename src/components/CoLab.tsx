@@ -18,11 +18,12 @@ const TypingContainer = styled.span`
   color: ${({ theme }) => theme.accent};
 `;
 
+const texts = ['.Create', '.Build', '.Lab'];
+
 const CoLab: React.FC = () => {
   const [displayText, setDisplayText] = useState('');
   const [textIndex, setTextIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const texts = ['.Create', '.Build', '.Lab'];
   const typingSpeed = 150;
   const deletingSpeed = 100;
   const pauseTime = 1000;

@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let stateJson: { redirect: string };
   try {
     stateJson = JSON.parse(Buffer.from(state as string, 'base64url').toString('utf8'));
-  } catch (e) {
+  } catch {
     return res.status(400).send('Invalid state parameter');
   }
 
