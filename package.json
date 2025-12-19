@@ -6,10 +6,17 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:apply": "node scripts/apply-migration.js"
   },
   "dependencies": {
+    "@libsql/client": "^0.15.15",
     "@vercel/analytics": "^1.5.0",
+    "drizzle-orm": "^0.45.1",
     "frames.js": "^0.18.0",
     "knex": "^3.1.0",
     "mysql": "^2.18.1",
@@ -29,6 +36,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.8",
     "eslint": "^9",
     "eslint-config-next": "15.5.9",
     "typescript": "^5"

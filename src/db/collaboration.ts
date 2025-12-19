@@ -1,27 +1,32 @@
 import { v4 as uuidv4 } from 'uuid';
+import { eq } from 'drizzle-orm';
 import { Collaboration } from '@/data/collaboration';
-import client from './client';
+import { db } from './drizzle';
+import { collaborations } from './schema';
 
-
-export async function createCollaboration(collaboration: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'>): Promise<Collaboration> {
+export async function createCollaboration(
+  collaboration: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<Collaboration> {
   const id = uuidv4();
   const now = new Date();
   
+  // Drizzle handles JSON serialization automatically for columns with mode: 'json'
   const newCollaboration = {
     id,
-    ...collaboration,
+    title: collaboration.title,
+    description: collaboration.description || null,
+    template: collaboration.template,
     createdAt: now,
     updatedAt: now,
-    participants: JSON.stringify(collaboration.participants),
-    answers: JSON.stringify(collaboration.answers),
-    template: JSON.stringify(collaboration.template),
-    status: collaboration.status || 'active',
-    analysis: JSON.stringify(collaboration.analysis),
-    transcripts: JSON.stringify(collaboration.transcripts),
-    summary: collaboration.summary || "",
+    answers: collaboration.answers,
+    participants: collaboration.participants || [],
+    status: collaboration.status || ('active' as const),
+    analysis: collaboration.analysis || null,
+    transcripts: collaboration.transcripts || null,
+    summary: collaboration.summary || '',
   };
 
-  await client('collaborations').insert(newCollaboration);
+  await db.insert(collaborations).values(newCollaboration);
   
   return {
     ...collaboration,
@@ -32,94 +37,95 @@ export async function createCollaboration(collaboration: Omit<Collaboration, 'id
     answers: collaboration.answers || {},
     status: collaboration.status || 'active',
     transcripts: collaboration.transcripts || [],
-    summary: collaboration.summary || "",
+    summary: collaboration.summary || '',
   } as Collaboration;
 }
 
 export async function getCollaborationById(id: string): Promise<Collaboration | null> {
-  const result = await client('collaborations').where({ id }).first();
+  const results = await db.select().from(collaborations).where(eq(collaborations.id, id)).limit(1);
   
-  if (!result) return null;
+  if (results.length === 0) return null;
+  
+  const result = results[0];
   
   try {
-    // Helper function to safely parse JSON
-    const safeParse = (value: string | object) => {
-      console.log("Value:", value);
-      if (typeof value === 'string') {
-        try {
-          return JSON.parse(value);
-        } catch {
-          return value;
-        }
-      }
-      return value;
-    };
-
-    console.log("Result:", result);
-
+    // Drizzle automatically deserializes JSON fields due to mode: 'json'
     return {
-      ...result,
-      participants: safeParse(result.participants),
-      answers: safeParse(result.answers),
-      template: safeParse(result.template),
-      analysis: result.analysis ? safeParse(result.analysis) : undefined,
-      transcripts: result.transcripts ? safeParse(result.transcripts) : [],
-      summary: result.summary || "",
+      id: result.id,
+      title: result.title,
+      description: result.description || '',
+      template: result.template as Collaboration['template'],
+      createdAt: result.createdAt || new Date(),
+      updatedAt: result.updatedAt || new Date(),
+      participants: (result.participants as string[]) || [],
+      answers: (result.answers as { [key: string]: string }) || {},
+      status: result.status as Collaboration['status'],
+      analysis: result.analysis as Collaboration['analysis'],
+      transcripts: (result.transcripts as string[]) || [],
+      summary: result.summary || '',
     } as Collaboration;
   } catch (error) {
     console.error('Error parsing collaboration data:', error);
-    // Return a safe default if parsing fails
-    return {
-      ...result,
-      participants: [],
-      answers: {},
-      template: {},
-      analysis: undefined,
-      transcripts: [],
-      summary: "",
-    } as Collaboration;
+    return null;
   }
 }
 
-export async function updateCollaboration(id: string, updates: Partial<Collaboration>): Promise<Collaboration | null> {
+export async function updateCollaboration(
+  id: string,
+  updates: Partial<Collaboration>
+): Promise<Collaboration | null> {
   const collaboration = await getCollaborationById(id);
   if (!collaboration) return null;
   
-  const updatedData = {
-    ...updates,
+  // Build update object, only including fields that are provided
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateData: Record<string, any> = {
     updatedAt: new Date(),
-    participants: updates.participants ? typeof updates.participants !== 'string' ? JSON.stringify(updates.participants) : updates.participants : undefined,
-    answers: updates.answers ? typeof updates.answers !== 'string' ? JSON.stringify(updates.answers) : updates.answers : undefined,
-    template: updates.template ? typeof updates.template !== 'string' ? JSON.stringify(updates.template) : updates.template : undefined,
-    analysis: updates.analysis ? typeof updates.analysis !== 'string' ? JSON.stringify(updates.analysis) : updates.analysis : undefined,
-    transcripts: updates.transcripts ? typeof updates.transcripts !== 'string' ? JSON.stringify(updates.transcripts) : updates.transcripts : undefined,
-    summary: updates.summary ? updates.summary : undefined,
   };
   
-  // Remove undefined values
-  Object.keys(updatedData).forEach(key => 
-    updatedData[key as keyof typeof updatedData] === undefined && delete updatedData[key as keyof typeof updatedData]
-  );
+  if (updates.title !== undefined) updateData.title = updates.title;
+  if (updates.description !== undefined) updateData.description = updates.description;
+  if (updates.template !== undefined) updateData.template = updates.template;
+  if (updates.participants !== undefined) updateData.participants = updates.participants;
+  if (updates.answers !== undefined) updateData.answers = updates.answers;
+  if (updates.status !== undefined) updateData.status = updates.status;
+  if (updates.analysis !== undefined) updateData.analysis = updates.analysis;
+  if (updates.transcripts !== undefined) updateData.transcripts = updates.transcripts;
+  if (updates.summary !== undefined) updateData.summary = updates.summary;
   
-  await client('collaborations').where({ id }).update(updatedData);
+  await db
+    .update(collaborations)
+    .set(updateData)
+    .where(eq(collaborations.id, id));
   
   return getCollaborationById(id);
 }
 
 export async function getAllCollaborations(): Promise<Collaboration[]> {
-  const results = await client('collaborations').select('*');
+  const results = await db.select().from(collaborations);
   
-  return results.map(result => ({
-    ...result,
-    participants: typeof result.participants === 'string' ? JSON.parse(result.participants) : result.participants,
-    answers: typeof result.answers === 'string' ? JSON.parse(result.answers) : result.answers,
-    template: typeof result.template === 'string' ? JSON.parse(result.template) : result.template,
-    createdAt: new Date(result.createdAt),
-    updatedAt: new Date(result.updatedAt)
+  return results.map((result) => ({
+    id: result.id,
+    title: result.title,
+    description: result.description || '',
+    template: result.template as Collaboration['template'],
+    createdAt: result.createdAt || new Date(),
+    updatedAt: result.updatedAt || new Date(),
+    participants: (result.participants as string[]) || [],
+    answers: (result.answers as { [key: string]: string }) || {},
+    status: result.status as Collaboration['status'],
+    analysis: result.analysis as Collaboration['analysis'],
+    transcripts: (result.transcripts as string[]) || [],
+    summary: result.summary || '',
   })) as Collaboration[];
 }
 
 export async function deleteCollaboration(id: string): Promise<boolean> {
-  const deleted = await client('collaborations').where({ id }).delete();
-  return deleted > 0;
+  await db
+    .delete(collaborations)
+    .where(eq(collaborations.id, id));
+  
+  // Check if deletion was successful by querying if the record still exists
+  const existing = await getCollaborationById(id);
+  return existing === null;
 }
