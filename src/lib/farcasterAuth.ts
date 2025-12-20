@@ -29,31 +29,55 @@ export async function extractFrameUser(
   req: NextApiRequest
 ): Promise<VerifiedFrameUser | null> {
   try {
-    const body = req.body as {
+    // Log the request body for debugging
+    console.log('Frame request body:', JSON.stringify(req.body, null, 2));
+    console.log('Request method:', req.method);
+    console.log('Content-Type:', req.headers['content-type']);
+
+    // Handle case where body might be a string that needs parsing
+    let body: {
       trustedData?: {
         messageBytes?: string;
       };
       untrustedData?: {
         fid?: number;
+        url?: string;
+        buttonIndex?: number;
       };
     };
 
+    if (typeof req.body === 'string') {
+      try {
+        body = JSON.parse(req.body);
+      } catch (e) {
+        console.error('Failed to parse body as JSON:', e);
+        return null;
+      }
+    } else {
+      body = req.body as typeof body;
+    }
+
     // For development/testing, allow unverified requests if NEYNAR_API_KEY is not set
     if (!NEYNAR_API_KEY || NEYNAR_API_KEY === 'replace-with-neynar-api-key') {
+      console.log('Development mode: Using untrustedData');
       // In development mode, try to extract from untrustedData
       if (body.untrustedData?.fid) {
+        console.log('Found fid in untrustedData:', body.untrustedData.fid);
         return {
           fid: String(body.untrustedData.fid),
         };
       }
+      console.log('No fid found in untrustedData');
       return null;
     }
 
     // Verify signed payload using Neynar API
     if (!body.trustedData?.messageBytes) {
+      console.log('No trustedData.messageBytes found');
       return null;
     }
 
+    console.log('Verifying payload with Neynar API');
     const verifiedUser = await verifyFramePayload(body.trustedData.messageBytes);
     return verifiedUser;
   } catch (error) {

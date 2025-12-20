@@ -13,12 +13,18 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Log request details for debugging
+  console.log('=== Frame Start Handler ===');
+  console.log('Method:', req.method);
+  console.log('Body type:', typeof req.body);
+  console.log('Body keys:', req.body ? Object.keys(req.body) : 'no body');
+
   // Extract and verify authenticated user from frame context
   const user = await getAuthenticatedUser(req);
   
   // Log user authentication (for debugging)
   if (user) {
-    console.log('Frame request from authenticated user:', {
+    console.log('✅ Frame request from authenticated user:', {
       userId: user.id,
       fid: user.fid,
       username: user.username,
@@ -28,7 +34,8 @@ export default async function handler(
     // This allows the user to be identified in subsequent requests
     res.setHeader('Set-Cookie', `user_session=${user.id}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`); // 24 hours
   } else {
-    console.log('Frame request without authenticated user (may be development mode)');
+    console.log('❌ Frame request without authenticated user (may be development mode)');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
   }
 
   // Include user ID in redirect URL if user is authenticated
