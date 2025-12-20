@@ -5,10 +5,18 @@ import { db } from './drizzle';
 import { collaborations } from './schema';
 
 export async function createCollaboration(
-  collaboration: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'>
+  collaboration: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'> & {
+    createdByUserId?: string | null;
+  }
 ): Promise<Collaboration> {
   const id = uuidv4();
   const now = new Date();
+  
+  // Ensure creator is in participants if createdByUserId is provided
+  let participants = collaboration.participants || [];
+  if (collaboration.createdByUserId && !participants.includes(collaboration.createdByUserId)) {
+    participants = [collaboration.createdByUserId, ...participants];
+  }
   
   // Drizzle handles JSON serialization automatically for columns with mode: 'json'
   const newCollaboration = {
@@ -19,11 +27,12 @@ export async function createCollaboration(
     createdAt: now,
     updatedAt: now,
     answers: collaboration.answers,
-    participants: collaboration.participants || [],
+    participants,
     status: collaboration.status || ('active' as const),
     analysis: collaboration.analysis || null,
     transcripts: collaboration.transcripts || null,
     summary: collaboration.summary || '',
+    createdByUserId: collaboration.createdByUserId || null,
   };
 
   await db.insert(collaborations).values(newCollaboration);
@@ -33,7 +42,7 @@ export async function createCollaboration(
     id,
     createdAt: now,
     updatedAt: now,
-    participants: collaboration.participants || [],
+    participants,
     answers: collaboration.answers || {},
     status: collaboration.status || 'active',
     transcripts: collaboration.transcripts || [],
@@ -92,6 +101,7 @@ export async function updateCollaboration(
   if (updates.analysis !== undefined) updateData.analysis = updates.analysis;
   if (updates.transcripts !== undefined) updateData.transcripts = updates.transcripts;
   if (updates.summary !== undefined) updateData.summary = updates.summary;
+  // Note: createdByUserId is intentionally not updatable after creation
   
   await db
     .update(collaborations)

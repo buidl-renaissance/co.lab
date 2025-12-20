@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { PrimaryButton } from './Buttons';
+import { useUser } from '@/contexts/UserContext';
 
 interface EnhancedNavProps {
   templates?: Array<{
@@ -23,10 +24,21 @@ interface EnhancedNavProps {
 const EnhancedNav: React.FC<EnhancedNavProps> = ({ templates, collaborations }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const router = useRouter();
+  const { user } = useUser();
 
   const toggleMenu = (menu: string) => {
     setActiveMenu(activeMenu === menu ? null : menu);
   };
+
+  const displayName = user?.username || user?.displayName || (user ? `User ${user.fid}` : null);
+  const initials = displayName
+    ? displayName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '';
 
   return (
     <NavContainer>
@@ -80,6 +92,19 @@ const EnhancedNav: React.FC<EnhancedNavProps> = ({ templates, collaborations }) 
           <CreateButton onClick={() => router.push('/create')}>
             Create New
           </CreateButton>
+
+          {user && (
+            <UserProfile>
+              <UserAvatar>
+                {user.pfpUrl ? (
+                  <UserAvatarImage src={user.pfpUrl} alt={displayName || ''} />
+                ) : (
+                  <UserAvatarFallback>{initials}</UserAvatarFallback>
+                )}
+              </UserAvatar>
+              {displayName && <UserName>{displayName}</UserName>}
+            </UserProfile>
+          )}
         </MenuSection>
       </NavBar>
     </NavContainer>
@@ -188,4 +213,53 @@ const MenuDescription = styled.div`
   font-size: 0.875rem;
   color: #666;
   margin-top: 0.25rem;
+`;
+
+const UserProfile = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid #e0e0e0;
+`;
+
+const UserAvatar = styled.div`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ff7a59 0%, #ff7a59dd 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+`;
+
+const UserAvatarImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const UserAvatarFallback = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
+const UserName = styled.span`
+  font-size: 0.9rem;
+  color: #1C1C1E;
+  font-weight: 500;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `; 

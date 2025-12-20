@@ -8,6 +8,13 @@
       "when": 1766112909962,
       "tag": "0000_fearless_firestar",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1766240930412,
+      "tag": "0001_flaky_captain_flint",
+      "breakpoints": true
     }
   ]
 }

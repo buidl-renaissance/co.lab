@@ -13,6 +13,7 @@ import router from "next/router";
 import Footer from '@/components/Footer';
 import Templates from "@/components/Templates";
 import CoLab from "@/components/CoLab";
+import Onboarding from "@/components/Onboarding";
 
 const Container = styled(LayoutContainer)`
   padding: 0rem;
@@ -154,6 +155,8 @@ const CollabFlowHome: React.FC = () => {
           {/* <WaveAnimation /> */}
 
           <CoLab />
+
+          <Onboarding />
 
           <Description style={{ fontSize: "1.5rem" }}>
             Turn conversations into <span>collaborations</span> with a

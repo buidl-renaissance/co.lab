@@ -3,6 +3,7 @@ import { defaultTemplates, templateQuestions } from '@/data/template';
 import { Collaboration } from '@/data/collaboration';
 import { createCollaboration } from '@/db/collaboration';
 import { analyzeTranscript } from '@/lib/analyze';
+import { getAuthenticatedUser } from '@/lib/middleware/farcasterUser';
 
 type ResponseData = {
   success: boolean;
@@ -28,6 +29,9 @@ export default async function handler(
       });
     }
 
+    // Extract authenticated user from frame context
+    const user = await getAuthenticatedUser(req);
+    
     // Find the template
     const template = defaultTemplates.find(t => t.id === templateId);
     if (!template) {
@@ -49,16 +53,23 @@ export default async function handler(
       answers[`question_${index}`] = '';
     });
 
+    // Build participants list - include authenticated user if available
+    let participants = analysis.participants || [];
+    if (user && !participants.includes(user.id)) {
+      participants = [user.id, ...participants];
+    }
+
     const collaboration = await createCollaboration({
       title: analysis.title,
       description: analysis.description,
       template,
-      participants: analysis.participants,
+      participants,
       answers,
       status: 'active',
       analysis,
       transcripts: [transcript],
       summary: analysis.summary,
+      createdByUserId: user?.id || null,
     });
 
     return res.status(200).json({

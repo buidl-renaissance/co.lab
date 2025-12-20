@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getCollaborationById, updateCollaboration } from '@/db/collaboration';
 import { analyzeTranscript } from '@/lib/analyze';
 import { Collaboration } from '@/data/collaboration';
+import { getAuthenticatedUser } from '@/lib/middleware/farcasterUser';
 
 type ResponseData = {
   success: boolean;
@@ -43,6 +44,9 @@ export default async function handler(
   }
 
   try {
+    // Extract authenticated user from frame context
+    const user = await getAuthenticatedUser(req);
+
     // Get the existing collaboration
     const collaboration = await getCollaborationById(id);
     
@@ -63,12 +67,18 @@ export default async function handler(
     // Add the new transcript to the existing ones
     const transcripts = [...(collaboration.transcripts || []), transcript];
 
+    // Build participants list - ensure authenticated user is included
+    let participants = updatedAnalysis.participants || [];
+    if (user && !participants.includes(user.id)) {
+      participants = [user.id, ...participants];
+    }
+
     // Update the collaboration with the new transcript and analysis
     const updatedCollaboration = await updateCollaboration(id, {
       title: updatedAnalysis.title,
       description: updatedAnalysis.description,
       template: collaboration.template,
-      participants: updatedAnalysis.participants,
+      participants,
       answers: updatedAnalysis.answers.reduce((acc, answer) => {
         acc[answer.question] = answer.answer;
         return acc;
