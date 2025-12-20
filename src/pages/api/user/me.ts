@@ -36,6 +36,7 @@ export default async function handler(
     // If still not available, try to get from session cookie
     if (!user) {
       const cookies = req.headers.cookie || '';
+      console.log('Cookies received:', cookies ? 'present' : 'none');
       const sessionMatch = cookies.match(/user_session=([^;]+)/);
       
       if (sessionMatch && sessionMatch[1]) {
@@ -43,13 +44,20 @@ export default async function handler(
         console.log('Attempting to get user from cookie:', userId);
         user = await getUserById(userId);
         source = user ? 'cookie' : null;
+        if (!user) {
+          console.log('User not found in database for cookie userId:', userId);
+        }
+      } else {
+        console.log('No user_session cookie found');
       }
     }
 
     if (user) {
-      console.log(`User found via ${source}:`, { id: user.id, fid: user.fid, username: user.username });
+      console.log(`✅ User found via ${source}:`, { id: user.id, fid: user.fid, username: user.username });
     } else {
-      console.log('No user found in /api/user/me');
+      console.log('❌ No user found in /api/user/me');
+      console.log('  - Query params:', req.query);
+      console.log('  - This is expected if user hasn\'t authenticated via frame yet');
     }
 
     if (!user) {
