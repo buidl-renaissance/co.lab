@@ -21,9 +21,15 @@ export default async function handler(
   }
 
   try {
-    // First, try to get user from frame context (for frame POST requests)
-    let user = await getAuthenticatedUser(req);
-    let source = user ? 'frame_context' : null;
+    // First, try to get user from frame context (only for POST requests with frame data)
+    // For GET requests, skip frame context extraction
+    let user: Awaited<ReturnType<typeof getUserById>> = null;
+    let source: string | null = null;
+    
+    if (req.method === 'POST') {
+      user = await getAuthenticatedUser(req);
+      source = user ? 'frame_context' : null;
+    }
 
     // If not available from frame context, try to get from URL query parameter
     if (!user && req.query.userId && typeof req.query.userId === 'string') {

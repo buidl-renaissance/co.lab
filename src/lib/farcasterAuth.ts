@@ -29,6 +29,11 @@ export async function extractFrameUser(
   req: NextApiRequest
 ): Promise<VerifiedFrameUser | null> {
   try {
+    // Frame POST requests only - GET requests don't have frame data
+    if (req.method !== 'POST') {
+      return null;
+    }
+
     // Log the request body for debugging
     console.log('Frame request body:', JSON.stringify(req.body, null, 2));
     console.log('Request method:', req.method);
@@ -46,7 +51,16 @@ export async function extractFrameUser(
       };
     };
 
+    // If body is undefined or null, return null (no frame data)
+    if (!req.body) {
+      return null;
+    }
+
     if (typeof req.body === 'string') {
+      // Only try to parse if string is not empty
+      if (req.body.trim() === '') {
+        return null;
+      }
       try {
         body = JSON.parse(req.body);
       } catch (e) {
