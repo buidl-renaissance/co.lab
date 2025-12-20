@@ -20,7 +20,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
         setError(null);
         
-        const response = await fetch('/api/user/me');
+        // Check for userId in URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        
+        // Build API URL with userId if present
+        const apiUrl = userId ? `/api/user/me?userId=${userId}` : '/api/user/me';
+        
+        const response = await fetch(apiUrl);
         
         if (!response.ok) {
           throw new Error('Failed to fetch user');
@@ -28,6 +35,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         const data = await response.json();
         setUser(data.user);
+        
+        // If user was found via URL param, clean up the URL
+        if (data.user && userId) {
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        }
       } catch (err) {
         console.error('Error fetching user:', err);
         setError(err instanceof Error ? err.message : 'Unknown error occurred');

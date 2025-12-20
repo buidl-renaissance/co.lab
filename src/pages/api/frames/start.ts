@@ -31,6 +31,11 @@ export default async function handler(
     console.log('Frame request without authenticated user (may be development mode)');
   }
 
+  // Include user ID in redirect URL if user is authenticated
+  const redirectUrl = user 
+    ? `${APP_URL}/collabs?userId=${user.id}`
+    : `${APP_URL}/collabs`;
+
   const response: FrameResponse = {
     image: `${APP_URL}/co.lab-start.jpg`,
     text: user 
@@ -42,7 +47,7 @@ export default async function handler(
         action: "post_redirect",
       },
     ],
-    postUrl: `${APP_URL}/collabs`,
+    postUrl: redirectUrl,
   };
 
   res.status(200).json(response);

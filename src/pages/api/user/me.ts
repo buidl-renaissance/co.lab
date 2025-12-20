@@ -23,16 +23,32 @@ export default async function handler(
   try {
     // First, try to get user from frame context (for frame POST requests)
     let user = await getAuthenticatedUser(req);
+    let source = user ? 'frame_context' : null;
 
-    // If not available from frame context, try to get from session cookie
+    // If not available from frame context, try to get from URL query parameter
+    if (!user && req.query.userId && typeof req.query.userId === 'string') {
+      console.log('Attempting to get user from query param:', req.query.userId);
+      user = await getUserById(req.query.userId);
+      source = user ? 'query_param' : null;
+    }
+
+    // If still not available, try to get from session cookie
     if (!user) {
       const cookies = req.headers.cookie || '';
       const sessionMatch = cookies.match(/user_session=([^;]+)/);
       
       if (sessionMatch && sessionMatch[1]) {
         const userId = sessionMatch[1];
+        console.log('Attempting to get user from cookie:', userId);
         user = await getUserById(userId);
+        source = user ? 'cookie' : null;
       }
+    }
+
+    if (user) {
+      console.log(`User found via ${source}:`, { id: user.id, fid: user.fid, username: user.username });
+    } else {
+      console.log('No user found in /api/user/me');
     }
 
     if (!user) {
