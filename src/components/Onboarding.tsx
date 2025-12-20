@@ -81,12 +81,13 @@ const LoadingSpinner = styled.div`
 `;
 
 const ErrorMessage = styled.p`
-  color: ${({ theme }) => theme.error || '#ff4444'};
+  color: #ff4444;
   font-size: 0.9rem;
 `;
 
 const Onboarding: React.FC = () => {
   const { user, isLoading, error } = useUser();
+  const [imageError, setImageError] = React.useState(false);
 
   if (isLoading) {
     return (
@@ -117,8 +118,6 @@ const Onboarding: React.FC = () => {
     .toUpperCase()
     .slice(0, 2);
 
-  const [imageError, setImageError] = React.useState(false);
-
   return (
     <OnboardingContainer>
       <ProfileImageContainer>
@@ -134,7 +133,7 @@ const Onboarding: React.FC = () => {
       </ProfileImageContainer>
       <Username>Welcome, {displayName}!</Username>
       <WelcomeMessage>
-        You're all set to start collaborating. Let's turn your conversations into structured projects.
+        You&apos;re all set to start collaborating. Let&apos;s turn your conversations into structured projects.
       </WelcomeMessage>
     </OnboardingContainer>
   );

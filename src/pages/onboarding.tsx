@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { Container, Main, Title, Description } from "@/components/Layout";
+import { Container, Main, Title } from "@/components/Layout";
 import { PrimaryButton } from "@/components/Buttons";
 import Onboarding from "@/components/Onboarding";
 import { useUser } from "@/contexts/UserContext";

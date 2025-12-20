@@ -43,9 +43,9 @@ export default async function handler(
       user: {
         id: user.id,
         fid: user.fid,
-        username: user.username,
-        displayName: user.displayName,
-        pfpUrl: user.pfpUrl,
+        username: user.username ?? null,
+        displayName: user.displayName ?? null,
+        pfpUrl: user.pfpUrl ?? null,
       },
     });
   } catch (error) {

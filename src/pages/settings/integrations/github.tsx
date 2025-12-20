@@ -223,7 +223,7 @@ const GitHubIntegrationPage: React.FC<GitHubIntegrationPageProps> = ({
             <Card>
               <StatusTitle>Connect Your GitHub Account</StatusTitle>
               <StatusMessage>
-                By connecting your GitHub account, you'll be able to:
+                By connecting your GitHub account, you&apos;ll be able to:
               </StatusMessage>
               <ul style={{ marginLeft: '1.5rem', color: 'inherit' }}>
                 <li style={{ marginBottom: '0.5rem' }}>
