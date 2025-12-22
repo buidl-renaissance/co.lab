@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getAuthenticatedUser } from '@/lib/middleware/farcasterUser';
 import { getUserById } from '@/db/user';
 import { NEYNAR_API_KEY } from '@/lib/framesConfig';
 import { getOrCreateUserByFid, upsertFarcasterAccount } from '@/db/user';

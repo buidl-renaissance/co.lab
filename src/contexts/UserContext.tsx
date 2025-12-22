@@ -457,7 +457,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     return;
                   }
                 }
-              } catch (e) {
+              } catch {
                 // Not JSON or not user data
               }
             };

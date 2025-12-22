@@ -52,7 +52,7 @@ export default async function handler(
       
       // Verify signed message using Neynar API
       // Try frame validation endpoint first (works for similar message formats)
-      let verifyResponse = await fetch('https://api.neynar.com/v2/farcaster/frame/validate', {
+      const verifyResponse = await fetch('https://api.neynar.com/v2/farcaster/frame/validate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
