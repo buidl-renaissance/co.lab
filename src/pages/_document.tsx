@@ -34,6 +34,134 @@ export default class MyDocument extends Document {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <body>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                // Early SDK detection - runs before React loads
+                // Supports multiple SDK injection methods per Farcaster Mini App spec
+                (function() {
+                  console.log('🔍 Early SDK detection starting...');
+                  
+                  // Store SDK reference globally for React to access
+                  window.__FARCASTER_SDK__ = null;
+                  window.__FARCASTER_USER__ = null;
+                  
+                  async function checkForSDK() {
+                    const win = window;
+                    
+                    // Method 1: Check window.farcaster (RPC method)
+                    if (win.farcaster) {
+                      console.log('✅ Found window.farcaster');
+                      window.__FARCASTER_SDK__ = win.farcaster;
+                      
+                      // Try to get context (it's a promise)
+                      if (win.farcaster.context) {
+                        try {
+                          const context = await win.farcaster.context;
+                          if (context && context.user && context.user.fid > 0) {
+                            window.__FARCASTER_USER__ = context.user;
+                            console.log('✅ User found via window.farcaster.context:', context.user);
+                            window.dispatchEvent(new CustomEvent('farcaster:user', { detail: context.user }));
+                          }
+                        } catch (e) {
+                          console.log('⚠️ Error accessing farcaster.context:', e);
+                        }
+                      }
+                    }
+                    
+                    // Method 2: Check window.__renaissanceAuthContext (direct access)
+                    if (win.__renaissanceAuthContext) {
+                      console.log('✅ Found window.__renaissanceAuthContext');
+                      const context = win.__renaissanceAuthContext;
+                      if (context && context.user && context.user.fid > 0) {
+                        window.__FARCASTER_USER__ = context.user;
+                        console.log('✅ User found via __renaissanceAuthContext:', context.user);
+                        window.dispatchEvent(new CustomEvent('farcaster:user', { detail: context.user }));
+                      }
+                    }
+                    
+                    // Method 3: Check window.getRenaissanceAuth() function
+                    if (typeof win.getRenaissanceAuth === 'function') {
+                      console.log('✅ Found window.getRenaissanceAuth()');
+                      try {
+                        const context = win.getRenaissanceAuth();
+                        if (context && context.user && context.user.fid > 0) {
+                          window.__FARCASTER_USER__ = context.user;
+                          console.log('✅ User found via getRenaissanceAuth():', context.user);
+                          window.dispatchEvent(new CustomEvent('farcaster:user', { detail: context.user }));
+                        }
+                      } catch (e) {
+                        console.log('⚠️ Error calling getRenaissanceAuth():', e);
+                      }
+                    }
+                    
+                    // Fallback: Check other SDK locations
+                    const sdk = win.FarcasterSDK || win.sdk;
+                    if (sdk) {
+                      console.log('✅ Found SDK in fallback location');
+                      window.__FARCASTER_SDK__ = sdk;
+                      
+                      // Try to get user immediately
+                      if (sdk.context && sdk.context.user) {
+                        window.__FARCASTER_USER__ = sdk.context.user;
+                        console.log('✅ User found in fallback SDK:', sdk.context.user);
+                        window.dispatchEvent(new CustomEvent('farcaster:user', { detail: sdk.context.user }));
+                      }
+                    }
+                  }
+                  
+                  // Check immediately
+                  checkForSDK();
+                  
+                  // Check after DOM loads
+                  if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() {
+                      checkForSDK();
+                    });
+                  }
+                  
+                  // Check after window loads
+                  window.addEventListener('load', function() {
+                    checkForSDK();
+                  });
+                  
+                  // Listen for farcaster:context:ready event (Option 2)
+                  window.addEventListener('farcaster:context:ready', function(event) {
+                    console.log('📨 Received farcaster:context:ready event:', event);
+                    const detail = (event as CustomEvent).detail;
+                    if (detail && detail.user && detail.user.fid > 0) {
+                      window.__FARCASTER_USER__ = detail.user;
+                      console.log('✅ User found via farcaster:context:ready event:', detail.user);
+                      window.dispatchEvent(new CustomEvent('farcaster:user', { detail: detail.user }));
+                    }
+                  });
+                  
+                  // Poll periodically - iOS app may inject SDK after page load
+                  let pollCount = 0;
+                  const pollInterval = setInterval(function() {
+                    pollCount++;
+                    checkForSDK(); // Always check, even if SDK was found (context might update)
+                    
+                    // Keep polling for up to 10 seconds (20 checks at 500ms intervals)
+                    if (pollCount > 20) {
+                      clearInterval(pollInterval);
+                      console.log('⏱️ Early detection polling complete');
+                    }
+                  }, 500);
+                  
+                  // Also listen for postMessage from iOS app
+                  window.addEventListener('message', function(event) {
+                    console.log('📨 Received postMessage in early detection:', event.data);
+                    if (event.data && event.data.type === 'farcaster' && event.data.user) {
+                      window.__FARCASTER_USER__ = event.data.user;
+                      console.log('✅ User received via postMessage:', event.data.user);
+                      window.dispatchEvent(new CustomEvent('farcaster:user', { detail: event.data.user }));
+                    }
+                  });
+                })();
+              `,
+            }}
+          />
           <Main />
           <NextScript />
         </body>

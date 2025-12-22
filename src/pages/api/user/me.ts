@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAuthenticatedUser } from '@/lib/middleware/farcasterUser';
 import { getUserById } from '@/db/user';
+import { NEYNAR_API_KEY } from '@/lib/framesConfig';
+import { getOrCreateUserByFid, upsertFarcasterAccount } from '@/db/user';
 
 type ResponseData = {
   user: {
@@ -21,10 +23,55 @@ export default async function handler(
   }
 
   try {
-    // For GET requests, try to get user from URL query parameter or cookie
+    // For GET requests, try to get user from Quick Auth token, URL query parameter, or cookie
     // (Frame context extraction only happens in POST endpoints like /api/frames/start)
     let user: Awaited<ReturnType<typeof getUserById>> = null;
     let source: string | null = null;
+
+    // First, try Quick Auth token from Authorization header (from sdk.quickAuth.fetch)
+    const authHeader = req.headers.authorization;
+    if (!user && authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      console.log('Attempting to verify Quick Auth token...');
+      
+      if (NEYNAR_API_KEY && NEYNAR_API_KEY !== 'replace-with-neynar-api-key') {
+        try {
+          const verifyResponse = await fetch('https://api.neynar.com/v2/farcaster/quick-auth/verify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'api_key': NEYNAR_API_KEY,
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          if (verifyResponse.ok) {
+            const verifiedData = await verifyResponse.json();
+            if (verifiedData.valid && verifiedData.fid) {
+              const fid = String(verifiedData.fid);
+              user = await getOrCreateUserByFid(fid, {
+                fid,
+                username: verifiedData.username,
+                displayName: verifiedData.display_name,
+                pfpUrl: verifiedData.pfp_url,
+              });
+              
+              if (verifiedData.username) {
+                await upsertFarcasterAccount(user.id, {
+                  fid,
+                  username: verifiedData.username,
+                });
+              }
+              
+              source = 'quick_auth';
+              console.log('✅ User authenticated via Quick Auth:', { fid, username: verifiedData.username });
+            }
+          }
+        } catch (verifyError) {
+          console.error('Quick Auth verification failed:', verifyError);
+        }
+      }
+    }
 
     // Try to get from URL query parameter
     if (!user && req.query.userId && typeof req.query.userId === 'string') {
