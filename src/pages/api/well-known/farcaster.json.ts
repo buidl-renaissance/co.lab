@@ -89,9 +89,9 @@ export default function handler(
       buttonTitle: 'Start a Collab',
       splashImageUrl: `${APP_URL}/co.lab-start.jpg`,
       splashBackgroundColor: '#ffffff',
-      subtitle: 'Voice-first project planning for creative teams',
-      tagline: 'Turn conversations into organized collaboration',
-      ogTitle: 'Co.Lab - Turn Conversations into Organized Collaboration',
+      subtitle: 'Voice-first project planning', // Max 30 chars
+      tagline: 'Turn conversations into plans', // Max 30 chars
+      ogTitle: 'Co.Lab', // Max 30 chars
       ogDescription: 'Voice-first project planning for creative teams. Transform freeform conversations into structured, actionable project plans.',
       ogImageUrl: `${APP_URL}/co.lab-thumb.jpg`,
       castShareUrl: `${APP_URL}/frames`,
