@@ -182,33 +182,44 @@ const CollabFlowHome: React.FC = () => {
       
       try {
         // Method 1: Try window.farcaster.actions.ready() (RPC method)
+        // RPC proxy might not expose properties normally, so try calling directly
         if (win.farcaster) {
-          if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
-            console.log('✅ [Index] Calling window.farcaster.actions.ready()');
-            try {
-              await win.farcaster.actions.ready();
-              console.log('✅ [Index] Successfully called ready()');
+          try {
+            // Try optional chaining with direct call
+            const result = await win.farcaster.actions?.ready?.();
+            if (result !== undefined) {
+              console.log('✅ [Index] Called window.farcaster.actions.ready() via optional chaining');
               readyCalled = true;
               win.__FARCASTER_READY_CALLED__ = true;
               return;
-            } catch (e) {
-              console.error('❌ [Index] Error calling window.farcaster.actions.ready():', e);
             }
-          }
-          
-          // Try as a promise
-          if (typeof win.farcaster.then === 'function') {
+          } catch (e1) {
+            // Try property access
             try {
-              const sdk = await win.farcaster;
-              if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
-                console.log('✅ [Index] Calling sdk.actions.ready() from promise');
-                await sdk.actions.ready();
+              if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
+                console.log('✅ [Index] Calling window.farcaster.actions.ready()');
+                await win.farcaster.actions.ready();
+                console.log('✅ [Index] Successfully called ready()');
                 readyCalled = true;
                 win.__FARCASTER_READY_CALLED__ = true;
                 return;
               }
-            } catch (e) {
-              console.error('❌ [Index] Error awaiting farcaster promise:', e);
+            } catch (e2) {
+              // Try as a promise
+              if (typeof win.farcaster.then === 'function') {
+                try {
+                  const sdk = await win.farcaster;
+                  if (sdk?.actions?.ready) {
+                    console.log('✅ [Index] Calling sdk.actions.ready() from promise');
+                    await sdk.actions.ready();
+                    readyCalled = true;
+                    win.__FARCASTER_READY_CALLED__ = true;
+                    return;
+                  }
+                } catch (e3) {
+                  console.error('❌ [Index] All ready() methods failed:', e1, e2, e3);
+                }
+              }
             }
           }
         }

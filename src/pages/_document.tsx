@@ -181,27 +181,55 @@ export default class MyDocument extends Document {
                   async function tryCallReady() {
                     try {
                       const win = window;
+                      
+                      // Try window.farcaster.actions.ready() directly (RPC proxy might not show properties)
                       if (win.farcaster) {
-                        // Try window.farcaster.actions.ready()
-                        if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
-                          console.log('✅ [Early] Calling window.farcaster.actions.ready()');
-                          await win.farcaster.actions.ready();
+                        // Method 1: Try direct call with optional chaining
+                        try {
+                          const result = await win.farcaster.actions?.ready?.();
+                          console.log('✅ [Early] Called window.farcaster.actions.ready() via optional chaining');
                           window.__FARCASTER_READY_CALLED__ = true;
                           return;
-                        }
-                        // Try as promise
-                        if (typeof win.farcaster.then === 'function') {
-                          const sdk = await win.farcaster;
-                          if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
-                            console.log('✅ [Early] Calling sdk.actions.ready() from promise');
-                            await sdk.actions.ready();
-                            window.__FARCASTER_READY_CALLED__ = true;
-                            return;
+                        } catch (e1) {
+                          // Method 2: Try accessing actions property first
+                          try {
+                            const actions = win.farcaster.actions;
+                            if (actions) {
+                              await actions.ready();
+                              console.log('✅ [Early] Called actions.ready() via property access');
+                              window.__FARCASTER_READY_CALLED__ = true;
+                              return;
+                            }
+                          } catch (e2) {
+                            // Method 3: Try as promise
+                            try {
+                              if (typeof win.farcaster.then === 'function') {
+                                const sdk = await win.farcaster;
+                                await sdk.actions.ready();
+                                console.log('✅ [Early] Called sdk.actions.ready() from promise');
+                                window.__FARCASTER_READY_CALLED__ = true;
+                                return;
+                              }
+                            } catch (e3) {
+                              // Method 4: Try calling without any checks (most aggressive)
+                              try {
+                                await win.farcaster.actions.ready();
+                                console.log('✅ [Early] Called ready() directly without checks');
+                                window.__FARCASTER_READY_CALLED__ = true;
+                                return;
+                              } catch (e4) {
+                                console.log('⚠️ [Early] All ready() methods failed. Errors:', { e1, e2, e3, e4 });
+                                console.log('⚠️ [Early] window.farcaster type:', typeof win.farcaster);
+                                console.log('⚠️ [Early] window.farcaster keys:', Object.keys(win.farcaster || {}));
+                              }
+                            }
                           }
                         }
+                      } else {
+                        console.log('⚠️ [Early] window.farcaster is not available');
                       }
                     } catch (e) {
-                      console.log('⚠️ [Early] Error calling ready():', e);
+                      console.log('⚠️ [Early] Error in tryCallReady():', e);
                     }
                   }
                   

@@ -81,7 +81,7 @@ export default function handler(
       version: '1',
       name: 'Co.Lab',
       description: 'A voice-first project planning tool for creative teams. Transform freeform conversations into structured, actionable project plans.',
-      iconUrl: `${APP_URL}/co.lab-thumb.jpg`,
+      iconUrl: `${APP_URL}/co.lab-tile.png`,
       homeUrl: APP_URL,
       canonicalDomain: domain,
       // Recommended fields for better discovery and presentation

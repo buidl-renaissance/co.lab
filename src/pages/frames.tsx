@@ -26,41 +26,47 @@ const FramesPage: NextPage = () => {
         console.log('window.__FARCASTER_SDK__:', win.__FARCASTER_SDK__);
         
         // Method 1: Try window.farcaster.actions.ready() (RPC method)
+        // RPC proxy might not expose properties normally, so try calling directly
         if (win.farcaster) {
           console.log('✅ Found window.farcaster');
           
-          // Check if it's an RPC object with actions
-          if (win.farcaster.actions) {
-            if (typeof win.farcaster.actions.ready === 'function') {
-              console.log('✅ Calling window.farcaster.actions.ready()');
-              try {
+          try {
+            // Try optional chaining with direct call first
+            const result = await win.farcaster.actions?.ready?.();
+            if (result !== undefined) {
+              console.log('✅ Called window.farcaster.actions.ready() via optional chaining');
+              readyCalled = true;
+              win.__FARCASTER_READY_CALLED__ = true;
+              return;
+            }
+          } catch (e1) {
+            // Try property access
+            try {
+              if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
+                console.log('✅ Calling window.farcaster.actions.ready()');
                 await win.farcaster.actions.ready();
                 console.log('✅ Successfully called ready()');
                 readyCalled = true;
                 win.__FARCASTER_READY_CALLED__ = true;
                 return;
-              } catch (e) {
-                console.error('❌ Error calling window.farcaster.actions.ready():', e);
               }
-            } else {
-              console.log('⚠️ window.farcaster.actions.ready is not a function');
-            }
-          }
-          
-          // Try as a promise
-          if (typeof win.farcaster.then === 'function') {
-            console.log('✅ window.farcaster is a promise, awaiting...');
-            try {
-              const sdk = await win.farcaster;
-              if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
-                console.log('✅ Calling sdk.actions.ready() from promise');
-                await sdk.actions.ready();
-                readyCalled = true;
-                win.__FARCASTER_READY_CALLED__ = true;
-                return;
+            } catch (e2) {
+              // Try as a promise
+              if (typeof win.farcaster.then === 'function') {
+                console.log('✅ window.farcaster is a promise, awaiting...');
+                try {
+                  const sdk = await win.farcaster;
+                  if (sdk?.actions?.ready) {
+                    console.log('✅ Calling sdk.actions.ready() from promise');
+                    await sdk.actions.ready();
+                    readyCalled = true;
+                    win.__FARCASTER_READY_CALLED__ = true;
+                    return;
+                  }
+                } catch (e3) {
+                  console.error('❌ All ready() methods failed:', e1, e2, e3);
+                }
               }
-            } catch (e) {
-              console.error('❌ Error awaiting farcaster promise:', e);
             }
           }
         }
