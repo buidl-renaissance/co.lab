@@ -24,6 +24,8 @@ export default class MyDocument extends Document {
   }
 
   render() {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://co.lab.builddetroit.xyz';
+    
     return (
       <Html lang="en">
         <Head>
@@ -32,6 +34,22 @@ export default class MyDocument extends Document {
             rel="stylesheet"
           />
           <link rel="icon" href="/favicon.ico" />
+          
+          {/* Farcaster Mini App Identification */}
+          <meta name="application-name" content="Co.Lab" />
+          <meta name="apple-mobile-web-app-title" content="Co.Lab" />
+          <link rel="manifest" href={`${appUrl}/.well-known/farcaster.json`} />
+          
+          {/* Open Graph / Social Media Meta Tags */}
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="Co.Lab" />
+          <meta property="og:image" content={`${appUrl}/co.lab-thumb.jpg`} />
+          
+          {/* Twitter Card Meta Tags */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="Co.Lab" />
+          <meta name="twitter:description" content="A voice-first project planning tool for creative teams. Transform freeform conversations into structured, actionable project plans." />
+          <meta name="twitter:image" content={`${appUrl}/co.lab-thumb.jpg`} />
         </Head>
         <body>
           <script

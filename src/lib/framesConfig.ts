@@ -1,5 +1,5 @@
 export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "https://your-app.vercel.app";
+  process.env.NEXT_PUBLIC_APP_URL || "https://co.lab.builddetroit.xyz";
 
 export const FARCASTER_SIGNER_UUID =
   process.env.FARCASTER_SIGNER_UUID || "replace-with-signer-uuid";

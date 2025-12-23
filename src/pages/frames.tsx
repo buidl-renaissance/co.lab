@@ -4,6 +4,17 @@ import { APP_URL } from "@/lib/framesConfig";
 
 const FramesPage: NextPage = () => {
   const frameUrl = `${APP_URL}/frames`;
+  
+  // MiniAppEmbed JSON for Farcaster app identification
+  const miniAppEmbed = {
+    version: '1.0',
+    name: 'Co.Lab',
+    description: 'A voice-first project planning tool for creative teams. Transform freeform conversations into structured, actionable project plans.',
+    iconUrl: `${APP_URL}/co.lab-thumb.jpg`,
+    homepageUrl: APP_URL,
+    splashImageUrl: `${APP_URL}/co.lab-start.jpg`,
+    splashBackgroundColor: '#ffffff',
+  };
 
   return (
     <>
@@ -25,6 +36,12 @@ const FramesPage: NextPage = () => {
           content={`${APP_URL}/co.lab-thumb.jpg`}
         />
         <meta property="og:url" content={frameUrl} />
+
+        {/* Farcaster Mini App Embed Metadata */}
+        <meta
+          name="fc:miniapp"
+          content={JSON.stringify(miniAppEmbed)}
+        />
 
         {/* Farcaster frame v2 metadata */}
         <meta property="fc:frame" content="vNext" />

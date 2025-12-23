@@ -54,7 +54,7 @@ At Co.Lab, we believe that the best ideas come from natural conversations. Our m
 
 This app exposes a simple Farcaster mini app (Frame) that lets users start in Co.Lab directly from Farcaster:
 
-- **Frame URL**: `/frames` (e.g., `https://your-app.vercel.app/frames`)
+- **Frame URL**: `/frames` (e.g., `https://co.lab.builddetroit.xyz/frames`)
 - **Initial action**: A \"Start a Collab\" button that posts to `/api/frames/start` and then redirects users into the main `/collabs` page.
 
 Environment variables used:
