@@ -87,7 +87,7 @@ export default function handler(
       // Recommended fields for better discovery and presentation
       imageUrl: `${APP_URL}/co.lab-thumb.jpg`,
       buttonTitle: 'Start a Collab',
-      splashImageUrl: `${APP_URL}/co.lab-start.jpg`,
+      splashImageUrl: `${APP_URL}/co.lab-tile.png`,
       splashBackgroundColor: '#ffffff',
       subtitle: 'Voice-first project planning', // Max 30 chars
       tagline: 'Turn conversations into plans', // Max 30 chars
