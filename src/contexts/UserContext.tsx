@@ -11,7 +11,9 @@ interface SDKUser {
   fid: number | string;
   username?: string;
   displayName?: string;
+  display_name?: string; // Farcaster SDK might use snake_case
   pfpUrl?: string;
+  pfp_url?: string; // Farcaster SDK might use snake_case
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -26,18 +28,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('🔐 Authenticating with SDK user:', sdkUser);
       
+      // Normalize user data - use pfpUrl or pfp_url, displayName or display_name
+      const normalizedData = {
+        fid: String(sdkUser.fid),
+        username: sdkUser.username,
+        displayName: sdkUser.displayName || sdkUser.display_name,
+        pfpUrl: sdkUser.pfpUrl || sdkUser.pfp_url,
+      };
+      
       // Send user data to backend to create/verify user and get session
       const authResponse = await fetch('/api/auth/miniapp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fid: String(sdkUser.fid),
-          username: sdkUser.username,
-          displayName: sdkUser.displayName,
-          pfpUrl: sdkUser.pfpUrl,
-        }),
+        body: JSON.stringify(normalizedData),
       });
       
       console.log('Auth response status:', authResponse.status);
@@ -93,13 +98,24 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   
                   // Type guard to check if context has user property
                   if (context && typeof context === 'object' && 'user' in context) {
-                    const contextWithUser = context as { user?: SDKUser };
-                    if (contextWithUser.user && contextWithUser.user.fid) {
-                      console.log('✅ Found user in SDK context:', contextWithUser.user);
-                      const authenticated = await authenticateFromSDK(contextWithUser.user);
-                      if (authenticated) {
-                        setIsLoading(false);
-                        return;
+                    const contextWithUser = context as { user?: SDKUser | Record<string, unknown> };
+                    if (contextWithUser.user) {
+                      // Normalize user object - handle both camelCase and snake_case
+                      const rawUser = contextWithUser.user as Record<string, unknown>;
+                      const normalizedUser: SDKUser = {
+                        fid: rawUser.fid as number | string,
+                        username: rawUser.username as string | undefined,
+                        displayName: (rawUser.displayName || rawUser.display_name) as string | undefined,
+                        pfpUrl: (rawUser.pfpUrl || rawUser.pfp_url) as string | undefined,
+                      };
+                      
+                      if (normalizedUser.fid) {
+                        console.log('✅ Found user in SDK context:', normalizedUser);
+                        const authenticated = await authenticateFromSDK(normalizedUser);
+                        if (authenticated) {
+                          setIsLoading(false);
+                          return;
+                        }
                       }
                     }
                   }

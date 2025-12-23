@@ -97,8 +97,21 @@ const EnhancedNav: React.FC<EnhancedNavProps> = ({ templates, collaborations }) 
             <UserProfile>
               <UserAvatar>
                 {user.pfpUrl ? (
-                  <UserAvatarImage src={user.pfpUrl} alt={displayName || ''} />
-                ) : (
+                  <UserAvatarImage 
+                    src={user.pfpUrl} 
+                    alt={displayName || ''}
+                    onError={(e) => {
+                      // Fallback to initials if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) {
+                        fallback.style.display = 'flex';
+                      }
+                    }}
+                  />
+                ) : null}
+                {!user.pfpUrl && (
                   <UserAvatarFallback>{initials}</UserAvatarFallback>
                 )}
               </UserAvatar>
