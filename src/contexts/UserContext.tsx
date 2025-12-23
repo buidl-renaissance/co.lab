@@ -84,16 +84,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (sdk && sdk.context) {
                 try {
                   // Context might be a promise or direct object
-                  const context = typeof sdk.context.then === 'function' 
-                    ? await sdk.context 
-                    : sdk.context;
+                  let context: unknown;
+                  if (typeof sdk.context.then === 'function') {
+                    context = await sdk.context;
+                  } else {
+                    context = sdk.context;
+                  }
                   
-                  if (context && context.user && context.user.fid) {
-                    console.log('✅ Found user in SDK context:', context.user);
-                    const authenticated = await authenticateFromSDK(context.user);
-                    if (authenticated) {
-                      setIsLoading(false);
-                      return;
+                  // Type guard to check if context has user property
+                  if (context && typeof context === 'object' && 'user' in context) {
+                    const contextWithUser = context as { user?: SDKUser };
+                    if (contextWithUser.user && contextWithUser.user.fid) {
+                      console.log('✅ Found user in SDK context:', contextWithUser.user);
+                      const authenticated = await authenticateFromSDK(contextWithUser.user);
+                      if (authenticated) {
+                        setIsLoading(false);
+                        return;
+                      }
                     }
                   }
                 } catch (e) {
@@ -143,26 +150,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 k.startsWith('__FARCASTER')
               ),
             });
-            
-            // Method 1: Use SDK context from @farcaster/miniapp-sdk (Primary method)
-            if (sdk && sdk.context) {
-              try {
-                console.log('🔍 Trying SDK context (primary method)...');
-                const context = typeof sdk.context.then === 'function' 
-                  ? await sdk.context 
-                  : sdk.context;
-                if (context && context.user && context.user.fid) {
-                  console.log('✅ User found via SDK context:', context.user);
-                  const authenticated = await authenticateFromSDK(context.user);
-                  if (authenticated) {
-                    setIsLoading(false);
-                    return;
-                  }
-                }
-              } catch (e) {
-                console.log('⚠️ Error accessing SDK context:', e);
-              }
-            }
             
             // Method 2: Use RPC - window.farcaster?.context (Fallback)
             if (win.farcaster && win.farcaster.context) {
