@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useEffect } from "react";
+import { sdk } from "@farcaster/miniapp-sdk";
 import { APP_URL } from "@/lib/framesConfig";
 
 const FramesPage: NextPage = () => {
@@ -8,168 +9,23 @@ const FramesPage: NextPage = () => {
   
   // Signal to Farcaster that the app is ready
   useEffect(() => {
-    let readyCalled = false;
-    
-    const signalReady = async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const win = window as any;
-      
-      // Check if ready was already called (by early script)
-      if (readyCalled || win.__FARCASTER_READY_CALLED__) {
-        console.log('✅ ready() already called, skipping');
-        return;
-      }
-      
+    const callReady = async () => {
       try {
-        console.log('🔍 Checking for Farcaster SDK...');
-        console.log('window.farcaster:', win.farcaster);
-        console.log('window.__FARCASTER_SDK__:', win.__FARCASTER_SDK__);
-        
-        // Method 1: Try window.farcaster.actions.ready() (RPC method)
-        // RPC proxy might not expose properties normally, so try calling directly
-        if (win.farcaster) {
-          console.log('✅ Found window.farcaster');
-          
-          try {
-            // Try optional chaining with direct call first
-            const result = await win.farcaster.actions?.ready?.();
-            if (result !== undefined) {
-              console.log('✅ Called window.farcaster.actions.ready() via optional chaining');
-              readyCalled = true;
-              win.__FARCASTER_READY_CALLED__ = true;
-              return;
-            }
-          } catch (e1) {
-            // Try property access
-            try {
-              if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
-                console.log('✅ Calling window.farcaster.actions.ready()');
-                await win.farcaster.actions.ready();
-                console.log('✅ Successfully called ready()');
-                readyCalled = true;
-                win.__FARCASTER_READY_CALLED__ = true;
-                return;
-              }
-            } catch (e2) {
-              // Try as a promise
-              if (typeof win.farcaster.then === 'function') {
-                console.log('✅ window.farcaster is a promise, awaiting...');
-                try {
-                  const sdk = await win.farcaster;
-                  if (sdk?.actions?.ready) {
-                    console.log('✅ Calling sdk.actions.ready() from promise');
-                    await sdk.actions.ready();
-                    readyCalled = true;
-                    win.__FARCASTER_READY_CALLED__ = true;
-                    return;
-                  }
-                } catch (e3) {
-                  console.error('❌ All ready() methods failed:', e1, e2, e3);
-                }
-              }
-            }
-          }
+        // Use the imported SDK from @farcaster/miniapp-sdk
+        if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+          console.log('✅ [Frames] Calling sdk.actions.ready()');
+          await sdk.actions.ready();
+          console.log('✅ [Frames] Successfully called ready()');
+        } else {
+          console.warn('⚠️ [Frames] SDK not available or ready() not found');
         }
-        
-        // Method 2: Try stored SDK reference
-        const storedSdk = win.__FARCASTER_SDK__;
-        if (storedSdk) {
-          console.log('✅ Found stored SDK');
-          if (storedSdk.actions && typeof storedSdk.actions.ready === 'function') {
-            console.log('✅ Calling stored SDK actions.ready()');
-            try {
-              await storedSdk.actions.ready();
-              readyCalled = true;
-              win.__FARCASTER_READY_CALLED__ = true;
-              return;
-            } catch (e) {
-              console.error('❌ Error calling stored SDK ready():', e);
-            }
-          }
-        }
-        
-        // Method 3: Try other SDK locations
-        const otherSdk = win.FarcasterSDK || win.sdk;
-        if (otherSdk) {
-          console.log('✅ Found SDK in other location');
-          if (otherSdk.actions && typeof otherSdk.actions.ready === 'function') {
-            console.log('✅ Calling other SDK actions.ready()');
-            try {
-              await otherSdk.actions.ready();
-              readyCalled = true;
-              win.__FARCASTER_READY_CALLED__ = true;
-              return;
-            } catch (e) {
-              console.error('❌ Error calling other SDK ready():', e);
-            }
-          }
-        }
-        
-        console.log('⚠️ SDK not found or ready() not available');
-        console.log('Available window properties:', Object.keys(win).filter(k => k.toLowerCase().includes('farcaster')));
       } catch (error) {
-        console.error('❌ Error in signalReady():', error);
+        console.error('❌ [Frames] Error calling sdk.actions.ready():', error);
       }
     };
 
-    // Also check if we're in a Farcaster mini app context and should redirect
-    const checkAndRedirect = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const win = window as any;
-      const isInFarcaster = win.farcaster || win.__FARCASTER_SDK__;
-      
-      // If we're in Farcaster and on the frames page, redirect to main app
-      if (isInFarcaster && window.location.pathname === '/frames') {
-        console.log('🔄 Redirecting to main app from frames page');
-        window.location.href = '/collabs';
-      }
-    };
-
-    // Try immediately
-    signalReady();
-    checkAndRedirect();
-    
-    // Try after a short delay
-    const timer1 = setTimeout(() => {
-      signalReady();
-      checkAndRedirect();
-    }, 100);
-    
-    // Try after DOM is ready
-    if (typeof window !== 'undefined') {
-      if (document.readyState === 'complete') {
-        setTimeout(() => {
-          signalReady();
-          checkAndRedirect();
-        }, 200);
-      } else {
-        window.addEventListener('load', () => {
-          setTimeout(() => {
-            signalReady();
-            checkAndRedirect();
-          }, 200);
-        });
-      }
-    }
-    
-    // Poll for SDK (in case it loads late)
-    let pollCount = 0;
-    const pollInterval = setInterval(() => {
-      pollCount++;
-      if (!readyCalled && pollCount < 20) {
-        signalReady();
-        if (pollCount > 2) {
-          checkAndRedirect();
-        }
-      } else {
-        clearInterval(pollInterval);
-      }
-    }, 500);
-    
-    return () => {
-      clearTimeout(timer1);
-      clearInterval(pollInterval);
-    };
+    // Call ready after component mounts
+    callReady();
   }, []);
   
   // MiniAppEmbed JSON for Farcaster app identification

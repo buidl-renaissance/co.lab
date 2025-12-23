@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
+import { sdk } from "@farcaster/miniapp-sdk";
 import {
   Section,
   SectionTitle,
@@ -169,111 +170,23 @@ const CollabFlowHome: React.FC = () => {
 
   // Signal to Farcaster that the app is ready
   useEffect(() => {
-    let readyCalled = false;
-    
-    const signalReady = async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const win = window as any;
-      
-      // Check if ready was already called
-      if (readyCalled || win.__FARCASTER_READY_CALLED__) {
-        return;
-      }
-      
+    const callReady = async () => {
       try {
-        // Method 1: Try window.farcaster.actions.ready() (RPC method)
-        // RPC proxy might not expose properties normally, so try calling directly
-        if (win.farcaster) {
-          try {
-            // Try optional chaining with direct call
-            const result = await win.farcaster.actions?.ready?.();
-            if (result !== undefined) {
-              console.log('✅ [Index] Called window.farcaster.actions.ready() via optional chaining');
-              readyCalled = true;
-              win.__FARCASTER_READY_CALLED__ = true;
-              return;
-            }
-          } catch (e1) {
-            // Try property access
-            try {
-              if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
-                console.log('✅ [Index] Calling window.farcaster.actions.ready()');
-                await win.farcaster.actions.ready();
-                console.log('✅ [Index] Successfully called ready()');
-                readyCalled = true;
-                win.__FARCASTER_READY_CALLED__ = true;
-                return;
-              }
-            } catch (e2) {
-              // Try as a promise
-              if (typeof win.farcaster.then === 'function') {
-                try {
-                  const sdk = await win.farcaster;
-                  if (sdk?.actions?.ready) {
-                    console.log('✅ [Index] Calling sdk.actions.ready() from promise');
-                    await sdk.actions.ready();
-                    readyCalled = true;
-                    win.__FARCASTER_READY_CALLED__ = true;
-                    return;
-                  }
-                } catch (e3) {
-                  console.error('❌ [Index] All ready() methods failed:', e1, e2, e3);
-                }
-              }
-            }
-          }
-        }
-        
-        // Method 2: Try stored SDK reference
-        const storedSdk = win.__FARCASTER_SDK__;
-        if (storedSdk && storedSdk.actions && typeof storedSdk.actions.ready === 'function') {
-          console.log('✅ [Index] Calling stored SDK actions.ready()');
-          try {
-            await storedSdk.actions.ready();
-            readyCalled = true;
-            win.__FARCASTER_READY_CALLED__ = true;
-            return;
-          } catch (e) {
-            console.error('❌ [Index] Error calling stored SDK ready():', e);
-          }
+        // Use the imported SDK from @farcaster/miniapp-sdk
+        if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+          console.log('✅ [Index] Calling sdk.actions.ready()');
+          await sdk.actions.ready();
+          console.log('✅ [Index] Successfully called ready()');
+        } else {
+          console.warn('⚠️ [Index] SDK not available or ready() not found');
         }
       } catch (error) {
-        console.error('❌ [Index] Error in signalReady():', error);
+        console.error('❌ [Index] Error calling sdk.actions.ready():', error);
       }
     };
 
-    // Try immediately
-    signalReady();
-    
-    // Try after a short delay
-    const timer1 = setTimeout(signalReady, 100);
-    
-    // Try after DOM is ready
-    if (typeof window !== 'undefined') {
-      if (document.readyState === 'complete') {
-        setTimeout(signalReady, 200);
-      } else {
-        window.addEventListener('load', () => {
-          setTimeout(signalReady, 200);
-        });
-      }
-    }
-    
-    // Poll for SDK (in case it loads late)
-    let pollCount = 0;
-    const pollInterval = setInterval(() => {
-      pollCount++;
-      if (!readyCalled && pollCount < 20) {
-        signalReady();
-      } else {
-        clearInterval(pollInterval);
-      }
-    }, 500);
-    
-    return () => {
-      clearTimeout(timer1);
-      clearInterval(pollInterval);
-    };
+    // Call ready after component mounts
+    callReady();
   }, []);
 
   const scrollToTemplates = () => {
