@@ -104,6 +104,8 @@ const GitHubLink = styled.a`
 `;
 
 export const getServerSideProps = async () => {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://co.lab.builddetroit.xyz';
+  
   return {
     props: {
       metadata: {
@@ -125,6 +127,21 @@ export const getServerSideProps = async () => {
             },
           ],
         },
+        additionalMetaTags: [
+          {
+            name: 'fc:meta',
+            content: JSON.stringify({
+              slug: 'co-lab',
+              title: 'Co.Lab',
+              icon: `${appUrl}/co.lab-thumb.jpg`,
+            }),
+          },
+          {
+            rel: 'alternate',
+            type: 'application/json',
+            href: `${appUrl}/.well-known/farcaster.json`,
+          },
+        ],
       },
     },
   };
