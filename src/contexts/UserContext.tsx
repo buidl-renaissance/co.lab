@@ -1,16 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/db/user';
 
-// Dynamically import SDK to avoid SSR issues
-let sdk: any = null;
-if (typeof window !== 'undefined') {
-  import('@farcaster/miniapp-sdk').then((module) => {
-    sdk = module.sdk;
-  }).catch(() => {
-    // SDK not available
-  });
-}
-
 interface UserContextType {
   user: User | null;
   isLoading: boolean;
@@ -86,35 +76,32 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (typeof window !== 'undefined') {
           try {
             // Method 1: Use the imported SDK from @farcaster/miniapp-sdk
-            // Load SDK if not already loaded
-            if (!sdk) {
-              try {
-                const sdkModule = await import('@farcaster/miniapp-sdk');
-                sdk = sdkModule.sdk;
-              } catch (e) {
-                console.log('⚠️ Could not import SDK:', e);
-              }
-            }
-            
-            // Try to get user from SDK context
-            if (sdk && sdk.context) {
-              try {
-                // Context might be a promise or direct object
-                const context = typeof sdk.context.then === 'function' 
-                  ? await sdk.context 
-                  : sdk.context;
-                
-                if (context && context.user && context.user.fid) {
-                  console.log('✅ Found user in SDK context:', context.user);
-                  const authenticated = await authenticateFromSDK(context.user);
-                  if (authenticated) {
-                    setIsLoading(false);
-                    return;
+            try {
+              const sdkModule = await import('@farcaster/miniapp-sdk');
+              const sdk = sdkModule.sdk;
+              
+              // Try to get user from SDK context
+              if (sdk && sdk.context) {
+                try {
+                  // Context might be a promise or direct object
+                  const context = typeof sdk.context.then === 'function' 
+                    ? await sdk.context 
+                    : sdk.context;
+                  
+                  if (context && context.user && context.user.fid) {
+                    console.log('✅ Found user in SDK context:', context.user);
+                    const authenticated = await authenticateFromSDK(context.user);
+                    if (authenticated) {
+                      setIsLoading(false);
+                      return;
+                    }
                   }
+                } catch (e) {
+                  console.log('⚠️ Error accessing SDK context:', e);
                 }
-              } catch (e) {
-                console.log('⚠️ Error accessing SDK context:', e);
               }
+            } catch (importError) {
+              console.log('⚠️ Could not import SDK:', importError);
             }
             
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
