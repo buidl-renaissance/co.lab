@@ -1,6 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/db/user';
 
+// Dynamically import SDK to avoid SSR issues
+let sdk: any = null;
+if (typeof window !== 'undefined') {
+  import('@farcaster/miniapp-sdk').then((module) => {
+    sdk = module.sdk;
+  }).catch(() => {
+    // SDK not available
+  });
+}
+
 interface UserContextType {
   user: User | null;
   isLoading: boolean;
@@ -75,6 +85,38 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // The SDK provides user context when the mini app is opened in Warpcast
         if (typeof window !== 'undefined') {
           try {
+            // Method 1: Use the imported SDK from @farcaster/miniapp-sdk
+            // Load SDK if not already loaded
+            if (!sdk) {
+              try {
+                const sdkModule = await import('@farcaster/miniapp-sdk');
+                sdk = sdkModule.sdk;
+              } catch (e) {
+                console.log('⚠️ Could not import SDK:', e);
+              }
+            }
+            
+            // Try to get user from SDK context
+            if (sdk && sdk.context) {
+              try {
+                // Context might be a promise or direct object
+                const context = typeof sdk.context.then === 'function' 
+                  ? await sdk.context 
+                  : sdk.context;
+                
+                if (context && context.user && context.user.fid) {
+                  console.log('✅ Found user in SDK context:', context.user);
+                  const authenticated = await authenticateFromSDK(context.user);
+                  if (authenticated) {
+                    setIsLoading(false);
+                    return;
+                  }
+                }
+              } catch (e) {
+                console.log('⚠️ Error accessing SDK context:', e);
+              }
+            }
+            
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const win = window as any;
             
@@ -115,7 +157,27 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               ),
             });
             
-            // Method 1: Use RPC (Recommended) - window.farcaster?.context
+            // Method 1: Use SDK context from @farcaster/miniapp-sdk (Primary method)
+            if (sdk && sdk.context) {
+              try {
+                console.log('🔍 Trying SDK context (primary method)...');
+                const context = typeof sdk.context.then === 'function' 
+                  ? await sdk.context 
+                  : sdk.context;
+                if (context && context.user && context.user.fid) {
+                  console.log('✅ User found via SDK context:', context.user);
+                  const authenticated = await authenticateFromSDK(context.user);
+                  if (authenticated) {
+                    setIsLoading(false);
+                    return;
+                  }
+                }
+              } catch (e) {
+                console.log('⚠️ Error accessing SDK context:', e);
+              }
+            }
+            
+            // Method 2: Use RPC - window.farcaster?.context (Fallback)
             if (win.farcaster && win.farcaster.context) {
               try {
                 console.log('🔍 Trying window.farcaster.context (RPC method)...');
@@ -178,35 +240,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }) as EventListener;
             window.addEventListener('farcaster:context:ready', contextReadyHandler);
             
-            // Try window.farcaster?.signIn() for authentication (Option 1)
-            if (win.farcaster && typeof win.farcaster.signIn === 'function') {
-              try {
-                console.log('🔍 Trying window.farcaster.signIn()...');
-                const { message, signature, authMethod } = await win.farcaster.signIn();
-                console.log('✅ Got signIn response:', { message, signature, authMethod });
-                
-                // Send message + signature to backend to verify and create session
-                const signInResponse = await fetch('/api/auth/verify', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ message, signature, authMethod }),
-                });
-                
-                if (signInResponse.ok) {
-                  const signInData = await signInResponse.json();
-                  if (signInData.user) {
-                    setUser(signInData.user);
-                    setError(null);
-                    setIsLoading(false);
-                    return;
-                  }
-                }
-              } catch (e) {
-                console.log('⚠️ Error calling window.farcaster.signIn():', e);
-              }
-            }
+            // Skip signIn verification - we're using context instead
             
             // Fallback: Try multiple ways to access the SDK
             // SDK is dynamically injected, so we need to use any
@@ -244,72 +278,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
               }
               
-              // Try Quick Auth - this is the recommended way to authenticate
-              if (sdk.quickAuth) {
-                try {
-                  console.log('Attempting Quick Auth...');
-                  
-                  // Try to get Quick Auth token
-                  if (typeof sdk.quickAuth.getToken === 'function') {
-                    try {
-                      const { token } = await sdk.quickAuth.getToken();
-                      console.log('✅ Got Quick Auth token');
-                      
-                      // Verify token with backend
-                      const verifyResponse = await fetch('/api/auth/verify', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ token }),
-                      });
-                      
-                      if (verifyResponse.ok) {
-                        const verifyData = await verifyResponse.json();
-                        if (verifyData.user) {
-                          setUser(verifyData.user);
-                          setError(null);
-                          setIsLoading(false);
-                          return;
-                        }
-                      }
-                    } catch (tokenError) {
-                      console.log('Quick Auth getToken() failed:', tokenError);
-                    }
-                  }
-                  
-                  // Try using quickAuth.fetch to make authenticated request
-                  if (typeof sdk.quickAuth.fetch === 'function') {
-                    try {
-                      console.log('Using quickAuth.fetch to get user...');
-                      const response = await sdk.quickAuth.fetch('/api/user/me');
-                      if (response.ok) {
-                        const userData = await response.json();
-                        if (userData.user) {
-                          setUser(userData.user);
-                          setError(null);
-                          setIsLoading(false);
-                          return;
-                        }
-                      }
-                    } catch (fetchError) {
-                      console.log('quickAuth.fetch() failed:', fetchError);
-                    }
-                  }
-                } catch (quickAuthError) {
-                  console.log('Quick Auth error:', quickAuthError);
-                }
-              }
+              // Skip Quick Auth verification - we're using context instead
               
-              // Try accessing context as a property
-              if (sdk.context) {
+              // Try accessing context as a property (already tried above, but keep as fallback)
+              if (sdk.context && !sdk.context.user) {
                 // Context might be a promise or direct object
                 const context = typeof sdk.context.then === 'function' 
                   ? await sdk.context 
                   : sdk.context;
                 
                 if (context && context.user) {
-                  console.log('✅ Found user in SDK context:', context.user);
+                  console.log('✅ Found user in SDK context (fallback):', context.user);
                   const authenticated = await authenticateFromSDK(context.user);
                   if (authenticated) {
                     setIsLoading(false);
