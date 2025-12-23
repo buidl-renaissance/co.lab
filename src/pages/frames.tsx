@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useEffect } from "react";
-import { sdk } from "@farcaster/miniapp-sdk";
 import { APP_URL } from "@/lib/framesConfig";
 
 const FramesPage: NextPage = () => {
@@ -10,8 +9,13 @@ const FramesPage: NextPage = () => {
   // Signal to Farcaster that the app is ready
   useEffect(() => {
     const callReady = async () => {
+      // Only run on client side
+      if (typeof window === 'undefined') return;
+      
       try {
-        // Use the imported SDK from @farcaster/miniapp-sdk
+        // Dynamically import the SDK (client-side only)
+        const { sdk } = await import("@farcaster/miniapp-sdk");
+        
         if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
           console.log('✅ [Frames] Calling sdk.actions.ready()');
           await sdk.actions.ready();

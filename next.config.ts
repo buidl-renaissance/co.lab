@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   compiler: {
     styledComponents: true,
   },
+  transpilePackages: ['@farcaster/miniapp-sdk'],
   async rewrites() {
     return [
       {
