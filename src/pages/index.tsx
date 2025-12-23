@@ -147,7 +147,7 @@ export const getServerSideProps = async () => {
                   type: 'launch_frame',
                   name: 'Co.Lab',
                   url: appUrl,
-                  splashImageUrl: `${appUrl}/co.lab-start.jpg`,
+                  splashImageUrl: `${appUrl}/co.lab-tile.png`,
                   splashBackgroundColor: '#ffffff',
                 },
               },

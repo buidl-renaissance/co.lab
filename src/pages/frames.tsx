@@ -8,27 +8,118 @@ const FramesPage: NextPage = () => {
   
   // Signal to Farcaster that the app is ready
   useEffect(() => {
-    // Call ready() when the app loads to transition from splash screen
+    let readyCalled = false;
+    
     const signalReady = async () => {
+      if (readyCalled) return;
+      
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const win = window as any;
-        const sdk = win.farcaster || win.__FARCASTER_SDK__ || win.FarcasterSDK;
         
-        if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
-          console.log('✅ Calling sdk.actions.ready()');
-          await sdk.actions.ready();
-        } else {
-          console.log('⚠️ SDK not found or ready() not available');
+        // Try multiple ways to access the SDK
+        let sdk = win.farcaster || win.__FARCASTER_SDK__ || win.FarcasterSDK || win.sdk;
+        
+        // If farcaster is a promise, await it
+        if (win.farcaster && typeof win.farcaster.then === 'function') {
+          try {
+            sdk = await win.farcaster;
+          } catch (e) {
+            console.log('Error awaiting farcaster promise:', e);
+          }
         }
+        
+        // Try accessing actions.ready
+        if (sdk) {
+          // Try sdk.actions.ready()
+          if (sdk.actions && typeof sdk.actions.ready === 'function') {
+            console.log('✅ Calling sdk.actions.ready()');
+            await sdk.actions.ready();
+            readyCalled = true;
+            return;
+          }
+          
+          // Try sdk.ready() directly
+          if (typeof sdk.ready === 'function') {
+            console.log('✅ Calling sdk.ready()');
+            await sdk.ready();
+            readyCalled = true;
+            return;
+          }
+          
+          // Try window.farcaster.ready() if it's an RPC object
+          if (win.farcaster && typeof win.farcaster.ready === 'function') {
+            console.log('✅ Calling window.farcaster.ready()');
+            await win.farcaster.ready();
+            readyCalled = true;
+            return;
+          }
+        }
+        
+        console.log('⚠️ SDK not found or ready() not available. SDK:', sdk);
       } catch (error) {
         console.error('Error calling ready():', error);
       }
     };
 
-    // Wait a bit for SDK to be available
-    const timer = setTimeout(signalReady, 100);
-    return () => clearTimeout(timer);
+    // Also check if we're in a Farcaster mini app context and should redirect
+    const checkAndRedirect = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const win = window as any;
+      const isInFarcaster = win.farcaster || win.__FARCASTER_SDK__;
+      
+      // If we're in Farcaster and on the frames page, redirect to main app
+      if (isInFarcaster && window.location.pathname === '/frames') {
+        console.log('🔄 Redirecting to main app from frames page');
+        window.location.href = '/collabs';
+      }
+    };
+
+    // Try immediately
+    signalReady();
+    checkAndRedirect();
+    
+    // Try after a short delay
+    const timer1 = setTimeout(() => {
+      signalReady();
+      checkAndRedirect();
+    }, 100);
+    
+    // Try after DOM is ready
+    if (typeof window !== 'undefined') {
+      if (document.readyState === 'complete') {
+        setTimeout(() => {
+          signalReady();
+          checkAndRedirect();
+        }, 200);
+      } else {
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            signalReady();
+            checkAndRedirect();
+          }, 200);
+        });
+      }
+    }
+    
+    // Poll for SDK (in case it loads late)
+    let pollCount = 0;
+    const pollInterval = setInterval(() => {
+      pollCount++;
+      if (!readyCalled && pollCount < 20) {
+        signalReady();
+        if (pollCount > 2) {
+          checkAndRedirect();
+        }
+      } else {
+        clearInterval(pollInterval);
+      }
+    }, 500);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearInterval(pollInterval);
+    };
   }, []);
   
   // MiniAppEmbed JSON for Farcaster app identification
@@ -41,7 +132,7 @@ const FramesPage: NextPage = () => {
         type: 'launch_frame',
         name: 'Co.Lab',
         url: APP_URL,
-        splashImageUrl: `${APP_URL}/co.lab-start.jpg`,
+        splashImageUrl: `${APP_URL}/co.lab-tile.png`,
         splashBackgroundColor: '#ffffff',
       },
     },
