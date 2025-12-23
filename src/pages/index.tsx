@@ -137,6 +137,23 @@ export const getServerSideProps = async () => {
             }),
           },
           {
+            name: 'fc:miniapp',
+            content: JSON.stringify({
+              version: '1',
+              imageUrl: `${appUrl}/co.lab-thumb.jpg`,
+              button: {
+                title: 'Start a Collab',
+                action: {
+                  type: 'launch_frame',
+                  name: 'Co.Lab',
+                  url: appUrl,
+                  splashImageUrl: `${appUrl}/co.lab-start.jpg`,
+                  splashBackgroundColor: '#ffffff',
+                },
+              },
+            }),
+          },
+          {
             rel: 'alternate',
             type: 'application/json',
             href: `${appUrl}/.well-known/farcaster.json`,
