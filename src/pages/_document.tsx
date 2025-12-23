@@ -176,6 +176,42 @@ export default class MyDocument extends Document {
                       window.dispatchEvent(new CustomEvent('farcaster:user', { detail: event.data.user }));
                     }
                   });
+                  
+                  // Try to call ready() early if we're on the frames page
+                  async function tryCallReady() {
+                    try {
+                      const win = window;
+                      if (win.farcaster) {
+                        // Try window.farcaster.actions.ready()
+                        if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
+                          console.log('✅ [Early] Calling window.farcaster.actions.ready()');
+                          await win.farcaster.actions.ready();
+                          window.__FARCASTER_READY_CALLED__ = true;
+                          return;
+                        }
+                        // Try as promise
+                        if (typeof win.farcaster.then === 'function') {
+                          const sdk = await win.farcaster;
+                          if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+                            console.log('✅ [Early] Calling sdk.actions.ready() from promise');
+                            await sdk.actions.ready();
+                            window.__FARCASTER_READY_CALLED__ = true;
+                            return;
+                          }
+                        }
+                      }
+                    } catch (e) {
+                      console.log('⚠️ [Early] Error calling ready():', e);
+                    }
+                  }
+                  
+                  // Try calling ready() after a delay (for frames page and index page)
+                  const pathname = window.location.pathname;
+                  if (pathname === '/frames' || pathname === '/' || pathname.includes('/frames')) {
+                    setTimeout(tryCallReady, 100);
+                    setTimeout(tryCallReady, 500);
+                    setTimeout(tryCallReady, 1000);
+                  }
                 })();
               `,
             }}

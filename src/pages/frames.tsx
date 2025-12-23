@@ -11,54 +11,98 @@ const FramesPage: NextPage = () => {
     let readyCalled = false;
     
     const signalReady = async () => {
-      if (readyCalled) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const win = window as any;
+      
+      // Check if ready was already called (by early script)
+      if (readyCalled || win.__FARCASTER_READY_CALLED__) {
+        console.log('✅ ready() already called, skipping');
+        return;
+      }
       
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const win = window as any;
+        console.log('🔍 Checking for Farcaster SDK...');
+        console.log('window.farcaster:', win.farcaster);
+        console.log('window.__FARCASTER_SDK__:', win.__FARCASTER_SDK__);
         
-        // Try multiple ways to access the SDK
-        let sdk = win.farcaster || win.__FARCASTER_SDK__ || win.FarcasterSDK || win.sdk;
-        
-        // If farcaster is a promise, await it
-        if (win.farcaster && typeof win.farcaster.then === 'function') {
-          try {
-            sdk = await win.farcaster;
-          } catch (e) {
-            console.log('Error awaiting farcaster promise:', e);
+        // Method 1: Try window.farcaster.actions.ready() (RPC method)
+        if (win.farcaster) {
+          console.log('✅ Found window.farcaster');
+          
+          // Check if it's an RPC object with actions
+          if (win.farcaster.actions) {
+            if (typeof win.farcaster.actions.ready === 'function') {
+              console.log('✅ Calling window.farcaster.actions.ready()');
+              try {
+                await win.farcaster.actions.ready();
+                console.log('✅ Successfully called ready()');
+                readyCalled = true;
+                win.__FARCASTER_READY_CALLED__ = true;
+                return;
+              } catch (e) {
+                console.error('❌ Error calling window.farcaster.actions.ready():', e);
+              }
+            } else {
+              console.log('⚠️ window.farcaster.actions.ready is not a function');
+            }
+          }
+          
+          // Try as a promise
+          if (typeof win.farcaster.then === 'function') {
+            console.log('✅ window.farcaster is a promise, awaiting...');
+            try {
+              const sdk = await win.farcaster;
+              if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+                console.log('✅ Calling sdk.actions.ready() from promise');
+                await sdk.actions.ready();
+                readyCalled = true;
+                win.__FARCASTER_READY_CALLED__ = true;
+                return;
+              }
+            } catch (e) {
+              console.error('❌ Error awaiting farcaster promise:', e);
+            }
           }
         }
         
-        // Try accessing actions.ready
-        if (sdk) {
-          // Try sdk.actions.ready()
-          if (sdk.actions && typeof sdk.actions.ready === 'function') {
-            console.log('✅ Calling sdk.actions.ready()');
-            await sdk.actions.ready();
-            readyCalled = true;
-            return;
-          }
-          
-          // Try sdk.ready() directly
-          if (typeof sdk.ready === 'function') {
-            console.log('✅ Calling sdk.ready()');
-            await sdk.ready();
-            readyCalled = true;
-            return;
-          }
-          
-          // Try window.farcaster.ready() if it's an RPC object
-          if (win.farcaster && typeof win.farcaster.ready === 'function') {
-            console.log('✅ Calling window.farcaster.ready()');
-            await win.farcaster.ready();
-            readyCalled = true;
-            return;
+        // Method 2: Try stored SDK reference
+        const storedSdk = win.__FARCASTER_SDK__;
+        if (storedSdk) {
+          console.log('✅ Found stored SDK');
+          if (storedSdk.actions && typeof storedSdk.actions.ready === 'function') {
+            console.log('✅ Calling stored SDK actions.ready()');
+            try {
+              await storedSdk.actions.ready();
+              readyCalled = true;
+              win.__FARCASTER_READY_CALLED__ = true;
+              return;
+            } catch (e) {
+              console.error('❌ Error calling stored SDK ready():', e);
+            }
           }
         }
         
-        console.log('⚠️ SDK not found or ready() not available. SDK:', sdk);
+        // Method 3: Try other SDK locations
+        const otherSdk = win.FarcasterSDK || win.sdk;
+        if (otherSdk) {
+          console.log('✅ Found SDK in other location');
+          if (otherSdk.actions && typeof otherSdk.actions.ready === 'function') {
+            console.log('✅ Calling other SDK actions.ready()');
+            try {
+              await otherSdk.actions.ready();
+              readyCalled = true;
+              win.__FARCASTER_READY_CALLED__ = true;
+              return;
+            } catch (e) {
+              console.error('❌ Error calling other SDK ready():', e);
+            }
+          }
+        }
+        
+        console.log('⚠️ SDK not found or ready() not available');
+        console.log('Available window properties:', Object.keys(win).filter(k => k.toLowerCase().includes('farcaster')));
       } catch (error) {
-        console.error('Error calling ready():', error);
+        console.error('❌ Error in signalReady():', error);
       }
     };
 

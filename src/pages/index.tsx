@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
 import {
   Section,
@@ -166,6 +166,104 @@ export const getServerSideProps = async () => {
 
 const CollabFlowHome: React.FC = () => {
   const templatesSectionRef = useRef<HTMLDivElement>(null);
+
+  // Signal to Farcaster that the app is ready
+  useEffect(() => {
+    let readyCalled = false;
+    
+    const signalReady = async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const win = window as any;
+      
+      // Check if ready was already called
+      if (readyCalled || win.__FARCASTER_READY_CALLED__) {
+        return;
+      }
+      
+      try {
+        // Method 1: Try window.farcaster.actions.ready() (RPC method)
+        if (win.farcaster) {
+          if (win.farcaster.actions && typeof win.farcaster.actions.ready === 'function') {
+            console.log('✅ [Index] Calling window.farcaster.actions.ready()');
+            try {
+              await win.farcaster.actions.ready();
+              console.log('✅ [Index] Successfully called ready()');
+              readyCalled = true;
+              win.__FARCASTER_READY_CALLED__ = true;
+              return;
+            } catch (e) {
+              console.error('❌ [Index] Error calling window.farcaster.actions.ready():', e);
+            }
+          }
+          
+          // Try as a promise
+          if (typeof win.farcaster.then === 'function') {
+            try {
+              const sdk = await win.farcaster;
+              if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+                console.log('✅ [Index] Calling sdk.actions.ready() from promise');
+                await sdk.actions.ready();
+                readyCalled = true;
+                win.__FARCASTER_READY_CALLED__ = true;
+                return;
+              }
+            } catch (e) {
+              console.error('❌ [Index] Error awaiting farcaster promise:', e);
+            }
+          }
+        }
+        
+        // Method 2: Try stored SDK reference
+        const storedSdk = win.__FARCASTER_SDK__;
+        if (storedSdk && storedSdk.actions && typeof storedSdk.actions.ready === 'function') {
+          console.log('✅ [Index] Calling stored SDK actions.ready()');
+          try {
+            await storedSdk.actions.ready();
+            readyCalled = true;
+            win.__FARCASTER_READY_CALLED__ = true;
+            return;
+          } catch (e) {
+            console.error('❌ [Index] Error calling stored SDK ready():', e);
+          }
+        }
+      } catch (error) {
+        console.error('❌ [Index] Error in signalReady():', error);
+      }
+    };
+
+    // Try immediately
+    signalReady();
+    
+    // Try after a short delay
+    const timer1 = setTimeout(signalReady, 100);
+    
+    // Try after DOM is ready
+    if (typeof window !== 'undefined') {
+      if (document.readyState === 'complete') {
+        setTimeout(signalReady, 200);
+      } else {
+        window.addEventListener('load', () => {
+          setTimeout(signalReady, 200);
+        });
+      }
+    }
+    
+    // Poll for SDK (in case it loads late)
+    let pollCount = 0;
+    const pollInterval = setInterval(() => {
+      pollCount++;
+      if (!readyCalled && pollCount < 20) {
+        signalReady();
+      } else {
+        clearInterval(pollInterval);
+      }
+    }, 500);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearInterval(pollInterval);
+    };
+  }, []);
 
   const scrollToTemplates = () => {
     if (templatesSectionRef.current) {
