@@ -92,7 +92,7 @@ export default function handler(
       subtitle: 'Voice-first project planning', // Max 30 chars
       tagline: 'Turn conversations into plans', // Max 30 chars
       ogTitle: 'Co.Lab', // Max 30 chars
-      ogDescription: 'Voice-first project planning for creative teams. Transform freeform conversations into structured, actionable project plans.',
+      ogDescription: 'Voice-first project planning for creative teams. Transform conversations into structured plans.', // Max 100 chars
       ogImageUrl: `${APP_URL}/co.lab-thumb.jpg`,
       castShareUrl: `${APP_URL}/frames`,
       // Optional categorization
