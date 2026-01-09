@@ -12,16 +12,16 @@ import { Loading } from "@/components/Loading";
 
 const DashboardHeader = styled.div`
   width: 100%;
-  padding: 2rem;
+  padding: 1rem 1rem 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
   
   @media (max-width: 768px) {
-    padding: 1rem;
-    padding-top: calc(60px + 1rem);
+    padding: 0.75rem;
+    padding-top: calc(60px + 0.75rem);
   }
 `;
 
@@ -89,35 +89,36 @@ const SubGreeting = styled.p`
 
 const TemplatesSection = styled(Section)`
   background: ${({ theme }) => theme.surface};
-  padding: 2rem 0;
+  padding: 1rem 0;
 `;
 
 const CollaborationsSection = styled(Section)`
   background: ${({ theme }) => theme.background};
-  padding: 3rem 1rem;
+  padding: 1rem 1rem;
+  align-items: flex-start;
 `;
 
 const CollabsList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  margin: 0;
+  padding: 0;
 `;
 
 const CollabCard = styled.div`
   background-color: ${({ theme }) => theme.surface};
   border-radius: ${({ theme }) => theme.borderRadius};
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 2px 4px ${({ theme }) => theme.shadow};
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 1px solid ${({ theme }) => theme.border};
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px ${({ theme }) => theme.shadow};
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px ${({ theme }) => theme.shadow};
     border-color: ${({ theme }) => theme.accent};
   }
 `;
@@ -176,7 +177,14 @@ const EmptyState = styled.div`
 `;
 
 const StyledSectionTitle = styled(SectionTitle)`
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  white-space: nowrap;
+  
+  &::after {
+    left: 0;
+    transform: none;
+  }
 `;
 
 const DashboardPage: React.FC = () => {
