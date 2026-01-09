@@ -234,13 +234,35 @@ const DateTimeRow = styled.div`
 `;
 
 const DateField = styled(CompactEditableField)`
-  flex: 0 0 40%;
+  flex: 0 0 35%;
   min-width: 0;
 `;
 
 const TimeField = styled(CompactEditableField)`
-  flex: 0 0 30%;
+  flex: 0 0 25%;
   min-width: 0;
+`;
+
+const TimezoneField = styled(CompactEditableField)`
+  flex: 0 0 auto;
+  min-width: 70px;
+`;
+
+const TimezoneSelect = styled.select`
+  padding: 0.35rem 0.4rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 6px;
+  background: ${({ theme }) => theme.surface};
+  color: ${({ theme }) => theme.text};
+  cursor: pointer;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.accent};
+  }
 `;
 
 const FlyerContainer = styled.div<{ $hasImage?: boolean }>`
@@ -847,6 +869,23 @@ export const EventCard: React.FC<EventCardProps> = ({
             {renderCompactField('date', 'Date', 'date')}
             {renderCompactField('time', 'Start', 'time')}
             {renderCompactField('endTime', 'End', 'time')}
+            <TimezoneField>
+              <Label>TZ</Label>
+              <TimezoneSelect
+                value={localDetails.timezone || 'America/New_York'}
+                onChange={(e) => handleFieldChange('timezone', e.target.value)}
+                onBlur={handleFieldBlur}
+              >
+                <option value="America/New_York">EST</option>
+                <option value="America/Chicago">CST</option>
+                <option value="America/Denver">MST</option>
+                <option value="America/Los_Angeles">PST</option>
+                <option value="America/Phoenix">AZ</option>
+                <option value="Pacific/Honolulu">HST</option>
+                <option value="America/Anchorage">AK</option>
+                <option value="UTC">UTC</option>
+              </TimezoneSelect>
+            </TimezoneField>
           </DateTimeRow>
           {renderField('location', 'Location', Input, Value, 'text', '📍')}
         </DetailsSection>

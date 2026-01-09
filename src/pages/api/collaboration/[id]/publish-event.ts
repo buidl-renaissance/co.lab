@@ -79,8 +79,8 @@ export default async function handler(
       }
     }
 
-    // Convert to external API payload
-    const payload = eventDetailsToPayload(eventDetails, imageBase64);
+    // Convert to external API payload - use timezone from event details or default to EST
+    const payload = eventDetailsToPayload(eventDetails, imageBase64, eventDetails.timezone || 'America/New_York');
     console.log('Event payload prepared:', { 
       name: payload.name, 
       location: payload.location,

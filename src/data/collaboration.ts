@@ -24,6 +24,7 @@ export interface EventDetails {
   date: string;        // e.g., "2024-07-15"
   time: string;        // e.g., "6:00 PM"
   endTime?: string;    // e.g., "11:00 PM"
+  timezone?: string;   // e.g., "America/New_York"
   location: string;
   flyerUrl?: string;   // DigitalOcean Spaces URL
   tags?: string[];     // Event tags
