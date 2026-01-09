@@ -61,16 +61,44 @@ export function eventDetailsToPayload(
     ? parseDateTime(eventDetails.date, eventDetails.endTime)
     : new Date(startDateTime.getTime() + 4 * 60 * 60 * 1000); // Default 4 hours duration
 
-  return {
+  // Build the payload - always submit as renaissance event type
+  const payload: ExternalEventPayload = {
     imageBase64,
     name: eventDetails.eventTitle,
     location: eventDetails.location,
     startTime: startDateTime.toISOString(),
     endTime: endDateTime.toISOString(),
     tags: eventDetails.tags || [],
-    eventType: eventDetails.eventType || 'standard',
+    eventType: 'renaissance', // Always submit as renaissance
     metadata: eventDetails.metadata || {},
   };
+
+  // Include sponsors if available
+  if (eventDetails.sponsors && eventDetails.sponsors.length > 0) {
+    payload.sponsors = eventDetails.sponsors.map(sponsor => ({
+      name: sponsor.name,
+      logo: sponsor.logo,
+      websiteUrl: sponsor.websiteUrl,
+    }));
+  }
+
+  // Include activities/subEvents if available
+  if (eventDetails.activities && eventDetails.activities.length > 0) {
+    payload.subEvents = eventDetails.activities.map(activity => ({
+      name: activity.name,
+      description: activity.description,
+      startTime: activity.startTime 
+        ? parseDateTime(eventDetails.date, activity.startTime).toISOString()
+        : startDateTime.toISOString(),
+      endTime: activity.endTime
+        ? parseDateTime(eventDetails.date, activity.endTime).toISOString()
+        : endDateTime.toISOString(),
+      location: activity.location || eventDetails.location,
+      capacity: activity.capacity,
+    }));
+  }
+
+  return payload;
 }
 
 /**

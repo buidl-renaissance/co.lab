@@ -69,34 +69,60 @@ export default async function handler(
     // Optional style hint from request body
     const { style } = req.body || {};
 
-    // Build a prompt for DALL-E based on event details
-    const eventInfo = [
-      eventDetails.eventTitle,
-      eventDetails.date && `Date: ${eventDetails.date}`,
-      eventDetails.time && `Time: ${eventDetails.time}`,
-      eventDetails.location && `Location: ${eventDetails.location}`,
-      eventDetails.tags?.length && `Theme: ${eventDetails.tags.join(', ')}`,
-      eventDetails.metadata?.description && `Description: ${eventDetails.metadata.description}`,
-    ].filter(Boolean).join('\n');
+    // Format date for display
+    const formatDate = (dateStr: string) => {
+      try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          month: 'long', 
+          day: 'numeric',
+          year: 'numeric'
+        });
+      } catch {
+        return dateStr;
+      }
+    };
 
-    const styleHint = style || 'modern, professional, eye-catching';
+    // Build the text content for the flyer
+    const eventTitle = eventDetails.eventTitle.toUpperCase();
+    const formattedDate = eventDetails.date ? formatDate(eventDetails.date) : '';
+    const timeDisplay = eventDetails.time || '';
+    const locationDisplay = eventDetails.location || '';
+    const tagline = eventDetails.tags?.length 
+      ? eventDetails.tags.slice(0, 3).join(' • ').toUpperCase()
+      : '';
+
+    const styleHint = style || 'modern, bold, professional';
     
-    const prompt = `Create a visually stunning event flyer/poster design for:
+    // Determine theme based on tags or event type
+    const themeKeywords = eventDetails.tags?.join(', ') || 'professional networking';
+    
+    const prompt = `Create a FLAT, DIRECT event flyer graphic with the following EXACT text displayed prominently:
 
-${eventInfo}
+MAIN TITLE (large, bold, at top): "${eventTitle}"
 
-Style: ${styleHint}
+${formattedDate ? `DATE: "${formattedDate}"` : ''}
+${timeDisplay ? `TIME: "${timeDisplay}"` : ''}
+${locationDisplay ? `LOCATION: "${locationDisplay}"` : ''}
+${tagline ? `TAGLINE (smaller, decorative): "${tagline}"` : ''}
 
-Requirements:
-- Clean, modern typography (do NOT include any text - just visual design elements)
-- Eye-catching color scheme that matches the event theme
+CRITICAL REQUIREMENTS:
+- This must be a FLAT graphic design - NOT a mockup, NOT hanging from clips/ropes, NOT shown on a wall
+- Direct front-facing flyer design only - as if viewing the actual printed flyer straight on
+- No 3D perspective, no shadows suggesting depth, no physical presentation elements
+- Style: ${styleHint}
+- The event title "${eventTitle}" must be the largest, most prominent text
+- Use clean, modern sans-serif typography that is clearly legible
+- Eye-catching color scheme inspired by: ${themeKeywords}
 - Professional layout suitable for social media and print
-- Include abstract decorative elements, patterns, or imagery that represent the event type
-- Leave clear space in the center for text overlay
+- Include decorative graphic elements, patterns, or imagery that represent the event theme
 - Portrait orientation (3:4 aspect ratio)
-- High contrast and visually striking
+- High contrast between text and background for readability
+- The text must be spelled correctly and clearly readable
+- Add visual hierarchy: title largest, then date/time/location, then tagline smallest
 
-DO NOT include any text, letters, words, or numbers in the image - only visual design elements, patterns, and imagery.`;
+Output a clean, flat digital flyer graphic ready for immediate use - NOT a photo of a flyer.`;
 
     console.log('Generating flyer with prompt:', prompt);
 
