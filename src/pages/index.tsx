@@ -14,6 +14,8 @@ import Footer from '@/components/Footer';
 import Templates from "@/components/Templates";
 import CoLab from "@/components/CoLab";
 import Onboarding from "@/components/Onboarding";
+import Splash from "@/components/Splash";
+import { useUser } from "@/contexts/UserContext";
 
 const Container = styled(LayoutContainer)`
   padding: 0rem;
@@ -166,6 +168,7 @@ export const getServerSideProps = async () => {
 
 const CollabFlowHome: React.FC = () => {
   const templatesSectionRef = useRef<HTMLDivElement>(null);
+  const { user, isLoading } = useUser();
 
   // Signal to Farcaster that the app is ready
   useEffect(() => {
@@ -192,6 +195,11 @@ const CollabFlowHome: React.FC = () => {
     // Call ready after component mounts
     callReady();
   }, []);
+
+  // Show splash screen for authenticated users (will auto-redirect to dashboard)
+  if (!isLoading && user) {
+    return <Splash user={user} />;
+  }
 
   const scrollToTemplates = () => {
     if (templatesSectionRef.current) {
