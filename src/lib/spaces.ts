@@ -7,9 +7,12 @@ const spacesBucket = process.env.DO_SPACES_BUCKET || '';
 const spacesKey = process.env.DO_SPACES_KEY || '';
 const spacesSecret = process.env.DO_SPACES_SECRET || '';
 
+// Validate endpoint format
+const isValidEndpoint = spacesEndpoint && spacesEndpoint.includes('.') && !spacesEndpoint.includes('://');
+
 // Initialize S3-compatible client for DigitalOcean Spaces
 export const spacesClient = new S3Client({
-  endpoint: `https://${spacesEndpoint}`,
+  endpoint: isValidEndpoint ? `https://${spacesEndpoint}` : 'https://nyc3.digitaloceanspaces.com',
   region: spacesRegion,
   credentials: {
     accessKeyId: spacesKey,
@@ -37,9 +40,23 @@ export async function uploadToSpaces(
   contentType: string
 ): Promise<UploadResult> {
   if (!spacesBucket || !spacesKey || !spacesSecret) {
+    console.error('Missing Spaces config:', { 
+      hasBucket: !!spacesBucket, 
+      hasKey: !!spacesKey, 
+      hasSecret: !!spacesSecret,
+      endpoint: spacesEndpoint,
+    });
     return {
       success: false,
       error: 'DigitalOcean Spaces is not configured. Please set DO_SPACES_BUCKET, DO_SPACES_KEY, and DO_SPACES_SECRET environment variables.',
+    };
+  }
+  
+  if (!isValidEndpoint) {
+    console.error('Invalid Spaces endpoint:', spacesEndpoint);
+    return {
+      success: false,
+      error: `Invalid DigitalOcean Spaces endpoint: ${spacesEndpoint}. Expected format: region.digitaloceanspaces.com`,
     };
   }
 

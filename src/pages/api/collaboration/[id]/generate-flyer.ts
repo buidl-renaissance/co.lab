@@ -163,8 +163,16 @@ DO NOT include any text, letters, words, or numbers in the image - only visual d
   } catch (error) {
     console.error('Error generating flyer:', error);
     
-    // Check for specific OpenAI errors
+    // Check for specific errors
     if (error instanceof Error) {
+      // DNS resolution errors (often from misconfigured endpoints)
+      if (error.message.includes('ENOTFOUND') || error.message.includes('getaddrinfo')) {
+        console.error('DNS resolution error - check environment variables for endpoints');
+        return res.status(500).json({
+          success: false,
+          error: 'Network configuration error. Please check server configuration.',
+        });
+      }
       if (error.message.includes('content_policy_violation')) {
         return res.status(400).json({
           success: false,
@@ -177,6 +185,12 @@ DO NOT include any text, letters, words, or numbers in the image - only visual d
           error: 'Rate limit reached. Please try again in a moment.',
         });
       }
+      
+      // Return the actual error message for debugging
+      return res.status(500).json({
+        success: false,
+        error: error.message,
+      });
     }
 
     return res.status(500).json({
