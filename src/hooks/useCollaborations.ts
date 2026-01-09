@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Collaboration } from '@/data/collaboration';
+
+const COLLABS_STORAGE_KEY = 'collaborations';
 
 /**
  * Hook to manage collaborations
@@ -10,6 +12,7 @@ export const useCollaborations = (username?: string | null) => {
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const prevUsernameRef = useRef<string | null | undefined>(undefined);
 
   // Load collaborations from API or localStorage
   const loadCollaborations = useCallback(async () => {
@@ -30,26 +33,29 @@ export const useCollaborations = (username?: string | null) => {
         if (data.success && data.data) {
           setCollaborations(data.data);
           // Also cache to localStorage for offline fallback
-          localStorage.setItem('collaborations', JSON.stringify(data.data));
+          localStorage.setItem(COLLABS_STORAGE_KEY, JSON.stringify(data.data));
         } else {
           throw new Error(data.error || 'Failed to load collaborations');
         }
       } else {
-        // Fall back to localStorage when no username
-        const storedCollabs = localStorage.getItem('collaborations');
-        const localCollabs = storedCollabs ? JSON.parse(storedCollabs) : [];
-        setCollaborations(localCollabs);
+        // User is not authenticated - clear stored collaborations and state
+        localStorage.removeItem(COLLABS_STORAGE_KEY);
+        setCollaborations([]);
       }
     } catch (err) {
       console.error('Error loading collaborations:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
       
-      // Fall back to localStorage on error
-      try {
-        const storedCollabs = localStorage.getItem('collaborations');
-        const localCollabs = storedCollabs ? JSON.parse(storedCollabs) : [];
-        setCollaborations(localCollabs);
-      } catch {
+      // Fall back to localStorage on error (only if user is authenticated)
+      if (username) {
+        try {
+          const storedCollabs = localStorage.getItem(COLLABS_STORAGE_KEY);
+          const localCollabs = storedCollabs ? JSON.parse(storedCollabs) : [];
+          setCollaborations(localCollabs);
+        } catch {
+          setCollaborations([]);
+        }
+      } else {
         setCollaborations([]);
       }
     } finally {
@@ -57,10 +63,26 @@ export const useCollaborations = (username?: string | null) => {
     }
   }, [username]);
 
-  // Load collaborations on mount and when userId changes
+  // Load collaborations on mount and when username changes
   useEffect(() => {
     loadCollaborations();
   }, [loadCollaborations]);
+
+  // Reload collaborations when user authentication state changes
+  useEffect(() => {
+    const hasUserChanged = prevUsernameRef.current !== undefined && 
+                           prevUsernameRef.current !== username;
+    
+    if (hasUserChanged) {
+      console.log('🔄 User state changed, reloading collaborations...', {
+        previous: prevUsernameRef.current,
+        current: username
+      });
+      loadCollaborations();
+    }
+    
+    prevUsernameRef.current = username;
+  }, [username, loadCollaborations]);
 
   // Add a new collaboration
   const addCollaboration = (collaboration: Collaboration) => {
