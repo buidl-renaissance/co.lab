@@ -243,27 +243,28 @@ const TimeField = styled(CompactEditableField)`
   min-width: 0;
 `;
 
-const FlyerContainer = styled.div`
+const FlyerContainer = styled.div<{ $hasImage?: boolean }>`
   position: relative;
   width: 100%;
   aspect-ratio: 1024/1792;
-  border-radius: 10px;
+  border-radius: ${({ $hasImage }) => $hasImage ? '8px' : '10px'};
   overflow: hidden;
-  background: ${({ theme }) => theme.backgroundAlt};
-  border: 2px dashed ${({ theme }) => theme.border};
+  background: ${({ theme, $hasImage }) => $hasImage ? 'transparent' : theme.backgroundAlt};
+  border: ${({ theme, $hasImage }) => $hasImage ? 'none' : `2px dashed ${theme.border}`};
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
     border-color: ${({ theme }) => theme.accent};
-    background: ${({ theme }) => theme.surface};
+    background: ${({ theme, $hasImage }) => $hasImage ? 'transparent' : theme.surface};
   }
 `;
 
 const FlyerImage = styled.img`
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 8px;
 `;
 
 const FlyerPlaceholder = styled.div`
@@ -852,7 +853,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
         <FlyerSection>
           <Label>Flyer</Label>
-          <FlyerContainer onClick={!isGeneratingFlyer ? handleFlyerClick : undefined}>
+          <FlyerContainer $hasImage={!!localDetails.flyerUrl} onClick={!isGeneratingFlyer ? handleFlyerClick : undefined}>
             {localDetails.flyerUrl ? (
               <FlyerImage src={localDetails.flyerUrl} alt="Event flyer" />
             ) : (
