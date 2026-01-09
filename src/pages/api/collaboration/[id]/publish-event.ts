@@ -79,11 +79,14 @@ export default async function handler(
     const payload = eventDetailsToPayload(eventDetails, imageBase64);
 
     let result;
-    const isUpdate = !!eventDetails.externalEventId;
+    const existingEventId = eventDetails.externalEventId;
+    const isUpdate = !!existingEventId;
+
+    console.log(`Publishing event: ${isUpdate ? 'UPDATE' : 'CREATE'}`, { existingEventId });
 
     if (isUpdate) {
       // Update existing event
-      result = await updateExternalEvent(eventDetails.externalEventId!, payload);
+      result = await updateExternalEvent(existingEventId!, payload);
     } else {
       // Create new event
       result = await createExternalEvent(payload);
@@ -96,10 +99,20 @@ export default async function handler(
       });
     }
 
+    // Determine the event ID - use existing for updates, or new ID from create response
+    const eventId = isUpdate ? existingEventId : result.data?.id;
+
+    if (!eventId) {
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to get event ID from API response',
+      });
+    }
+
     // Update collaboration with external event ID and publish timestamp
     const updatedEventDetails = {
       ...eventDetails,
-      externalEventId: result.data?.id,
+      externalEventId: eventId,
       publishedAt: new Date().toISOString(),
     };
 
@@ -107,10 +120,12 @@ export default async function handler(
       eventDetails: updatedEventDetails,
     });
 
+    console.log(`Event ${isUpdate ? 'updated' : 'created'} successfully:`, { eventId });
+
     return res.status(200).json({
       success: true,
       data: updatedCollaboration || undefined,
-      externalEventId: result.data?.id,
+      externalEventId: eventId,
     });
   } catch (error) {
     console.error('Error publishing event:', error);
