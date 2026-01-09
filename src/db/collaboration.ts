@@ -161,13 +161,18 @@ export async function getAllCollaborations(): Promise<Collaboration[]> {
 
 export async function getCollaborationsByUsername(username: string): Promise<Collaboration[]> {
   // Query collaborations where the username is in the collaboratorIds comma-separated string
+  // OR in the participants JSON array (for backwards compatibility with older data)
   // The collaboratorIds field is stored as ",user1,user2,user3," for precise matching
   const searchPattern = `,${username},`;
+  // Also search in participants JSON (stored as ["user1", "user2"])
+  const jsonPattern = `"${username}"`;
   const results = await db
     .select()
     .from(collaborations)
     .where(
-      sql`${collaborations.collaboratorIds} LIKE ${'%' + searchPattern + '%'}`
+      sql`${collaborations.collaboratorIds} LIKE ${'%' + searchPattern + '%'} 
+          OR ${collaborations.participants} LIKE ${'%' + jsonPattern + '%'}
+          OR ${collaborations.createdByUserId} = ${username}`
     );
   
   return results.map((result) => {
