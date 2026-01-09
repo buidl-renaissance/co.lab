@@ -246,7 +246,7 @@ const TimeField = styled(CompactEditableField)`
 const FlyerContainer = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: 1/1;
+  aspect-ratio: 1024/1792;
   border-radius: 10px;
   overflow: hidden;
   background: ${({ theme }) => theme.backgroundAlt};
@@ -263,7 +263,7 @@ const FlyerContainer = styled.div`
 const FlyerImage = styled.img`
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 `;
 
 const FlyerPlaceholder = styled.div`
