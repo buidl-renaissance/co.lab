@@ -12,31 +12,31 @@ import { Loading } from "@/components/Loading";
 
 const DashboardHeader = styled.div`
   width: 100%;
-  padding: 1rem 1rem 0.5rem;
+  padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   
   @media (max-width: 768px) {
-    padding: 0.75rem;
-    padding-top: calc(60px + 0.75rem);
+    padding: 0.5rem;
+    padding-top: calc(60px + 0.5rem);
   }
 `;
 
 const UserSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 `;
 
 const ProfileImageContainer = styled.div`
-  width: 60px;
-  height: 60px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid ${({ theme }) => theme.accent};
+  border: 2px solid ${({ theme }) => theme.accent};
   background: ${({ theme }) => theme.surface};
   display: flex;
   align-items: center;
@@ -58,7 +58,7 @@ const DefaultAvatar = styled.div`
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: bold;
   font-family: 'Space Grotesk', sans-serif;
 `;
@@ -66,25 +66,33 @@ const DefaultAvatar = styled.div`
 const WelcomeText = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.1rem;
 `;
 
 const Greeting = styled.h1`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 700;
   margin: 0;
   color: ${({ theme }) => theme.text};
   
   @media (max-width: 768px) {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
 `;
 
 const SubGreeting = styled.p`
-  font-size: 1rem;
+  font-size: 0.85rem;
   color: ${({ theme }) => theme.textSecondary};
   margin: 0;
+`;
+
+const DashboardMain = styled(Main)`
+  padding-top: 0;
+  
+  @media (max-width: 768px) {
+    padding-top: 0;
+  }
 `;
 
 const TemplatesSection = styled(Section)`
@@ -250,7 +258,7 @@ const DashboardPage: React.FC = () => {
 
       <MobileNav collaborations={collaborations} />
 
-      <Main full>
+      <DashboardMain full>
         <DashboardHeader>
           <UserSection>
             <ProfileImageContainer>
@@ -303,7 +311,7 @@ const DashboardPage: React.FC = () => {
             </EmptyState>
           )}
         </CollaborationsSection>
-      </Main>
+      </DashboardMain>
     </Container>
   );
 };

@@ -1,75 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Template, defaultTemplates } from "@/data/template";
-import { PrimaryButton } from "./Buttons";
-import { SecondaryButton } from "./Buttons";
 import router from "next/router";
 
 interface TemplatesProps {
   templates?: Template[];
-  selectedTemplate?: Template | null;
-  setSelectedTemplate?: (template: Template) => void;
 }
 
 const Templates: React.FC<TemplatesProps> = ({
   templates = defaultTemplates,
 }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    null
-  );
-
-  const scrollToTemplates = () => {
-    const templatesSection = document.getElementById("templates-section");
-    if (templatesSection) {
-      templatesSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-  
   return (
-    <>
-      <TemplatesSection id="templates-section">
-        <SectionTitle>Choose Your Template</SectionTitle>
-        <TemplateGrid>
-          {templates.map((template) => (
-            <TemplateCard
-              key={template.id}
-              selected={selectedTemplate?.id === template.id}
-              onClick={() => setSelectedTemplate?.(template)}
-            >
-              <TemplateTag>{template.tag}</TemplateTag>
-              <h3>{template.name}</h3>
-              <p>
-                Pre-configured structure and prompts designed specifically for{" "}
-                {template.name.toLowerCase()} collaborations.
-              </p>
-            </TemplateCard>
-          ))}
-        </TemplateGrid>
-      </TemplatesSection>
-      {selectedTemplate ? (
-        <StartSession>
-          <h2>
-            Ready to start your{" "}
-            {defaultTemplates.find((t) => t.id === selectedTemplate?.id)?.name}{" "}
-            session?
-          </h2>
-          <PrimaryButton
-            onClick={() => {
-              router.push(`/create/${selectedTemplate?.id}`);
-            }}
+    <TemplatesSection>
+      <SectionHeader>New Collaboration</SectionHeader>
+      <TemplateGrid>
+        {templates.map((template) => (
+          <TemplateCard
+            key={template.id}
+            onClick={() => router.push(`/create/${template.id}`)}
           >
-            Start Recording Session
-          </PrimaryButton>
-        </StartSession>
-      ) : (
-        <SelectTemplatePrompt>
-          <h2>Please select a template to continue</h2>
-          <SecondaryButton onClick={scrollToTemplates}>
-            Browse Templates
-          </SecondaryButton>
-        </SelectTemplatePrompt>
-      )}
-    </>
+            <TemplateTag>{template.tag}</TemplateTag>
+            <h3>{template.name}</h3>
+            <p>{template.description || `Start a ${template.name.toLowerCase()} session`}</p>
+          </TemplateCard>
+        ))}
+      </TemplateGrid>
+    </TemplatesSection>
   );
 };
 
@@ -77,86 +33,72 @@ export default Templates;
 
 const TemplatesSection = styled.section`
   width: 100%;
-  padding: 2rem 0rem;
+  padding: 0.5rem 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   background: ${({ theme }) => theme.surface};
 `;
 
-const SectionTitle = styled.h2`
+const SectionHeader = styled.h2`
   font-family: "Space Grotesk", sans-serif;
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
-  text-align: center;
-  position: relative;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 1rem;
   color: ${({ theme }) => theme.text};
-
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 4px;
-    background: ${({ theme }) => theme.accent};
-  }
 `;
 
 const TemplateGrid = styled.div`
   display: flex;
   overflow-x: auto;
-  gap: 1.5rem;
-  padding: 1rem 0;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
   width: 100%;
-  /* max-width: 1200px; */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   
   &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
   }
 `;
 
-const TemplateCard = styled.div<{ selected: boolean }>`
-  min-width: 280px;
-  padding: 1.5rem;
-  border-radius: 12px;
-  border: 2px solid ${({ selected, theme }) => selected ? theme.accent : theme.border};
+const TemplateCard = styled.div`
+  min-width: 200px;
+  max-width: 200px;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme }) => theme.background};
-  box-shadow: ${({ selected, theme }) =>
-    selected
-      ? `0 8px 20px ${theme.accent}26`
-      : `0 4px 12px ${theme.shadow}`};
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px ${({ theme }) => theme.shadow};
+  transition: all 0.2s ease;
   cursor: pointer;
 
   &:first-child {
-    margin-left: 2rem;
+    margin-left: 1rem;
   }
 
   &:last-child {
-    margin-right: 2rem;
+    margin-right: 1rem;
   }
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${({ theme }) => `0 12px 24px ${theme.shadow}`};
-    border-color: ${({ selected, theme }) => selected ? theme.accent : theme.accent};
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px ${({ theme }) => theme.shadow};
+    border-color: ${({ theme }) => theme.accent};
   }
 
   h3 {
     font-family: "Space Grotesk", sans-serif;
-    margin: 0 0 1rem 0;
-    font-size: 1.4rem;
-    color: ${({ selected, theme }) => selected ? theme.accent : theme.text};
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: ${({ theme }) => theme.text};
   }
 
   p {
     margin: 0;
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 0.8rem;
+    line-height: 1.4;
     color: ${({ theme }) => theme.textSecondary};
   }
 `;
@@ -165,47 +107,11 @@ const TemplateTag = styled.span`
   display: inline-block;
   background: ${({ theme }) => theme.accent};
   color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.65rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-`;
-
-const StartSession = styled.div`
-  margin: 1rem 0;
-  text-align: center;
-  padding: 2rem;
-  background: ${({ theme }) => theme.background};
-  border-radius: 12px;
-  max-width: 800px;
-  width: 90%;
-
-  h2 {
-    font-family: "Space Grotesk", sans-serif;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    color: ${({ theme }) => theme.text};
-  }
-`;
-
-const SelectTemplatePrompt = styled.div`
-  margin-top: 1rem !important;
-  margin: 3rem 0;
-  text-align: center;
-  padding: 2rem;
-  background: ${({ theme }) => theme.surface};
-  border-radius: 12px;
-  max-width: 800px;
-  width: 90%;
-  border: 2px dashed ${({ theme }) => theme.accent};
-
-  h2 {
-    font-family: "Space Grotesk", sans-serif;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    color: ${({ theme }) => theme.accent};
-  }
 `;
