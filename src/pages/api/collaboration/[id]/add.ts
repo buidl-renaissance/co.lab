@@ -67,10 +67,10 @@ export default async function handler(
     // Add the new transcript to the existing ones
     const transcripts = [...(collaboration.transcripts || []), transcript];
 
-    // Build participants list - ensure authenticated user is included
+    // Build participants list - ensure authenticated user's username is included
     let participants = updatedAnalysis.participants || [];
-    if (user && !participants.includes(user.id)) {
-      participants = [user.id, ...participants];
+    if (user?.username && !participants.includes(user.username)) {
+      participants = [user.username, ...participants];
     }
 
     // Update the collaboration with the new transcript and analysis

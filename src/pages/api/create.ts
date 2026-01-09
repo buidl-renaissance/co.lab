@@ -53,10 +53,10 @@ export default async function handler(
       answers[`question_${index}`] = '';
     });
 
-    // Build participants list - include authenticated user if available
+    // Build participants list - include authenticated user's username if available
     let participants = analysis.participants || [];
-    if (user && !participants.includes(user.id)) {
-      participants = [user.id, ...participants];
+    if (user?.username && !participants.includes(user.username)) {
+      participants = [user.username, ...participants];
     }
 
     const collaboration = await createCollaboration({
@@ -69,7 +69,7 @@ export default async function handler(
       analysis,
       transcripts: [transcript],
       summary: analysis.summary,
-      createdByUserId: user?.id || null,
+      createdByUsername: user?.username || null,
       // Include eventDetails for event templates
       eventDetails: templateId === 'event' && analysis.eventDetails ? analysis.eventDetails : undefined,
     });

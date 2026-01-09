@@ -71,6 +71,47 @@ export async function getUserById(userId: string): Promise<User | null> {
   } as User;
 }
 
+export async function getUserByUsername(username: string): Promise<User | null> {
+  const results = await db
+    .select()
+    .from(users)
+    .where(eq(users.username, username))
+    .limit(1);
+  
+  if (results.length === 0) return null;
+  
+  const row = results[0];
+  return {
+    id: row.id,
+    fid: row.fid,
+    username: row.username,
+    displayName: row.displayName,
+    pfpUrl: row.pfpUrl,
+    createdAt: row.createdAt || new Date(),
+    updatedAt: row.updatedAt || new Date(),
+  } as User;
+}
+
+export async function getUserIdsByUsernames(usernames: string[]): Promise<Map<string, string>> {
+  const usernameToId = new Map<string, string>();
+  
+  if (usernames.length === 0) return usernameToId;
+  
+  // Query all users with matching usernames
+  const results = await db
+    .select()
+    .from(users);
+  
+  // Filter and map results
+  for (const row of results) {
+    if (row.username && usernames.includes(row.username)) {
+      usernameToId.set(row.username, row.id);
+    }
+  }
+  
+  return usernameToId;
+}
+
 export async function getOrCreateUserByFid(
   fid: string,
   userData?: FarcasterUserData

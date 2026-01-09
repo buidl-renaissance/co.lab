@@ -3,10 +3,10 @@ import { Collaboration } from '@/data/collaboration';
 
 /**
  * Hook to manage collaborations
- * @param userId - Optional user ID to fetch collaborations for
+ * @param username - Optional username to fetch collaborations for
  * @returns Object containing collaborations and methods to manage them
  */
-export const useCollaborations = (userId?: string | null) => {
+export const useCollaborations = (username?: string | null) => {
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,9 +17,9 @@ export const useCollaborations = (userId?: string | null) => {
       setIsLoading(true);
       setError(null);
 
-      if (userId) {
-        // Fetch from API when userId is available
-        const response = await fetch(`/api/collaborations?userId=${encodeURIComponent(userId)}`);
+      if (username) {
+        // Fetch from API when username is available
+        const response = await fetch(`/api/collaborations?username=${encodeURIComponent(username)}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch collaborations from server');
@@ -35,7 +35,7 @@ export const useCollaborations = (userId?: string | null) => {
           throw new Error(data.error || 'Failed to load collaborations');
         }
       } else {
-        // Fall back to localStorage when no userId
+        // Fall back to localStorage when no username
         const storedCollabs = localStorage.getItem('collaborations');
         const localCollabs = storedCollabs ? JSON.parse(storedCollabs) : [];
         setCollaborations(localCollabs);
@@ -55,7 +55,7 @@ export const useCollaborations = (userId?: string | null) => {
     } finally {
       setIsLoading(false);
     }
-  }, [userId]);
+  }, [username]);
 
   // Load collaborations on mount and when userId changes
   useEffect(() => {

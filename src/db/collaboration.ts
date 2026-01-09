@@ -3,6 +3,7 @@ import { eq, sql } from 'drizzle-orm';
 import { Collaboration } from '@/data/collaboration';
 import { db } from './drizzle';
 import { collaborations } from './schema';
+import { getUserIdsByUsernames, getUserByUsername } from './user';
 
 // Helper function to create comma-separated collaborator IDs string
 function buildCollaboratorIds(userIds: string[]): string {
@@ -14,24 +15,31 @@ function buildCollaboratorIds(userIds: string[]): string {
 
 export async function createCollaboration(
   collaboration: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'> & {
-    createdByUserId?: string | null;
+    createdByUsername?: string | null;
   }
 ): Promise<Collaboration> {
   const id = uuidv4();
   const now = new Date();
   
-  // Ensure creator is in participants if createdByUserId is provided
+  // Ensure creator is in participants if createdByUsername is provided
   let participants = collaboration.participants || [];
-  if (collaboration.createdByUserId && !participants.includes(collaboration.createdByUserId)) {
-    participants = [collaboration.createdByUserId, ...participants];
+  if (collaboration.createdByUsername && !participants.includes(collaboration.createdByUsername)) {
+    participants = [collaboration.createdByUsername, ...participants];
   }
   
-  // Build collaboratorIds from participants (user IDs only, not names)
-  // Filter to only include valid user IDs (UUIDs)
-  const userIdParticipants = participants.filter(p => 
-    p && p.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-  );
-  const collaboratorIds = buildCollaboratorIds(userIdParticipants);
+  // Look up user IDs from usernames to build collaboratorIds for querying
+  const usernameToId = await getUserIdsByUsernames(participants);
+  const userIds = participants
+    .map(username => usernameToId.get(username))
+    .filter((id): id is string => !!id);
+  const collaboratorIds = buildCollaboratorIds(userIds);
+  
+  // Get creator's user ID for createdByUserId field
+  let createdByUserId: string | null = null;
+  if (collaboration.createdByUsername) {
+    const creator = await getUserByUsername(collaboration.createdByUsername);
+    createdByUserId = creator?.id || null;
+  }
   
   // Drizzle handles JSON serialization automatically for columns with mode: 'json'
   const newCollaboration = {
@@ -48,7 +56,7 @@ export async function createCollaboration(
     analysis: collaboration.analysis || null,
     transcripts: collaboration.transcripts || null,
     summary: collaboration.summary || '',
-    createdByUserId: collaboration.createdByUserId || null,
+    createdByUserId,
     eventDetails: collaboration.eventDetails || null,
   };
 
@@ -119,11 +127,12 @@ export async function updateCollaboration(
   if (updates.template !== undefined) updateData.template = updates.template;
   if (updates.participants !== undefined) {
     updateData.participants = updates.participants;
-    // Keep collaboratorIds in sync with participants
-    const userIdParticipants = updates.participants.filter(p => 
-      p && p.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-    );
-    updateData.collaboratorIds = buildCollaboratorIds(userIdParticipants);
+    // Look up user IDs from usernames to keep collaboratorIds in sync
+    const usernameToId = await getUserIdsByUsernames(updates.participants);
+    const userIds = updates.participants
+      .map(username => usernameToId.get(username))
+      .filter((id): id is string => !!id);
+    updateData.collaboratorIds = buildCollaboratorIds(userIds);
   }
   if (updates.answers !== undefined) updateData.answers = updates.answers;
   if (updates.status !== undefined) updateData.status = updates.status;

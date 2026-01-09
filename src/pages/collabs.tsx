@@ -77,7 +77,7 @@ const EmptyState = styled.div`
 
 const CollabsPage = () => {
   const { user, isLoading: isUserLoading } = useUser();
-  const { collaborations, isLoading: isCollabsLoading } = useCollaborations(user?.id);
+  const { collaborations, isLoading: isCollabsLoading } = useCollaborations(user?.username);
 
   const isLoading = isUserLoading || isCollabsLoading;
 

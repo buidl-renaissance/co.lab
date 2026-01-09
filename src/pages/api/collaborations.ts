@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAllCollaborations, getCollaborationsByUserId } from '@/db/collaboration';
+import { getUserByUsername } from '@/db/user';
 import { Collaboration } from '@/data/collaboration';
 import { getAuthenticatedUser } from '@/lib/middleware/farcasterUser';
 
@@ -29,14 +30,20 @@ export default async function handler(
 
   if (req.method === 'GET') {
     try {
-      // Check for userId query parameter
-      const { userId } = req.query;
+      // Check for username query parameter
+      const { username } = req.query;
       
       let collaborations: Collaboration[];
       
-      if (userId && typeof userId === 'string') {
-        // Return collaborations for the specified user
-        collaborations = await getCollaborationsByUserId(userId);
+      if (username && typeof username === 'string') {
+        // Look up user by username to get their ID
+        const user = await getUserByUsername(username);
+        if (user) {
+          collaborations = await getCollaborationsByUserId(user.id);
+        } else {
+          // Username not found - return empty array
+          collaborations = [];
+        }
       } else {
         // Try to get authenticated user as fallback
         const user = await getAuthenticatedUser(req);
