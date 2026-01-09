@@ -2,6 +2,69 @@ import { OpenAI } from "openai";
 import { Template } from "@/data/template";
 import { EventDetails } from "@/data/collaboration";
 
+/**
+ * Normalizes a date string to include a year.
+ * If no year is provided, assumes the next occurrence of that date in the future.
+ * @param dateStr - The date string (may or may not include a year)
+ * @returns A date string in YYYY-MM-DD format
+ */
+function normalizeDateWithYear(dateStr: string): string {
+  if (!dateStr) return dateStr;
+  
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  
+  // Check if the date already has a year (4-digit number)
+  const hasYear = /\b(19|20)\d{2}\b/.test(dateStr);
+  if (hasYear) {
+    // Try to parse and format as YYYY-MM-DD
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toISOString().split('T')[0];
+    }
+    return dateStr;
+  }
+  
+  // Try to parse the date without a year
+  // Add current year first to parse month/day
+  let testDate = new Date(`${dateStr} ${currentYear}`);
+  
+  // If that doesn't work, try other formats
+  if (isNaN(testDate.getTime())) {
+    // Try parsing with just the string (might be like "January 15")
+    testDate = new Date(`${dateStr}, ${currentYear}`);
+  }
+  
+  if (isNaN(testDate.getTime())) {
+    // Can't parse, return original
+    return dateStr;
+  }
+  
+  // Check if this date has already passed this year
+  // Compare just month and day
+  const testMonth = testDate.getMonth();
+  const testDay = testDate.getDate();
+  const nowMonth = now.getMonth();
+  const nowDay = now.getDate();
+  
+  let targetYear = currentYear;
+  
+  // If the date has already passed this year, use next year
+  if (testMonth < nowMonth || (testMonth === nowMonth && testDay < nowDay)) {
+    targetYear = currentYear + 1;
+  }
+  
+  // Create the final date with the correct year
+  const finalDate = new Date(targetYear, testMonth, testDay);
+  
+  // Format as YYYY-MM-DD
+  const year = finalDate.getFullYear();
+  const month = String(finalDate.getMonth() + 1).padStart(2, '0');
+  const day = String(finalDate.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}
+
 export type AnalysisResponse = {
   title: string;
   description: string;
@@ -254,7 +317,15 @@ You will need to extract the information from the transcript and return it in a 
       completion.choices[0].message.tool_calls?.[0]?.function?.arguments;
     console.log("Completion:", completion);
     console.log("Result:", result);
-    return JSON.parse(result as string) as AnalysisResponse;
+    
+    const parsed = JSON.parse(result as string) as AnalysisResponse;
+    
+    // Normalize event date to include year if missing
+    if (parsed.eventDetails?.date) {
+      parsed.eventDetails.date = normalizeDateWithYear(parsed.eventDetails.date);
+    }
+    
+    return parsed;
   } catch (error) {
     console.error("Error analyzing transcript:", error);
     return {

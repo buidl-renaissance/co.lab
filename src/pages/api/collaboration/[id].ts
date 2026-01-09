@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getCollaborationById } from '@/db/collaboration';
+import { getCollaborationById, updateCollaboration } from '@/db/collaboration';
 import { Collaboration } from '@/data/collaboration';
 
 type ResponseData = {
@@ -41,6 +41,32 @@ export default async function handler(
       return res.status(500).json({
         success: false,
         error: 'Failed to fetch collaboration'
+      });
+    }
+  }
+
+  if (req.method === 'PUT') {
+    try {
+      const updates = req.body;
+      
+      const updatedCollaboration = await updateCollaboration(id, updates);
+      
+      if (!updatedCollaboration) {
+        return res.status(404).json({
+          success: false,
+          error: 'Collaboration not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: updatedCollaboration
+      });
+    } catch (error) {
+      console.error('Error updating collaboration:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update collaboration'
       });
     }
   }

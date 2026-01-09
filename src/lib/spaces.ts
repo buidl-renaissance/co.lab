@@ -1,14 +1,15 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // DigitalOcean Spaces configuration
-const spacesEndpoint = process.env.DO_SPACES_ENDPOINT || 'nyc3.digitaloceanspaces.com';
+const rawEndpoint = process.env.DO_SPACES_ENDPOINT || 'nyc3.digitaloceanspaces.com';
 const spacesRegion = process.env.DO_SPACES_REGION || 'nyc3';
 const spacesBucket = process.env.DO_SPACES_BUCKET || '';
 const spacesKey = process.env.DO_SPACES_KEY || '';
 const spacesSecret = process.env.DO_SPACES_SECRET || '';
 
-// Validate endpoint format
-const isValidEndpoint = spacesEndpoint && spacesEndpoint.includes('.') && !spacesEndpoint.includes('://');
+// Normalize endpoint - strip protocol if included, ensure it's a valid domain
+const spacesEndpoint = rawEndpoint.replace(/^https?:\/\//, '');
+const isValidEndpoint = spacesEndpoint && spacesEndpoint.includes('.') && spacesEndpoint.includes('digitaloceanspaces.com');
 
 // Initialize S3-compatible client for DigitalOcean Spaces
 export const spacesClient = new S3Client({

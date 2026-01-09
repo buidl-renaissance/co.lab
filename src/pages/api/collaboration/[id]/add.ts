@@ -67,8 +67,20 @@ export default async function handler(
     // Add the new transcript to the existing ones
     const transcripts = [...(collaboration.transcripts || []), transcript];
 
-    // Build participants list - ensure authenticated user's username is included
-    let participants = updatedAnalysis.participants || [];
+    // Build participants list - merge existing participants with new ones from analysis
+    // Start with existing participants to maintain them
+    const existingParticipants = collaboration.participants || [];
+    const newParticipants = updatedAnalysis.participants || [];
+    
+    // Merge: keep all existing, add new ones that aren't already included
+    let participants = [...existingParticipants];
+    for (const participant of newParticipants) {
+      if (!participants.includes(participant)) {
+        participants.push(participant);
+      }
+    }
+    
+    // Ensure authenticated user's username is included
     if (user?.username && !participants.includes(user.username)) {
       participants = [user.username, ...participants];
     }

@@ -48,6 +48,9 @@ const ParticipantsList = styled.div`
 `;
 
 const Participant = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   background: ${({ theme }) => theme.surface};
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -61,6 +64,32 @@ const Participant = styled.div`
   &:hover {
     transform: translateY(-2px);
     border-color: ${({ theme }) => theme.accent};
+  }
+`;
+
+const RemoveParticipantButton = styled.button`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: ${({ theme }) => theme.border};
+  border: none;
+  border-radius: 50%;
+  color: ${({ theme }) => theme.textSecondary};
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  ${Participant}:hover & {
+    display: flex;
+  }
+
+  &:hover {
+    background: ${({ theme }) => theme.accent};
+    color: white;
   }
 `;
 
@@ -438,6 +467,52 @@ const CollaborationPage = ({
     }
   };
 
+  const handleRemoveParticipant = async (participantToRemove: string) => {
+    // Filter out the participant from both collaboration.participants and analysis.participants
+    const updatedParticipants = (collaboration.participants || []).filter(
+      (p) => p !== participantToRemove
+    );
+    const updatedAnalysisParticipants = (collaboration.analysis?.participants || []).filter(
+      (p) => p !== participantToRemove
+    );
+
+    // Optimistic update for instant feedback
+    setCollaboration((prev) => ({
+      ...prev,
+      participants: updatedParticipants,
+      analysis: prev.analysis
+        ? { ...prev.analysis, participants: updatedAnalysisParticipants }
+        : undefined,
+    }));
+
+    try {
+      // Update on the server
+      const response = await fetch(
+        `/api/collaboration/${collaboration.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            participants: updatedParticipants,
+            analysis: collaboration.analysis
+              ? { ...collaboration.analysis, participants: updatedAnalysisParticipants }
+              : undefined,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data.success && data.data) {
+        setCollaboration(data.data);
+      }
+    } catch (error) {
+      console.error("Error removing participant:", error);
+      // Revert optimistic update on error
+      setCollaboration(collaboration);
+    }
+  };
+
   // Filter out event-specific questions from Key Insights for event collaborations
   const getFilteredAnswers = () => {
     if (!collaboration.analysis?.answers) return [];
@@ -546,7 +621,16 @@ const CollaborationPage = ({
               <ParticipantsList>
                 {collaboration.analysis.participants?.map(
                   (participant, index) => (
-                    <Participant key={index}>{participant}</Participant>
+                    <Participant key={index}>
+                      <span>{participant}</span>
+                      <RemoveParticipantButton
+                        onClick={() => handleRemoveParticipant(participant)}
+                        title={`Remove ${participant}`}
+                        aria-label={`Remove ${participant}`}
+                      >
+                        ✕
+                      </RemoveParticipantButton>
+                    </Participant>
                   )
                 )}
               </ParticipantsList>
