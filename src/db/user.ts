@@ -92,25 +92,6 @@ export async function getUserByUsername(username: string): Promise<User | null> 
   } as User;
 }
 
-export async function getUserIdsByUsernames(usernames: string[]): Promise<Map<string, string>> {
-  const usernameToId = new Map<string, string>();
-  
-  if (usernames.length === 0) return usernameToId;
-  
-  // Query all users with matching usernames
-  const results = await db
-    .select()
-    .from(users);
-  
-  // Filter and map results
-  for (const row of results) {
-    if (row.username && usernames.includes(row.username)) {
-      usernameToId.set(row.username, row.id);
-    }
-  }
-  
-  return usernameToId;
-}
 
 export async function getOrCreateUserByFid(
   fid: string,

@@ -3,13 +3,12 @@ import { eq, sql } from 'drizzle-orm';
 import { Collaboration } from '@/data/collaboration';
 import { db } from './drizzle';
 import { collaborations } from './schema';
-import { getUserIdsByUsernames, getUserByUsername } from './user';
 
-// Helper function to create comma-separated collaborator IDs string
-function buildCollaboratorIds(userIds: string[]): string {
+// Helper function to create comma-separated collaborator usernames string
+function buildCollaboratorIds(usernames: string[]): string {
   // Filter out empty strings and join with commas
-  // Wrap each ID with commas for precise matching: ,id1,id2,id3,
-  const filtered = userIds.filter(id => id && id.trim());
+  // Wrap each username with commas for precise matching: ,user1,user2,user3,
+  const filtered = usernames.filter(u => u && u.trim());
   return filtered.length > 0 ? `,${filtered.join(',')},` : '';
 }
 
@@ -27,19 +26,8 @@ export async function createCollaboration(
     participants = [collaboration.createdByUsername, ...participants];
   }
   
-  // Look up user IDs from usernames to build collaboratorIds for querying
-  const usernameToId = await getUserIdsByUsernames(participants);
-  const userIds = participants
-    .map(username => usernameToId.get(username))
-    .filter((id): id is string => !!id);
-  const collaboratorIds = buildCollaboratorIds(userIds);
-  
-  // Get creator's user ID for createdByUserId field
-  let createdByUserId: string | null = null;
-  if (collaboration.createdByUsername) {
-    const creator = await getUserByUsername(collaboration.createdByUsername);
-    createdByUserId = creator?.id || null;
-  }
+  // Build collaboratorIds directly from participant usernames
+  const collaboratorIds = buildCollaboratorIds(participants);
   
   // Drizzle handles JSON serialization automatically for columns with mode: 'json'
   const newCollaboration = {
@@ -56,7 +44,7 @@ export async function createCollaboration(
     analysis: collaboration.analysis || null,
     transcripts: collaboration.transcripts || null,
     summary: collaboration.summary || '',
-    createdByUserId,
+    createdByUserId: collaboration.createdByUsername || null,
     eventDetails: collaboration.eventDetails || null,
   };
 
@@ -127,12 +115,8 @@ export async function updateCollaboration(
   if (updates.template !== undefined) updateData.template = updates.template;
   if (updates.participants !== undefined) {
     updateData.participants = updates.participants;
-    // Look up user IDs from usernames to keep collaboratorIds in sync
-    const usernameToId = await getUserIdsByUsernames(updates.participants);
-    const userIds = updates.participants
-      .map(username => usernameToId.get(username))
-      .filter((id): id is string => !!id);
-    updateData.collaboratorIds = buildCollaboratorIds(userIds);
+    // Keep collaboratorIds in sync with participant usernames
+    updateData.collaboratorIds = buildCollaboratorIds(updates.participants);
   }
   if (updates.answers !== undefined) updateData.answers = updates.answers;
   if (updates.status !== undefined) updateData.status = updates.status;
@@ -175,10 +159,10 @@ export async function getAllCollaborations(): Promise<Collaboration[]> {
   }) as Collaboration[];
 }
 
-export async function getCollaborationsByUserId(userId: string): Promise<Collaboration[]> {
-  // Query collaborations where the user ID is in the collaboratorIds comma-separated string
-  // The collaboratorIds field is stored as ",id1,id2,id3," for precise matching
-  const searchPattern = `,${userId},`;
+export async function getCollaborationsByUsername(username: string): Promise<Collaboration[]> {
+  // Query collaborations where the username is in the collaboratorIds comma-separated string
+  // The collaboratorIds field is stored as ",user1,user2,user3," for precise matching
+  const searchPattern = `,${username},`;
   const results = await db
     .select()
     .from(collaborations)
