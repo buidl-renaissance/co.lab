@@ -69,20 +69,33 @@ export default async function handler(
     // Fetch flyer image as base64 if available
     let imageBase64: string | undefined;
     if (eventDetails.flyerUrl) {
+      console.log('Fetching flyer image as base64:', eventDetails.flyerUrl);
       const base64 = await fetchImageAsBase64(eventDetails.flyerUrl);
       if (base64) {
         imageBase64 = base64;
+        console.log('Flyer image fetched successfully, size:', base64.length);
+      } else {
+        console.log('Failed to fetch flyer image, continuing without it');
       }
     }
 
     // Convert to external API payload
     const payload = eventDetailsToPayload(eventDetails, imageBase64);
+    console.log('Event payload prepared:', { 
+      name: payload.name, 
+      location: payload.location,
+      eventType: payload.eventType,
+      hasImage: !!payload.imageBase64
+    });
 
     let result;
     const existingEventId = eventDetails.externalEventId;
     const isUpdate = !!existingEventId;
 
-    console.log(`Publishing event: ${isUpdate ? 'UPDATE' : 'CREATE'}`, { existingEventId });
+    console.log(`Publishing event: ${isUpdate ? 'UPDATE' : 'CREATE'}`, { 
+      existingEventId,
+      collaborationId: id 
+    });
 
     if (isUpdate) {
       // Update existing event
@@ -92,7 +105,15 @@ export default async function handler(
       result = await createExternalEvent(payload);
     }
 
+    console.log('External API result:', { 
+      success: result.success, 
+      eventId: result.data?.id,
+      error: result.error 
+    });
+
     if (!result.success) {
+      // Log the error but don't fail completely - save a note about the failure
+      console.error('External API call failed:', result.error);
       return res.status(500).json({
         success: false,
         error: result.error || 'Failed to publish event',
@@ -103,6 +124,7 @@ export default async function handler(
     const eventId = isUpdate ? existingEventId : result.data?.id;
 
     if (!eventId) {
+      console.error('No event ID returned from API');
       return res.status(500).json({
         success: false,
         error: 'Failed to get event ID from API response',
@@ -116,15 +138,33 @@ export default async function handler(
       publishedAt: new Date().toISOString(),
     };
 
+    console.log('Saving updated event details:', {
+      externalEventId: updatedEventDetails.externalEventId,
+      publishedAt: updatedEventDetails.publishedAt,
+    });
+
     const updatedCollaboration = await updateCollaboration(id, {
       eventDetails: updatedEventDetails,
     });
 
-    console.log(`Event ${isUpdate ? 'updated' : 'created'} successfully:`, { eventId });
+    if (!updatedCollaboration) {
+      console.error('Failed to update collaboration with event details');
+      return res.status(500).json({
+        success: false,
+        error: 'Event published but failed to save to collaboration',
+        externalEventId: eventId,
+      });
+    }
+
+    console.log(`Event ${isUpdate ? 'updated' : 'created'} and saved successfully:`, { 
+      eventId,
+      savedExternalEventId: updatedCollaboration.eventDetails?.externalEventId,
+      savedPublishedAt: updatedCollaboration.eventDetails?.publishedAt,
+    });
 
     return res.status(200).json({
       success: true,
-      data: updatedCollaboration || undefined,
+      data: updatedCollaboration,
       externalEventId: eventId,
     });
   } catch (error) {
