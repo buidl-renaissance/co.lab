@@ -2,6 +2,75 @@ import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { EventDetails, EventSponsor, EventActivity } from '@/data/collaboration';
 
+// Format date to human readable (e.g., "Friday, Jan 9, 2026")
+const formatDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  try {
+    const date = new Date(dateStr + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
+// Format time to human readable (e.g., "6:00 PM")
+const formatTime = (timeStr: string): string => {
+  if (!timeStr) return '';
+  try {
+    // Handle "HH:MM" format
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } catch {
+    return timeStr;
+  }
+};
+
+// Format activity datetime - shows just time if same date as event, otherwise shows date + time
+const formatActivityTime = (timeStr: string, eventDate?: string): string => {
+  if (!timeStr) return '';
+  try {
+    // Check if it's an ISO datetime string (contains 'T' or is longer than time-only)
+    if (timeStr.includes('T') || timeStr.length > 8) {
+      const activityDate = new Date(timeStr);
+      const activityDateStr = activityDate.toISOString().split('T')[0];
+      
+      // If same as event date, just show time
+      if (eventDate && activityDateStr === eventDate) {
+        return activityDate.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        });
+      }
+      
+      // Different date - show both date and time
+      return activityDate.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    }
+    
+    // Simple time format (HH:MM)
+    return formatTime(timeStr);
+  } catch {
+    return timeStr;
+  }
+};
+
 interface EventCardProps {
   eventDetails: EventDetails;
   collaborationId: string;
@@ -13,11 +82,15 @@ const Card = styled.div`
   background: linear-gradient(135deg, ${({ theme }) => theme.surface} 0%, ${({ theme }) => theme.background} 100%);
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
   box-shadow: 0 4px 12px ${({ theme }) => theme.shadow};
   position: relative;
   overflow: hidden;
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 
   &::before {
     content: '';
@@ -32,30 +105,31 @@ const Card = styled.div`
 
 const CardHeader = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
 `;
 
 const EventTag = styled.span`
   background: ${({ theme }) => theme.accent};
   color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  width: fit-content;
 `;
 
 const ContentWrapper = styled.div`
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
 
   @media (max-width: 600px) {
     flex-direction: column;
+    gap: 0.75rem;
   }
 `;
 
@@ -65,7 +139,7 @@ const DetailsSection = styled.div`
 `;
 
 const FlyerSection = styled.div`
-  width: 150px;
+  width: 120px;
   flex-shrink: 0;
 
   @media (max-width: 600px) {
@@ -74,25 +148,34 @@ const FlyerSection = styled.div`
 `;
 
 const EditableField = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+`;
+
+const CompactEditableField = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 `;
 
 const Label = styled.span`
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: ${({ theme }) => theme.textSecondary};
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.15rem;
 `;
 
 const Value = styled.div`
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: ${({ theme }) => theme.text};
-  padding: 0.5rem;
-  border-radius: 8px;
+  padding: 0.35rem;
+  border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     background: ${({ theme }) => theme.backgroundAlt};
@@ -100,17 +183,23 @@ const Value = styled.div`
 `;
 
 const TitleValue = styled(Value)`
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.2;
+  white-space: normal;
+  padding: 0.25rem;
+  
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
+  padding: 0.35rem;
+  font-size: 0.9rem;
   border: 2px solid ${({ theme }) => theme.accent};
-  border-radius: 8px;
+  border-radius: 6px;
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
   outline: none;
@@ -121,19 +210,24 @@ const Input = styled.input`
 `;
 
 const TitleInput = styled(Input)`
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
+  
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const DateTimeRow = styled.div`
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
 `;
 
-const DateTimeField = styled(EditableField)`
+const DateTimeField = styled(CompactEditableField)`
   flex: 1;
-  min-width: 120px;
+  min-width: 0;
 `;
 
 const FlyerContainer = styled.div`
@@ -369,6 +463,19 @@ const ActivityDescription = styled.p`
   color: ${({ theme }) => theme.textSecondary};
   margin: 0.5rem 0 0;
   line-height: 1.4;
+`;
+
+const ActivityTime = styled.div`
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.accent};
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+`;
+
+const ActivityLocation = styled.div`
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.textSecondary};
+  margin-top: 0.25rem;
 `;
 
 const TagsContainer = styled.div`
@@ -631,7 +738,17 @@ export const EventCard: React.FC<EventCardProps> = ({
     icon?: string
   ) => {
     const isEditing = editingField === field;
-    const value = (localDetails[field] as string) || '';
+    const rawValue = (localDetails[field] as string) || '';
+    
+    // Format display value based on field type
+    let displayValue = rawValue;
+    if (rawValue) {
+      if (type === 'date') {
+        displayValue = formatDate(rawValue);
+      } else if (type === 'time') {
+        displayValue = formatTime(rawValue);
+      }
+    }
 
     return (
       <EditableField>
@@ -639,7 +756,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         {isEditing ? (
           <InputComponent
             type={type}
-            value={value}
+            value={rawValue}
             onChange={(e) => handleFieldChange(field, e.target.value)}
             onBlur={handleFieldBlur}
             onKeyDown={handleKeyDown}
@@ -650,10 +767,10 @@ export const EventCard: React.FC<EventCardProps> = ({
             {icon ? (
               <IconRow>
                 <Icon>{icon}</Icon>
-                {value || `Add ${label.toLowerCase()}...`}
+                {displayValue || `Add ${label.toLowerCase()}...`}
               </IconRow>
             ) : (
-              value || `Add ${label.toLowerCase()}...`
+              displayValue || `Add ${label.toLowerCase()}...`
             )}
           </ValueComponent>
         )}
@@ -661,23 +778,59 @@ export const EventCard: React.FC<EventCardProps> = ({
     );
   };
 
+  const renderCompactField = (
+    field: keyof EventDetails,
+    label: string,
+    type: 'date' | 'time'
+  ) => {
+    const isEditing = editingField === field;
+    const rawValue = (localDetails[field] as string) || '';
+    
+    let displayValue = rawValue;
+    if (rawValue) {
+      if (type === 'date') {
+        displayValue = formatDate(rawValue);
+      } else if (type === 'time') {
+        displayValue = formatTime(rawValue);
+      }
+    }
+
+    return (
+      <DateTimeField>
+        <Label>{label}</Label>
+        {isEditing ? (
+          <Input
+            type={type}
+            value={rawValue}
+            onChange={(e) => handleFieldChange(field, e.target.value)}
+            onBlur={handleFieldBlur}
+            onKeyDown={handleKeyDown}
+            autoFocus
+          />
+        ) : (
+          <Value onClick={() => handleFieldClick(field)}>
+            {displayValue || '—'}
+          </Value>
+        )}
+      </DateTimeField>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
-        <div style={{ flex: 1 }}>
-          {renderField('eventTitle', 'Event Name', TitleInput, TitleValue)}
-        </div>
         <EventTypeTag $isRenaissance={localDetails.eventType === 'renaissance'}>
           {localDetails.eventType === 'renaissance' ? '✨ Renaissance' : 'Event'}
         </EventTypeTag>
+        {renderField('eventTitle', 'Event Name', TitleInput, TitleValue)}
       </CardHeader>
 
       <ContentWrapper>
         <DetailsSection>
           <DateTimeRow>
-            {renderField('date', 'Date', Input, Value, 'date', '📅')}
-            {renderField('time', 'Start Time', Input, Value, 'time', '🕐')}
-            {renderField('endTime', 'End Time', Input, Value, 'time', '🕐')}
+            {renderCompactField('date', 'Date', 'date')}
+            {renderCompactField('time', 'Start', 'time')}
+            {renderCompactField('endTime', 'End', 'time')}
           </DateTimeRow>
           {renderField('location', 'Location', Input, Value, 'text', '📍')}
         </DetailsSection>
@@ -769,32 +922,31 @@ export const EventCard: React.FC<EventCardProps> = ({
         <RenaissanceSection>
           <SectionTitle>📋 Schedule</SectionTitle>
           <ActivitiesList>
-            {localDetails.activities.map((activity: EventActivity, index: number) => (
-              <ActivityCard key={index}>
-                <ActivityHeader>
-                  <ActivityName>{activity.name}</ActivityName>
-                  {activity.capacity && (
-                    <ActivityCapacity>👥 {activity.capacity} max</ActivityCapacity>
+            {localDetails.activities.map((activity: EventActivity, index: number) => {
+              const hasDifferentLocation = activity.location && activity.location !== localDetails.location;
+              return (
+                <ActivityCard key={index}>
+                  {activity.startTime && (
+                    <ActivityTime>
+                      🕐 {formatActivityTime(activity.startTime, localDetails.date)}
+                      {activity.endTime && ` - ${formatActivityTime(activity.endTime, localDetails.date)}`}
+                    </ActivityTime>
                   )}
-                </ActivityHeader>
-                {(activity.startTime || activity.location) && (
-                  <ActivityMeta>
-                    {activity.startTime && (
-                      <ActivityMetaItem>
-                        🕐 {activity.startTime}
-                        {activity.endTime && ` - ${activity.endTime}`}
-                      </ActivityMetaItem>
+                  <ActivityHeader>
+                    <ActivityName>{activity.name}</ActivityName>
+                    {activity.capacity && (
+                      <ActivityCapacity>👥 {activity.capacity} max</ActivityCapacity>
                     )}
-                    {activity.location && (
-                      <ActivityMetaItem>📍 {activity.location}</ActivityMetaItem>
-                    )}
-                  </ActivityMeta>
-                )}
-                {activity.description && (
-                  <ActivityDescription>{activity.description}</ActivityDescription>
-                )}
-              </ActivityCard>
-            ))}
+                  </ActivityHeader>
+                  {hasDifferentLocation && (
+                    <ActivityLocation>📍 {activity.location}</ActivityLocation>
+                  )}
+                  {activity.description && (
+                    <ActivityDescription>{activity.description}</ActivityDescription>
+                  )}
+                </ActivityCard>
+              );
+            })}
           </ActivitiesList>
         </RenaissanceSection>
       )}
