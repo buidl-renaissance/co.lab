@@ -20,10 +20,17 @@ export const EVENT_CARD_QUESTIONS = [
   "What is the location of your event?",
 ];
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy-initialize OpenAI client to avoid errors at module load time
+let openai: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
 /**
  * Analyzes a transcript using OpenAI to extract relevant information based on a template
@@ -104,7 +111,7 @@ export async function analyzeTranscript(
     console.log("Prompt:", prompt);
 
     // Call OpenAI API with parse method
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-2024-08-06",
       messages: [
         {

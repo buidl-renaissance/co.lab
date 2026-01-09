@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllCollaborations } from '@/db/collaboration';
+import { getAllCollaborations, getCollaborationsByUserId } from '@/db/collaboration';
 import { Collaboration } from '@/data/collaboration';
+import { getAuthenticatedUser } from '@/lib/middleware/farcasterUser';
 
 type ResponseData = {
   success: boolean;
@@ -28,7 +29,26 @@ export default async function handler(
 
   if (req.method === 'GET') {
     try {
-      const collaborations = await getAllCollaborations();
+      // Check for userId query parameter
+      const { userId } = req.query;
+      
+      let collaborations: Collaboration[];
+      
+      if (userId && typeof userId === 'string') {
+        // Return collaborations for the specified user
+        collaborations = await getCollaborationsByUserId(userId);
+      } else {
+        // Try to get authenticated user as fallback
+        const user = await getAuthenticatedUser(req);
+        
+        if (user) {
+          // Return collaborations for authenticated user
+          collaborations = await getCollaborationsByUserId(user.id);
+        } else {
+          // No user specified or authenticated - return all collaborations
+          collaborations = await getAllCollaborations();
+        }
+      }
       
       return res.status(200).json({
         success: true,

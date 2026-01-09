@@ -32,6 +32,8 @@ export const collaborations = sqliteTable('collaborations', {
   updatedAt: integer('updatedAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
   answers: text('answers', { mode: 'json' }).notNull(),
   participants: text('participants', { mode: 'json' }).notNull(),
+  // Comma-separated list of user IDs for efficient querying
+  collaboratorIds: text('collaboratorIds').default(''),
   status: text('status', { enum: ['active', 'completed', 'archived'] }).default('active').notNull(),
   analysis: text('analysis', { mode: 'json' }),
   transcripts: text('transcripts', { mode: 'json' }),

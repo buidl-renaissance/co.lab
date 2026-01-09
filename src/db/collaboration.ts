@@ -1,8 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { Collaboration } from '@/data/collaboration';
 import { db } from './drizzle';
 import { collaborations } from './schema';
+
+// Helper function to create comma-separated collaborator IDs string
+function buildCollaboratorIds(userIds: string[]): string {
+  // Filter out empty strings and join with commas
+  // Wrap each ID with commas for precise matching: ,id1,id2,id3,
+  const filtered = userIds.filter(id => id && id.trim());
+  return filtered.length > 0 ? `,${filtered.join(',')},` : '';
+}
 
 export async function createCollaboration(
   collaboration: Omit<Collaboration, 'id' | 'createdAt' | 'updatedAt'> & {
@@ -18,6 +26,13 @@ export async function createCollaboration(
     participants = [collaboration.createdByUserId, ...participants];
   }
   
+  // Build collaboratorIds from participants (user IDs only, not names)
+  // Filter to only include valid user IDs (UUIDs)
+  const userIdParticipants = participants.filter(p => 
+    p && p.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+  );
+  const collaboratorIds = buildCollaboratorIds(userIdParticipants);
+  
   // Drizzle handles JSON serialization automatically for columns with mode: 'json'
   const newCollaboration = {
     id,
@@ -28,6 +43,7 @@ export async function createCollaboration(
     updatedAt: now,
     answers: collaboration.answers,
     participants,
+    collaboratorIds,
     status: collaboration.status || ('active' as const),
     analysis: collaboration.analysis || null,
     transcripts: collaboration.transcripts || null,
@@ -41,8 +57,8 @@ export async function createCollaboration(
   return {
     ...collaboration,
     id,
-    createdAt: now,
-    updatedAt: now,
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
     participants,
     answers: collaboration.answers || {},
     status: collaboration.status || 'active',
@@ -60,13 +76,17 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
   
   try {
     // Drizzle automatically deserializes JSON fields due to mode: 'json'
+    // Convert dates to ISO strings for Next.js serialization
+    const createdAt = result.createdAt ? new Date(result.createdAt).toISOString() : new Date().toISOString();
+    const updatedAt = result.updatedAt ? new Date(result.updatedAt).toISOString() : new Date().toISOString();
+    
     return {
       id: result.id,
       title: result.title,
       description: result.description || '',
       template: result.template as Collaboration['template'],
-      createdAt: result.createdAt || new Date(),
-      updatedAt: result.updatedAt || new Date(),
+      createdAt,
+      updatedAt,
       participants: (result.participants as string[]) || [],
       answers: (result.answers as { [key: string]: string }) || {},
       status: result.status as Collaboration['status'],
@@ -97,7 +117,14 @@ export async function updateCollaboration(
   if (updates.title !== undefined) updateData.title = updates.title;
   if (updates.description !== undefined) updateData.description = updates.description;
   if (updates.template !== undefined) updateData.template = updates.template;
-  if (updates.participants !== undefined) updateData.participants = updates.participants;
+  if (updates.participants !== undefined) {
+    updateData.participants = updates.participants;
+    // Keep collaboratorIds in sync with participants
+    const userIdParticipants = updates.participants.filter(p => 
+      p && p.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+    );
+    updateData.collaboratorIds = buildCollaboratorIds(userIdParticipants);
+  }
   if (updates.answers !== undefined) updateData.answers = updates.answers;
   if (updates.status !== undefined) updateData.status = updates.status;
   if (updates.analysis !== undefined) updateData.analysis = updates.analysis;
@@ -117,21 +144,59 @@ export async function updateCollaboration(
 export async function getAllCollaborations(): Promise<Collaboration[]> {
   const results = await db.select().from(collaborations);
   
-  return results.map((result) => ({
-    id: result.id,
-    title: result.title,
-    description: result.description || '',
-    template: result.template as Collaboration['template'],
-    createdAt: result.createdAt || new Date(),
-    updatedAt: result.updatedAt || new Date(),
-    participants: (result.participants as string[]) || [],
-    answers: (result.answers as { [key: string]: string }) || {},
-    status: result.status as Collaboration['status'],
-    analysis: result.analysis as Collaboration['analysis'],
-    transcripts: (result.transcripts as string[]) || [],
-    summary: result.summary || '',
-    eventDetails: result.eventDetails as Collaboration['eventDetails'],
-  })) as Collaboration[];
+  return results.map((result) => {
+    const createdAt = result.createdAt ? new Date(result.createdAt).toISOString() : new Date().toISOString();
+    const updatedAt = result.updatedAt ? new Date(result.updatedAt).toISOString() : new Date().toISOString();
+    
+    return {
+      id: result.id,
+      title: result.title,
+      description: result.description || '',
+      template: result.template as Collaboration['template'],
+      createdAt,
+      updatedAt,
+      participants: (result.participants as string[]) || [],
+      answers: (result.answers as { [key: string]: string }) || {},
+      status: result.status as Collaboration['status'],
+      analysis: result.analysis as Collaboration['analysis'],
+      transcripts: (result.transcripts as string[]) || [],
+      summary: result.summary || '',
+      eventDetails: result.eventDetails as Collaboration['eventDetails'],
+    };
+  }) as Collaboration[];
+}
+
+export async function getCollaborationsByUserId(userId: string): Promise<Collaboration[]> {
+  // Query collaborations where the user ID is in the collaboratorIds comma-separated string
+  // The collaboratorIds field is stored as ",id1,id2,id3," for precise matching
+  const searchPattern = `,${userId},`;
+  const results = await db
+    .select()
+    .from(collaborations)
+    .where(
+      sql`${collaborations.collaboratorIds} LIKE ${'%' + searchPattern + '%'}`
+    );
+  
+  return results.map((result) => {
+    const createdAt = result.createdAt ? new Date(result.createdAt).toISOString() : new Date().toISOString();
+    const updatedAt = result.updatedAt ? new Date(result.updatedAt).toISOString() : new Date().toISOString();
+    
+    return {
+      id: result.id,
+      title: result.title,
+      description: result.description || '',
+      template: result.template as Collaboration['template'],
+      createdAt,
+      updatedAt,
+      participants: (result.participants as string[]) || [],
+      answers: (result.answers as { [key: string]: string }) || {},
+      status: result.status as Collaboration['status'],
+      analysis: result.analysis as Collaboration['analysis'],
+      transcripts: (result.transcripts as string[]) || [],
+      summary: result.summary || '',
+      eventDetails: result.eventDetails as Collaboration['eventDetails'],
+    };
+  }) as Collaboration[];
 }
 
 export async function deleteCollaboration(id: string): Promise<boolean> {

@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Head from "next/head";
 import styled from "styled-components";
 import Link from "next/link";
 import { Container, Main, Title, Description } from "@/components/Layout";
-import { Collaboration } from "@/data/collaboration";
 import MobileNav from "@/components/MobileNav";
+import { useUser } from "@/contexts/UserContext";
+import { useCollaborations } from "@/hooks/useCollaborations";
+import { Loading } from "@/components/Loading";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -74,13 +76,10 @@ const EmptyState = styled.div`
 `;
 
 const CollabsPage = () => {
-  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
+  const { user, isLoading: isUserLoading } = useUser();
+  const { collaborations, isLoading: isCollabsLoading } = useCollaborations(user?.id);
 
-  useEffect(() => {
-    // Load collaborations from localStorage
-    const storedCollabs = JSON.parse(localStorage.getItem('collaborations') || '[]');
-    setCollaborations(storedCollabs);
-  }, []);
+  const isLoading = isUserLoading || isCollabsLoading;
 
   return (
     <Container>
@@ -103,7 +102,9 @@ const CollabsPage = () => {
             View and manage your saved collaborations
           </Description>
 
-          {collaborations.length > 0 ? (
+          {isLoading ? (
+            <Loading text="Loading collaborations..." />
+          ) : collaborations.length > 0 ? (
             <CollabsList>
               {collaborations.map((collab) => (
                 <CollabCard key={collab.id}>

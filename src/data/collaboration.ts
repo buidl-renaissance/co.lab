@@ -22,8 +22,8 @@ export interface Collaboration {
   title: string;
   description: string;
   template: Template;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   answers: { [key: string]: string };
   participants: string[];
   status: "active" | "completed" | "archived";
