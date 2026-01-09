@@ -110,7 +110,7 @@ DO NOT include any text, letters, words, or numbers in the image - only visual d
       style: 'vivid',
     });
 
-    const imageUrl = response.data[0]?.url;
+    const imageUrl = response.data?.[0]?.url;
     if (!imageUrl) {
       return res.status(500).json({
         success: false,

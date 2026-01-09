@@ -631,7 +631,7 @@ export const EventCard: React.FC<EventCardProps> = ({
     icon?: string
   ) => {
     const isEditing = editingField === field;
-    const value = localDetails[field] || '';
+    const value = (localDetails[field] as string) || '';
 
     return (
       <EditableField>

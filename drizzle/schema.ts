@@ -35,7 +35,7 @@ export const githubRepos = sqliteTable("github_repos", {
 	name: text({ length: 255 }).notNull(),
 	displayName: text({ length: 255 }).notNull(),
 	projectId: text({ length: 255 }),
-	isDefault: numeric().default(0),
+	isDefault: numeric().default("0"),
 	createdAt: numeric().default(sql`(CURRENT_TIMESTAMP)`),
 	updatedAt: numeric().default(sql`(CURRENT_TIMESTAMP)`),
 });
