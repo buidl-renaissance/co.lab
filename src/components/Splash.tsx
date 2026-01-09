@@ -191,7 +191,7 @@ const Splash: React.FC<SplashProps> = ({ user, isLoading = false, redirectDelay 
     if (user && !isLoading) {
       setShouldRedirect(true);
       const timer = setTimeout(() => {
-        router.push('/dashboard');
+        router.replace('/dashboard');
       }, redirectDelay);
 
       return () => clearTimeout(timer);

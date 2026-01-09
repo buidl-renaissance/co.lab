@@ -43,7 +43,12 @@ const formatActivityTime = (timeStr: string, eventDate?: string): string => {
     // Check if it's an ISO datetime string (contains 'T' or is longer than time-only)
     if (timeStr.includes('T') || timeStr.length > 8) {
       const activityDate = new Date(timeStr);
-      const activityDateStr = activityDate.toISOString().split('T')[0];
+      
+      // Get local date string (YYYY-MM-DD format) for comparison
+      const activityYear = activityDate.getFullYear();
+      const activityMonth = String(activityDate.getMonth() + 1).padStart(2, '0');
+      const activityDay = String(activityDate.getDate()).padStart(2, '0');
+      const activityDateStr = `${activityYear}-${activityMonth}-${activityDay}`;
       
       // If same as event date, just show time
       if (eventDate && activityDateStr === eventDate) {
@@ -64,7 +69,7 @@ const formatActivityTime = (timeStr: string, eventDate?: string): string => {
       });
     }
     
-    // Simple time format (HH:MM)
+    // Simple time format (HH:MM) - assume same day as event
     return formatTime(timeStr);
   } catch {
     return timeStr;
@@ -120,6 +125,7 @@ const EventTag = styled.span`
   text-transform: uppercase;
   letter-spacing: 0.5px;
   width: fit-content;
+  margin-bottom: 0.25rem;
 `;
 
 const ContentWrapper = styled.div`
@@ -173,12 +179,13 @@ const Value = styled.div`
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 
   &:hover {
     background: ${({ theme }) => theme.backgroundAlt};
+  }
+  
+  @media (max-width: 600px) {
+    font-size: 0.8rem;
   }
 `;
 
@@ -190,7 +197,7 @@ const TitleValue = styled(Value)`
   padding: 0.25rem;
   
   @media (max-width: 600px) {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 `;
 
@@ -233,8 +240,8 @@ const DateTimeField = styled(CompactEditableField)`
 const FlyerContainer = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: 3/4;
-  border-radius: 12px;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
   overflow: hidden;
   background: ${({ theme }) => theme.backgroundAlt};
   border: 2px dashed ${({ theme }) => theme.border};
@@ -922,7 +929,14 @@ export const EventCard: React.FC<EventCardProps> = ({
         <RenaissanceSection>
           <SectionTitle>📋 Schedule</SectionTitle>
           <ActivitiesList>
-            {localDetails.activities.map((activity: EventActivity, index: number) => {
+            {[...localDetails.activities]
+              .sort((a, b) => {
+                if (!a.startTime && !b.startTime) return 0;
+                if (!a.startTime) return 1;
+                if (!b.startTime) return -1;
+                return a.startTime.localeCompare(b.startTime);
+              })
+              .map((activity: EventActivity, index: number) => {
               const hasDifferentLocation = activity.location && activity.location !== localDetails.location;
               return (
                 <ActivityCard key={index}>
