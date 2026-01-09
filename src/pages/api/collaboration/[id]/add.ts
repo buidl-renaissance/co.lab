@@ -87,6 +87,15 @@ export default async function handler(
       analysis: updatedAnalysis,
       transcripts,
       summary: updatedAnalysis.summary,
+      // Update eventDetails for event templates (merge with existing to preserve flyerUrl)
+      eventDetails: collaboration.template.id === 'event' && updatedAnalysis.eventDetails
+        ? {
+            ...collaboration.eventDetails,
+            ...updatedAnalysis.eventDetails,
+            // Preserve existing flyerUrl if not provided in new analysis
+            flyerUrl: updatedAnalysis.eventDetails.flyerUrl || collaboration.eventDetails?.flyerUrl,
+          }
+        : collaboration.eventDetails,
     });
 
     return res.status(200).json({

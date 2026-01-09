@@ -10,7 +10,7 @@ import {
 } from "@/components/Layout";
 import { GetServerSidePropsContext } from "next";
 import { getCollaborationById, getAllCollaborations } from "@/db/collaboration";
-import { Collaboration } from "@/data/collaboration";
+import { Collaboration, EventDetails } from "@/data/collaboration";
 import EditTranscript from "@/components/EditTranscript";
 import { Loading } from "@/components/Loading";
 import QRCode from "react-qr-code";
@@ -19,6 +19,8 @@ import Transcriber from "@/components/Transcriber";
 import NextSteps from "@/components/NextSteps";
 import SectionHeader from "@/components/SectionHeader";
 import { useRouter } from "next/router";
+import EventCard from "@/components/EventCard";
+import { EVENT_CARD_QUESTIONS } from "@/lib/analyze";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -415,6 +417,66 @@ const CollaborationPage = ({
     }
   };
 
+  const handleEventDetailsUpdate = async (eventDetails: EventDetails) => {
+    try {
+      const response = await fetch(
+        `/api/collaboration/${collaboration.id}/event-details`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ eventDetails }),
+        }
+      );
+      const data = await response.json();
+      if (data.success && data.data) {
+        setCollaboration(data.data);
+      }
+    } catch (error) {
+      console.error("Error updating event details:", error);
+    }
+  };
+
+  // Filter out event-specific questions from Key Insights for event collaborations
+  const getFilteredAnswers = () => {
+    if (!collaboration.analysis?.answers) return [];
+    
+    // For event templates, filter out questions that are shown in the EventCard
+    if (collaboration.template.id === "event") {
+      return collaboration.analysis.answers.filter(
+        (item) => !EVENT_CARD_QUESTIONS.some(
+          (q) => item.question.toLowerCase().includes(q.toLowerCase().slice(0, 20))
+        )
+      );
+    }
+    
+    return collaboration.analysis.answers;
+  };
+
+  // Get or create event details for event templates
+  const getEventDetails = (): EventDetails => {
+    if (collaboration.eventDetails) {
+      return collaboration.eventDetails;
+    }
+    
+    // Try to extract from analysis answers as fallback
+    const answers = collaboration.analysis?.answers || [];
+    const findAnswer = (keywords: string[]) => {
+      const found = answers.find((a) =>
+        keywords.some((k) => a.question.toLowerCase().includes(k))
+      );
+      return found?.answer || "";
+    };
+
+    return {
+      eventTitle: findAnswer(["name of your event", "event name"]) || collaboration.title,
+      date: findAnswer(["when", "date", "take place"]),
+      time: "",
+      location: findAnswer(["location", "where", "venue"]),
+    };
+  };
+
   if (isInitialLoad || showLoadingScreen) {
     return (
       <Container>
@@ -469,6 +531,15 @@ const CollaborationPage = ({
             />
           )}
 
+          {/* Event Card for event-type collaborations */}
+          {collaboration.template.id === "event" && (
+            <EventCard
+              eventDetails={getEventDetails()}
+              collaborationId={collaboration.id}
+              onUpdate={handleEventDetailsUpdate}
+            />
+          )}
+
           {collaboration.analysis && (
             <AnalysisSection>
               <SectionHeader>Participants</SectionHeader>
@@ -480,20 +551,22 @@ const CollaborationPage = ({
                 )}
               </ParticipantsList>
 
-              <AnswersList>
-                <SectionHeader>Key Insights</SectionHeader>
-                {collaboration.analysis.answers?.map(
-                  (
-                    item: { question: string; answer: string },
-                    index: number
-                  ) => (
-                    <AnswerItem key={index}>
-                      <Question>{item.question}</Question>
-                      <Answer>{item.answer}</Answer>
-                    </AnswerItem>
-                  )
-                )}
-              </AnswersList>
+              {getFilteredAnswers().length > 0 && (
+                <AnswersList>
+                  <SectionHeader>Key Insights</SectionHeader>
+                  {getFilteredAnswers().map(
+                    (
+                      item: { question: string; answer: string },
+                      index: number
+                    ) => (
+                      <AnswerItem key={index}>
+                        <Question>{item.question}</Question>
+                        <Answer>{item.answer}</Answer>
+                      </AnswerItem>
+                    )
+                  )}
+                </AnswersList>
+              )}
             </AnalysisSection>
           )}
 

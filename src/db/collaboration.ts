@@ -33,6 +33,7 @@ export async function createCollaboration(
     transcripts: collaboration.transcripts || null,
     summary: collaboration.summary || '',
     createdByUserId: collaboration.createdByUserId || null,
+    eventDetails: collaboration.eventDetails || null,
   };
 
   await db.insert(collaborations).values(newCollaboration);
@@ -72,6 +73,7 @@ export async function getCollaborationById(id: string): Promise<Collaboration | 
       analysis: result.analysis as Collaboration['analysis'],
       transcripts: (result.transcripts as string[]) || [],
       summary: result.summary || '',
+      eventDetails: result.eventDetails as Collaboration['eventDetails'],
     } as Collaboration;
   } catch (error) {
     console.error('Error parsing collaboration data:', error);
@@ -101,6 +103,7 @@ export async function updateCollaboration(
   if (updates.analysis !== undefined) updateData.analysis = updates.analysis;
   if (updates.transcripts !== undefined) updateData.transcripts = updates.transcripts;
   if (updates.summary !== undefined) updateData.summary = updates.summary;
+  if (updates.eventDetails !== undefined) updateData.eventDetails = updates.eventDetails;
   // Note: createdByUserId is intentionally not updatable after creation
   
   await db
@@ -127,6 +130,7 @@ export async function getAllCollaborations(): Promise<Collaboration[]> {
     analysis: result.analysis as Collaboration['analysis'],
     transcripts: (result.transcripts as string[]) || [],
     summary: result.summary || '',
+    eventDetails: result.eventDetails as Collaboration['eventDetails'],
   })) as Collaboration[];
 }
 

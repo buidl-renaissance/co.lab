@@ -70,6 +70,8 @@ export default async function handler(
       transcripts: [transcript],
       summary: analysis.summary,
       createdByUserId: user?.id || null,
+      // Include eventDetails for event templates
+      eventDetails: templateId === 'event' && analysis.eventDetails ? analysis.eventDetails : undefined,
     });
 
     return res.status(200).json({

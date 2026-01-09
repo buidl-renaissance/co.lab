@@ -37,6 +37,7 @@ export const collaborations = sqliteTable('collaborations', {
   transcripts: text('transcripts', { mode: 'json' }),
   summary: text('summary').default('').notNull(),
   createdByUserId: text('createdByUserId'),
+  eventDetails: text('eventDetails', { mode: 'json' }),
 });
 
 // GitHub Accounts table

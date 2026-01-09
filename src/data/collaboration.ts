@@ -1,6 +1,22 @@
 import { Template } from "@/data/template";
 import { AnalysisResponse } from "@/lib/analyze";
 
+// Event-specific details for event collaborations
+export interface EventDetails {
+  eventTitle: string;
+  date: string;        // e.g., "2024-07-15"
+  time: string;        // e.g., "6:00 PM"
+  endTime?: string;    // e.g., "11:00 PM"
+  location: string;
+  flyerUrl?: string;   // DigitalOcean Spaces URL
+  tags?: string[];     // Event tags
+  eventType?: 'standard' | 'renaissance';
+  metadata?: Record<string, unknown>;
+  // External events API fields
+  externalEventId?: number;  // ID from external events API
+  publishedAt?: string;      // When event was published
+}
+
 export interface Collaboration {
   id: string;
   title: string;
@@ -14,6 +30,7 @@ export interface Collaboration {
   analysis?: AnalysisResponse;
   transcripts?: string[];
   summary?: string;
+  eventDetails?: EventDetails;
 }
 
 // Mock data for collaborations

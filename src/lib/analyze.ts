@@ -1,5 +1,6 @@
 import { OpenAI } from "openai";
 import { Template } from "@/data/template";
+import { EventDetails } from "@/data/collaboration";
 
 export type AnalysisResponse = {
   title: string;
@@ -9,7 +10,15 @@ export type AnalysisResponse = {
   actions: { action: string; description: string; completed: boolean }[];
   summary: string;
   features?: string[]; // Added optional features array for product templates
+  eventDetails?: EventDetails; // Added for event templates
 };
+
+// Questions to filter from Key Insights for event templates (displayed in EventCard instead)
+export const EVENT_CARD_QUESTIONS = [
+  "What is the name of your event?",
+  "When will the event take place?",
+  "What is the location of your event?",
+];
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -77,6 +86,17 @@ export async function analyzeTranscript(
           ? "Also extract a list of product features mentioned in the conversation."
           : ""
       }
+      ${
+        template.id === "event"
+          ? `
+      For this event, also extract structured event details:
+      - eventTitle: The name/title of the event
+      - date: The date of the event (format: YYYY-MM-DD if possible)
+      - time: The time of the event (format: HH:MM if possible, or descriptive like "6:00 PM")
+      - location: The venue or location of the event
+      `
+          : ""
+      }
       
       ${transcriptPrompt}
     `;
@@ -141,6 +161,17 @@ You will need to extract the information from the transcript and return it in a 
                   description:
                     "List of product features mentioned in the conversation (for product templates only)",
                 },
+                eventDetails: {
+                  type: "object",
+                  properties: {
+                    eventTitle: { type: "string", description: "The name/title of the event" },
+                    date: { type: "string", description: "The date of the event (YYYY-MM-DD format preferred)" },
+                    time: { type: "string", description: "The time of the event" },
+                    location: { type: "string", description: "The venue or location of the event" },
+                  },
+                  required: ["eventTitle", "date", "time", "location"],
+                  description: "Structured event details (for event templates only)",
+                },
                 summary: { type: "string" },
               },
               required: [
@@ -176,6 +207,7 @@ You will need to extract the information from the transcript and return it in a 
       actions: [],
       summary: "",
       features: [],
+      eventDetails: undefined,
     };
   }
 }
