@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import { EventDetails } from '@/data/collaboration';
+import { EventDetails, EventSponsor, EventActivity } from '@/data/collaboration';
 
 interface EventCardProps {
   eventDetails: EventDetails;
@@ -258,6 +258,141 @@ const StatusDot = styled.span<{ $isPublished?: boolean }>`
     $isPublished ? '#10b981' : '#9ca3af'};
 `;
 
+// Renaissance event styles
+const RenaissanceSection = styled.div`
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid ${({ theme }) => theme.border};
+`;
+
+const SectionTitle = styled.h4`
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: ${({ theme }) => theme.textSecondary};
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const SponsorsGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+`;
+
+const SponsorChip = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: ${({ theme }) => theme.backgroundAlt};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.text};
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.surface};
+    border-color: ${({ theme }) => theme.accent};
+  }
+`;
+
+const SponsorLogo = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: cover;
+`;
+
+const ActivitiesList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const ActivityCard = styled.div`
+  background: ${({ theme }) => theme.backgroundAlt};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 10px;
+  padding: 0.875rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.accent}33;
+  }
+`;
+
+const ActivityHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+`;
+
+const ActivityName = styled.span`
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: ${({ theme }) => theme.text};
+`;
+
+const ActivityCapacity = styled.span`
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.textSecondary};
+  background: ${({ theme }) => theme.surface};
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+`;
+
+const ActivityMeta = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.textSecondary};
+  margin-top: 0.5rem;
+`;
+
+const ActivityMetaItem = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+const ActivityDescription = styled.p`
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.textSecondary};
+  margin: 0.5rem 0 0;
+  line-height: 1.4;
+`;
+
+const TagsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+`;
+
+const Tag = styled.span`
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: ${({ theme }) => theme.accent}22;
+  color: ${({ theme }) => theme.accent};
+  border-radius: 4px;
+`;
+
+const EventTypeTag = styled(EventTag)<{ $isRenaissance?: boolean }>`
+  background: ${({ $isRenaissance }) => 
+    $isRenaissance 
+      ? 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)' 
+      : undefined};
+`;
+
 export const EventCard: React.FC<EventCardProps> = ({
   eventDetails,
   collaborationId,
@@ -429,7 +564,9 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div style={{ flex: 1 }}>
           {renderField('eventTitle', 'Event Name', TitleInput, TitleValue)}
         </div>
-        <EventTag>Event</EventTag>
+        <EventTypeTag $isRenaissance={localDetails.eventType === 'renaissance'}>
+          {localDetails.eventType === 'renaissance' ? '✨ Renaissance' : 'Event'}
+        </EventTypeTag>
       </CardHeader>
 
       <ContentWrapper>
@@ -463,6 +600,85 @@ export const EventCard: React.FC<EventCardProps> = ({
           />
         </FlyerSection>
       </ContentWrapper>
+
+      {/* Tags */}
+      {localDetails.tags && localDetails.tags.length > 0 && (
+        <TagsContainer>
+          {localDetails.tags.map((tag, index) => (
+            <Tag key={index}>{tag}</Tag>
+          ))}
+        </TagsContainer>
+      )}
+
+      {/* Sponsors Section (Renaissance events) */}
+      {localDetails.sponsors && localDetails.sponsors.length > 0 && (
+        <RenaissanceSection>
+          <SectionTitle>🤝 Sponsors</SectionTitle>
+          <SponsorsGrid>
+            {localDetails.sponsors.map((sponsor: EventSponsor, index: number) => (
+              <SponsorChip
+                key={index}
+                href={sponsor.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                as={sponsor.websiteUrl ? 'a' : 'span'}
+              >
+                {sponsor.logo && <SponsorLogo src={sponsor.logo} alt={sponsor.name} />}
+                {sponsor.name}
+              </SponsorChip>
+            ))}
+          </SponsorsGrid>
+        </RenaissanceSection>
+      )}
+
+      {/* Activities Section (Renaissance events) */}
+      {localDetails.activities && localDetails.activities.length > 0 && (
+        <RenaissanceSection>
+          <SectionTitle>📋 Schedule</SectionTitle>
+          <ActivitiesList>
+            {localDetails.activities.map((activity: EventActivity, index: number) => (
+              <ActivityCard key={index}>
+                <ActivityHeader>
+                  <ActivityName>{activity.name}</ActivityName>
+                  {activity.capacity && (
+                    <ActivityCapacity>👥 {activity.capacity} max</ActivityCapacity>
+                  )}
+                </ActivityHeader>
+                {(activity.startTime || activity.location) && (
+                  <ActivityMeta>
+                    {activity.startTime && (
+                      <ActivityMetaItem>
+                        🕐 {activity.startTime}
+                        {activity.endTime && ` - ${activity.endTime}`}
+                      </ActivityMetaItem>
+                    )}
+                    {activity.location && (
+                      <ActivityMetaItem>📍 {activity.location}</ActivityMetaItem>
+                    )}
+                  </ActivityMeta>
+                )}
+                {activity.description && (
+                  <ActivityDescription>{activity.description}</ActivityDescription>
+                )}
+              </ActivityCard>
+            ))}
+          </ActivitiesList>
+        </RenaissanceSection>
+      )}
+
+      {/* Metadata (Renaissance events) */}
+      {localDetails.metadata && Object.keys(localDetails.metadata).length > 0 && (
+        <RenaissanceSection>
+          <SectionTitle>ℹ️ Details</SectionTitle>
+          <ActivityMeta>
+            {Object.entries(localDetails.metadata).map(([key, value]) => (
+              <ActivityMetaItem key={key}>
+                <strong style={{ textTransform: 'capitalize' }}>{key}:</strong> {String(value)}
+              </ActivityMetaItem>
+            ))}
+          </ActivityMeta>
+        </RenaissanceSection>
+      )}
 
       <CardFooter>
         <PublishStatus $isPublished={isPublished}>

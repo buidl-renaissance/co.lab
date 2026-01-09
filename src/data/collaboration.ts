@@ -1,6 +1,23 @@
 import { Template } from "@/data/template";
 import { AnalysisResponse } from "@/lib/analyze";
 
+// Sponsor for renaissance events
+export interface EventSponsor {
+  name: string;
+  logo?: string;        // base64 or URL
+  websiteUrl?: string;
+}
+
+// Sub-event/activity for renaissance events
+export interface EventActivity {
+  name: string;
+  description?: string;
+  startTime?: string;   // ISO format
+  endTime?: string;     // ISO format
+  location?: string;
+  capacity?: number;    // Optional: omit for unlimited
+}
+
 // Event-specific details for event collaborations
 export interface EventDetails {
   eventTitle: string;
@@ -15,6 +32,9 @@ export interface EventDetails {
   // External events API fields
   externalEventId?: number;  // ID from external events API
   publishedAt?: string;      // When event was published
+  // Renaissance event fields
+  sponsors?: EventSponsor[];
+  activities?: EventActivity[];  // Also accepts "subEvents" from API
 }
 
 export interface Collaboration {

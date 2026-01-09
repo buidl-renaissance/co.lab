@@ -99,8 +99,16 @@ export async function analyzeTranscript(
       For this event, also extract structured event details:
       - eventTitle: The name/title of the event
       - date: The date of the event (format: YYYY-MM-DD if possible)
-      - time: The time of the event (format: HH:MM if possible, or descriptive like "6:00 PM")
+      - time: The start time of the event (format: HH:MM or descriptive like "6:00 PM")
+      - endTime: The end time of the event if mentioned (format: HH:MM or descriptive like "11:00 PM")
       - location: The venue or location of the event
+      - tags: Array of relevant tags for the event (e.g., ["tech", "conference", "networking"])
+      - eventType: Set to "renaissance" if the event has sponsors, multiple sessions/activities, or is a conference/multi-day event. Otherwise "standard".
+      - metadata: Any additional info like price, capacity, dress code as key-value pairs
+      
+      For renaissance events (conferences, festivals, multi-session events), also extract:
+      - sponsors: Array of sponsors with name, and optionally websiteUrl
+      - activities: Array of sub-events/sessions with name, description, startTime, endTime, location, and optionally capacity
       `
           : ""
       }
@@ -173,8 +181,51 @@ You will need to extract the information from the transcript and return it in a 
                   properties: {
                     eventTitle: { type: "string", description: "The name/title of the event" },
                     date: { type: "string", description: "The date of the event (YYYY-MM-DD format preferred)" },
-                    time: { type: "string", description: "The time of the event" },
+                    time: { type: "string", description: "The start time of the event" },
+                    endTime: { type: "string", description: "The end time of the event" },
                     location: { type: "string", description: "The venue or location of the event" },
+                    tags: { 
+                      type: "array", 
+                      items: { type: "string" },
+                      description: "Relevant tags for the event" 
+                    },
+                    eventType: { 
+                      type: "string", 
+                      enum: ["standard", "renaissance"],
+                      description: "Set to 'renaissance' for events with sponsors, multiple sessions, or conferences"
+                    },
+                    metadata: {
+                      type: "object",
+                      description: "Additional event info like price, capacity, dress code"
+                    },
+                    sponsors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string", description: "Sponsor name" },
+                          websiteUrl: { type: "string", description: "Sponsor website URL" }
+                        },
+                        required: ["name"]
+                      },
+                      description: "Event sponsors (for renaissance events)"
+                    },
+                    activities: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string", description: "Activity/session name" },
+                          description: { type: "string", description: "Activity description" },
+                          startTime: { type: "string", description: "Start time (ISO format preferred)" },
+                          endTime: { type: "string", description: "End time (ISO format preferred)" },
+                          location: { type: "string", description: "Activity location/room" },
+                          capacity: { type: "number", description: "Max attendees (omit for unlimited)" }
+                        },
+                        required: ["name"]
+                      },
+                      description: "Sub-events/sessions/activities (for renaissance events)"
+                    }
                   },
                   required: ["eventTitle", "date", "time", "location"],
                   description: "Structured event details (for event templates only)",
