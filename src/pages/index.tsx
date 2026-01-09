@@ -196,9 +196,9 @@ const CollabFlowHome: React.FC = () => {
     callReady();
   }, []);
 
-  // Show splash screen for authenticated users (will auto-redirect to dashboard)
-  if (!isLoading && user) {
-    return <Splash user={user} />;
+  // Show splash screen while loading or for authenticated users
+  if (isLoading || user) {
+    return <Splash user={user} isLoading={isLoading} />;
   }
 
   const scrollToTemplates = () => {

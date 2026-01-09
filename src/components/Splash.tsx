@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import { User } from '@/db/user';
 
 interface SplashProps {
-  user: User;
+  user?: User | null;
+  isLoading?: boolean;
   redirectDelay?: number;
 }
 
@@ -129,6 +130,21 @@ const DefaultAvatar = styled.div`
   font-family: 'Space Grotesk', sans-serif;
 `;
 
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadingSpinner = styled.div`
+  width: 80px;
+  height: 80px;
+  border: 4px solid ${({ theme }) => theme.border};
+  border-top-color: ${({ theme }) => theme.accent};
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+`;
+
 const WelcomeText = styled.h2`
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.8rem;
@@ -165,25 +181,32 @@ const ProgressBar = styled.div<{ duration: number }>`
   animation: ${progressAnimation} ${({ duration }) => duration}ms linear forwards;
 `;
 
-const Splash: React.FC<SplashProps> = ({ user, redirectDelay = 2500 }) => {
+const Splash: React.FC<SplashProps> = ({ user, isLoading = false, redirectDelay = 2500 }) => {
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
+  // Only start redirect timer when we have a user (authenticated)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push('/dashboard');
-    }, redirectDelay);
+    if (user && !isLoading) {
+      setShouldRedirect(true);
+      const timer = setTimeout(() => {
+        router.push('/dashboard');
+      }, redirectDelay);
 
-    return () => clearTimeout(timer);
-  }, [router, redirectDelay]);
+      return () => clearTimeout(timer);
+    }
+  }, [router, redirectDelay, user, isLoading]);
 
-  const displayName = user.username || user.displayName || `User ${user.fid}`;
+  const displayName = user?.username || user?.displayName || (user?.fid ? `User ${user.fid}` : '');
   const initials = displayName
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+    ? displayName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '';
 
   return (
     <SplashContainer>
@@ -194,24 +217,36 @@ const Splash: React.FC<SplashProps> = ({ user, redirectDelay = 2500 }) => {
       </LogoContainer>
       
       <ProfileSection>
-        <ProfileImageContainer>
-          {user.pfpUrl && !imageError ? (
-            <ProfileImage
-              src={user.pfpUrl}
-              alt={displayName}
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <DefaultAvatar>{initials}</DefaultAvatar>
-          )}
-        </ProfileImageContainer>
-        <WelcomeText>Welcome back, {displayName}!</WelcomeText>
-        <SubText>Loading your dashboard...</SubText>
+        {user ? (
+          <>
+            <ProfileImageContainer>
+              {user.pfpUrl && !imageError ? (
+                <ProfileImage
+                  src={user.pfpUrl}
+                  alt={displayName}
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <DefaultAvatar>{initials}</DefaultAvatar>
+              )}
+            </ProfileImageContainer>
+            <WelcomeText>Welcome back, {displayName}!</WelcomeText>
+            <SubText>Loading your dashboard...</SubText>
+          </>
+        ) : (
+          <>
+            <LoadingSpinner />
+            <WelcomeText>Welcome to Co.Lab</WelcomeText>
+            <SubText>{isLoading ? 'Checking authentication...' : 'Preparing your experience...'}</SubText>
+          </>
+        )}
       </ProfileSection>
       
-      <ProgressContainer>
-        <ProgressBar duration={redirectDelay} />
-      </ProgressContainer>
+      {shouldRedirect && (
+        <ProgressContainer>
+          <ProgressBar duration={redirectDelay} />
+        </ProgressContainer>
+      )}
     </SplashContainer>
   );
 };
