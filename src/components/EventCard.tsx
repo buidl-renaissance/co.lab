@@ -393,6 +393,68 @@ const EventTypeTag = styled(EventTag)<{ $isRenaissance?: boolean }>`
       : undefined};
 `;
 
+const FlyerActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const FlyerButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+
+  ${({ $variant, theme }) => $variant === 'primary' ? `
+    background: linear-gradient(135deg, ${theme.accent} 0%, #ff9a7a 100%);
+    color: white;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px ${theme.shadow};
+    }
+  ` : `
+    background: ${theme.backgroundAlt};
+    color: ${theme.text};
+    border: 1px solid ${theme.border};
+
+    &:hover:not(:disabled) {
+      background: ${theme.surface};
+      border-color: ${theme.accent};
+    }
+  `}
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const GeneratingOverlay = styled(LoadingOverlay)`
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  text-align: center;
+`;
+
+const SpinnerIcon = styled.span`
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+`;
+
 export const EventCard: React.FC<EventCardProps> = ({
   eventDetails,
   collaborationId,
@@ -402,6 +464,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   const [localDetails, setLocalDetails] = useState<EventDetails>(eventDetails);
   const [isUploading, setIsUploading] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isGeneratingFlyer, setIsGeneratingFlyer] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isPublished = !!localDetails.externalEventId;
@@ -484,6 +547,46 @@ export const EventCard: React.FC<EventCardProps> = ({
 
     // Reset input
     e.target.value = '';
+  };
+
+  const handleGenerateFlyer = async () => {
+    if (!localDetails.eventTitle) {
+      alert('Please add an event title before generating a flyer.');
+      return;
+    }
+
+    setIsGeneratingFlyer(true);
+    try {
+      const response = await fetch(`/api/collaboration/${collaborationId}/generate-flyer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          style: localDetails.eventType === 'renaissance' 
+            ? 'elegant, sophisticated, conference-style' 
+            : 'modern, vibrant, eye-catching',
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success && data.flyerUrl) {
+        const updatedDetails = {
+          ...localDetails,
+          flyerUrl: data.flyerUrl,
+        };
+        setLocalDetails(updatedDetails);
+        onUpdate(updatedDetails);
+      } else {
+        console.error('Flyer generation failed:', data.error);
+        alert(data.error || 'Failed to generate flyer');
+      }
+    } catch (error) {
+      console.error('Error generating flyer:', error);
+      alert('Failed to generate flyer');
+    } finally {
+      setIsGeneratingFlyer(false);
+    }
   };
 
   const handlePublish = async () => {
@@ -581,17 +684,47 @@ export const EventCard: React.FC<EventCardProps> = ({
 
         <FlyerSection>
           <Label>Flyer</Label>
-          <FlyerContainer onClick={handleFlyerClick}>
+          <FlyerContainer onClick={!isGeneratingFlyer ? handleFlyerClick : undefined}>
             {localDetails.flyerUrl ? (
               <FlyerImage src={localDetails.flyerUrl} alt="Event flyer" />
             ) : (
               <FlyerPlaceholder>
-                <UploadIcon>📤</UploadIcon>
-                <span>Click to upload flyer</span>
+                <UploadIcon>🖼️</UploadIcon>
+                <span>No flyer yet</span>
               </FlyerPlaceholder>
             )}
             {isUploading && <LoadingOverlay>Uploading...</LoadingOverlay>}
+            {isGeneratingFlyer && (
+              <GeneratingOverlay>
+                <SpinnerIcon>✨</SpinnerIcon>
+                <span>Generating with AI...</span>
+              </GeneratingOverlay>
+            )}
           </FlyerContainer>
+          <FlyerActions>
+            <FlyerButton
+              $variant="primary"
+              onClick={handleGenerateFlyer}
+              disabled={isGeneratingFlyer || isUploading}
+              title="Generate a flyer using AI based on event details"
+            >
+              {isGeneratingFlyer ? (
+                <>
+                  <SpinnerIcon>⏳</SpinnerIcon> Generating...
+                </>
+              ) : (
+                <>✨ Generate</>
+              )}
+            </FlyerButton>
+            <FlyerButton
+              $variant="secondary"
+              onClick={handleFlyerClick}
+              disabled={isGeneratingFlyer || isUploading}
+              title="Upload your own flyer image"
+            >
+              📤 Upload
+            </FlyerButton>
+          </FlyerActions>
           <HiddenInput
             ref={fileInputRef}
             type="file"
