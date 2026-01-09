@@ -170,6 +170,7 @@ const Label = styled.span`
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0.15rem;
+  padding-left: 0.35rem;
 `;
 
 const Value = styled.div`
@@ -232,8 +233,13 @@ const DateTimeRow = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const DateTimeField = styled(CompactEditableField)`
-  flex: 1;
+const DateField = styled(CompactEditableField)`
+  flex: 0 0 40%;
+  min-width: 0;
+`;
+
+const TimeField = styled(CompactEditableField)`
+  flex: 0 0 30%;
   min-width: 0;
 `;
 
@@ -802,8 +808,10 @@ export const EventCard: React.FC<EventCardProps> = ({
       }
     }
 
+    const FieldWrapper = type === 'date' ? DateField : TimeField;
+
     return (
-      <DateTimeField>
+      <FieldWrapper>
         <Label>{label}</Label>
         {isEditing ? (
           <Input
@@ -819,7 +827,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             {displayValue || '—'}
           </Value>
         )}
-      </DateTimeField>
+      </FieldWrapper>
     );
   };
 
