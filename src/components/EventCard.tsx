@@ -268,7 +268,7 @@ const TimezoneSelect = styled.select`
 const FlyerContainer = styled.div<{ $hasImage?: boolean }>`
   position: relative;
   width: 100%;
-  aspect-ratio: 1024/1792;
+  ${({ $hasImage }) => !$hasImage && 'aspect-ratio: 1 / 1;'}
   border-radius: ${({ $hasImage }) => $hasImage ? '8px' : '10px'};
   overflow: hidden;
   background: ${({ theme, $hasImage }) => $hasImage ? 'transparent' : theme.backgroundAlt};
@@ -284,8 +284,8 @@ const FlyerContainer = styled.div<{ $hasImage?: boolean }>`
 
 const FlyerImage = styled.img`
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  display: block;
   border-radius: 8px;
 `;
 
