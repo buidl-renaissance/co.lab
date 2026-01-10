@@ -13,6 +13,7 @@ export interface ExternalEventPayload {
   timezone?: string;
   tags?: string[];
   eventType?: 'standard' | 'renaissance';
+  description?: string;
   metadata?: Record<string, unknown>;
   sponsors?: Array<{
     name: string;
@@ -55,7 +56,8 @@ export interface EventsApiResult {
 export function eventDetailsToPayload(
   eventDetails: EventDetails,
   imageBase64?: string,
-  timezone: string = DEFAULT_TIMEZONE
+  timezone: string = DEFAULT_TIMEZONE,
+  description?: string
 ): ExternalEventPayload {
   // Parse date and time into ISO format with timezone
   const startDateTime = parseDateTime(eventDetails.date, eventDetails.time, timezone);
@@ -75,6 +77,11 @@ export function eventDetailsToPayload(
     eventType: 'renaissance', // Always submit as renaissance
     metadata: eventDetails.metadata || {},
   };
+
+  // Include description if provided
+  if (description) {
+    payload.description = description;
+  }
 
   // Include sponsors if available
   if (eventDetails.sponsors && eventDetails.sponsors.length > 0) {

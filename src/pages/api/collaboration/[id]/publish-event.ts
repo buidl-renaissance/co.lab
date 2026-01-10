@@ -80,12 +80,21 @@ export default async function handler(
     }
 
     // Convert to external API payload - use timezone from event details or default to EST
-    const payload = eventDetailsToPayload(eventDetails, imageBase64, eventDetails.timezone || 'America/New_York');
+    // Include collaboration description as event description
+    const payload = eventDetailsToPayload(
+      eventDetails, 
+      imageBase64, 
+      eventDetails.timezone || 'America/New_York',
+      collaboration.description
+    );
     console.log('Event payload prepared:', { 
       name: payload.name, 
       location: payload.location,
       eventType: payload.eventType,
-      hasImage: !!payload.imageBase64
+      hasImage: !!payload.imageBase64,
+      hasDescription: !!payload.description,
+      sponsorsCount: payload.sponsors?.length || 0,
+      subEventsCount: payload.subEvents?.length || 0,
     });
 
     let result;
