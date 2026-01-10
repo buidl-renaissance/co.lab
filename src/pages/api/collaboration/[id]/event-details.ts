@@ -65,15 +65,16 @@ export default async function handler(
       });
     }
 
-    // Update the collaboration with new event details
+    // Merge new event details with existing ones to preserve fields like externalEventId, publishedAt
+    const existingEventDetails = collaboration.eventDetails || {};
+    const mergedEventDetails = {
+      ...existingEventDetails,
+      ...eventDetails,
+    };
+
+    // Update the collaboration with merged event details
     const updatedCollaboration = await updateCollaboration(id, {
-      eventDetails: {
-        eventTitle: eventDetails.eventTitle,
-        date: eventDetails.date,
-        time: eventDetails.time,
-        location: eventDetails.location,
-        flyerUrl: eventDetails.flyerUrl,
-      },
+      eventDetails: mergedEventDetails,
     });
 
     if (!updatedCollaboration) {

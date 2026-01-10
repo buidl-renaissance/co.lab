@@ -14,6 +14,7 @@ interface SDKUser {
   display_name?: string; // Farcaster SDK might use snake_case
   pfpUrl?: string;
   pfp_url?: string; // Farcaster SDK might use snake_case
+  renaissanceUserId?: number | string; // Renaissance-only accounts
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -205,7 +206,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               try {
                 console.log('🔍 Trying window.farcaster.context (RPC method)...');
                 const context = await win.farcaster.context;
-                if (context && context.user && context.user.fid > 0) {
+                // Check for any authenticated user - positive fid (Farcaster) or negative fid (Renaissance-only) or has username
+                const isAuth = context && context.user && (
+                  (typeof context.user.fid === 'number' && context.user.fid !== 0) ||
+                  context.user.renaissanceUserId ||
+                  context.user.username
+                );
+                if (isAuth) {
                   console.log('✅ User found via window.farcaster.context:', context.user);
                   const authenticated = await authenticateFromSDK(context.user);
                   if (authenticated) {
@@ -223,7 +230,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               try {
                 console.log('🔍 Trying window.__renaissanceAuthContext...');
                 const context = win.__renaissanceAuthContext;
-                if (context && context.user && context.user.fid > 0) {
+                // Check for any authenticated user - positive fid (Farcaster) or negative fid (Renaissance-only) or has username
+                const isAuth = context && context.user && (
+                  (typeof context.user.fid === 'number' && context.user.fid !== 0) ||
+                  context.user.renaissanceUserId ||
+                  context.user.username
+                );
+                if (isAuth) {
                   console.log('✅ User found via __renaissanceAuthContext:', context.user);
                   const authenticated = await authenticateFromSDK(context.user);
                   if (authenticated) {
@@ -241,7 +254,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               try {
                 console.log('🔍 Trying window.getRenaissanceAuth()...');
                 const context = win.getRenaissanceAuth();
-                if (context && context.user && context.user.fid > 0) {
+                // Check for any authenticated user - positive fid (Farcaster) or negative fid (Renaissance-only) or has username
+                const isAuth = context && context.user && (
+                  (typeof context.user.fid === 'number' && context.user.fid !== 0) ||
+                  context.user.renaissanceUserId ||
+                  context.user.username
+                );
+                if (isAuth) {
                   console.log('✅ User found via getRenaissanceAuth():', context.user);
                   const authenticated = await authenticateFromSDK(context.user);
                   if (authenticated) {
@@ -257,7 +276,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Listen for farcaster:context:ready event (Option 2)
             const contextReadyHandler = ((event: CustomEvent) => {
               console.log('📨 Received farcaster:context:ready event:', event.detail);
-              if (event.detail && event.detail.user && event.detail.user.fid > 0) {
+              // Check for any authenticated user - positive fid (Farcaster) or negative fid (Renaissance-only) or has username
+              const isAuth = event.detail && event.detail.user && (
+                (typeof event.detail.user.fid === 'number' && event.detail.user.fid !== 0) ||
+                event.detail.user.renaissanceUserId ||
+                event.detail.user.username
+              );
+              if (isAuth) {
                 authenticateFromSDK(event.detail.user);
               }
             }) as EventListener;
