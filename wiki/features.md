@@ -59,12 +59,26 @@ Model Context Protocol endpoint enables AI agent integration:
 
 - **List Tools**: Discover available collaboration tools
 - **Call Tools**: Invoke tools programmatically
+- **PKI Authentication**: Secure Ed25519 key-based auth with short-lived JWTs
+- **API Key Management**: Create scoped API keys for programmatic access
 - **Supported Tools**:
   - `listCollaborations` - Get all collaborations
   - `getCollaboration` - Get specific collaboration by ID
   - `createCollaborationFromTranscript` - Create from transcript and template
 
-### 7. GitHub Integration
+### 7. PKI Key-Based Authentication
+
+Secure, user-controlled authentication using Ed25519 public key cryptography:
+
+- **Ed25519 Keypairs**: Generate keypairs locally; private key never leaves device
+- **Challenge-Response**: Sign nonces to prove key ownership
+- **Short-Lived JWTs**: 15-minute access tokens for security
+- **Refresh Tokens**: 7-day rotating refresh tokens
+- **Named API Keys**: Create scoped, named keys for programmatic access
+- **Scope Enforcement**: Fine-grained permissions per tool
+- **Settings UI**: Manage keys at `/settings/api-keys`
+
+### 8. GitHub Integration
 
 Connect collaborations to GitHub repositories:
 

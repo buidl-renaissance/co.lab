@@ -220,6 +220,122 @@ CREATE TABLE github_pull_request_links (
 );
 ```
 
+---
+
+## PKI Authentication Tables
+
+### User Public Keys Table
+
+Stores Ed25519 public keys for PKI authentication.
+
+```sql
+CREATE TABLE user_public_keys (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL,
+  publicKey TEXT NOT NULL,
+  label TEXT NOT NULL,
+  createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+  revokedAt INTEGER
+);
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | TEXT | Primary key (UUID) |
+| `userId` | TEXT | User ID this key belongs to |
+| `publicKey` | TEXT | Ed25519 public key (64-char hex) |
+| `label` | TEXT | User-provided label (e.g., "My Phone") |
+| `createdAt` | INTEGER | Unix timestamp |
+| `revokedAt` | INTEGER | Unix timestamp when revoked (null if active) |
+
+---
+
+### API Keys Table
+
+Stores hashed API keys for programmatic MCP access.
+
+```sql
+CREATE TABLE api_keys (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL,
+  keyHash TEXT NOT NULL,
+  keyPrefix TEXT NOT NULL,
+  label TEXT NOT NULL,
+  scopes TEXT NOT NULL,
+  lastUsedAt INTEGER,
+  expiresAt INTEGER,
+  revokedAt INTEGER,
+  createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+);
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | TEXT | Primary key (UUID) |
+| `userId` | TEXT | User ID this key belongs to |
+| `keyHash` | TEXT | bcrypt hash of the raw API key |
+| `keyPrefix` | TEXT | First 12 chars of key for display/lookup |
+| `label` | TEXT | User-provided label |
+| `scopes` | JSON | Array of scope strings (e.g., `["*"]` or `["listCollaborations"]`) |
+| `lastUsedAt` | INTEGER | Unix timestamp of last use |
+| `expiresAt` | INTEGER | Unix timestamp when key expires (null for no expiry) |
+| `revokedAt` | INTEGER | Unix timestamp when revoked (null if active) |
+| `createdAt` | INTEGER | Unix timestamp |
+
+---
+
+### Refresh Tokens Table
+
+Stores hashed refresh tokens for JWT renewal.
+
+```sql
+CREATE TABLE refresh_tokens (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL,
+  tokenHash TEXT NOT NULL,
+  expiresAt INTEGER NOT NULL,
+  revokedAt INTEGER,
+  createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+);
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | TEXT | Primary key (UUID) |
+| `userId` | TEXT | User ID this token belongs to |
+| `tokenHash` | TEXT | bcrypt hash of the raw token |
+| `expiresAt` | INTEGER | Unix timestamp when token expires |
+| `revokedAt` | INTEGER | Unix timestamp when revoked (null if active) |
+| `createdAt` | INTEGER | Unix timestamp |
+
+---
+
+### Nonces Table
+
+Stores challenge nonces for PKI authentication.
+
+```sql
+CREATE TABLE nonces (
+  id TEXT PRIMARY KEY,
+  publicKey TEXT NOT NULL,
+  nonce TEXT NOT NULL UNIQUE,
+  expiresAt INTEGER NOT NULL,
+  usedAt INTEGER,
+  createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+);
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | TEXT | Primary key (UUID) |
+| `publicKey` | TEXT | Public key this nonce is for |
+| `nonce` | TEXT | Random challenge string (unique) |
+| `expiresAt` | INTEGER | Unix timestamp when nonce expires (2 min) |
+| `usedAt` | INTEGER | Unix timestamp when used (null if unused) |
+| `createdAt` | INTEGER | Unix timestamp |
+
+---
+
 ## Database Operations
 
 ### Collaboration Operations
@@ -261,6 +377,33 @@ getUserById(id: string): Promise<User | null>
 upsertFarcasterAccount(userId: string, data: FarcasterData): Promise<void>
 ```
 
+### Auth Operations
+
+Located in `src/db/auth.ts`:
+
+```typescript
+// Public Key Operations
+registerPublicKey(userId: string, publicKey: string, label: string): Promise<UserPublicKey>
+getPublicKeysByUser(userId: string): Promise<UserPublicKey[]>
+getPublicKeyByValue(publicKey: string): Promise<UserPublicKey | null>
+revokePublicKey(id: string, userId: string): Promise<boolean>
+
+// API Key Operations
+createApiKey(userId: string, label: string, scopes: string[], expiresAt?: Date): Promise<{ apiKey: ApiKey; rawKey: string }>
+listApiKeys(userId: string): Promise<ApiKey[]>
+revokeApiKey(id: string, userId: string): Promise<boolean>
+validateApiKey(rawKey: string): Promise<{ userId: string; scopes: string[] } | null>
+
+// Refresh Token Operations
+createRefreshToken(userId: string): Promise<string>
+rotateRefreshToken(rawToken: string): Promise<{ userId: string; newToken: string } | null>
+
+// Nonce Operations
+createNonce(publicKey: string): Promise<string>
+verifyAndConsumeNonce(publicKey: string, nonce: string): Promise<boolean>
+cleanupExpiredNonces(): Promise<number>
+```
+
 ## Migrations
 
 Migrations are stored in the `drizzle/` directory and managed via Drizzle Kit.
@@ -283,6 +426,7 @@ node scripts/apply-migration.js
 | `0001_flaky_captain_flint.sql` | Schema updates |
 | `0002_add_event_details.sql` | Add eventDetails column |
 | `0003_add_collaborator_ids.sql` | Add collaboratorIds for efficient queries |
+| `0004_friendly_lightspeed.sql` | Add PKI auth tables (user_public_keys, api_keys, refresh_tokens, nonces) |
 
 ## Query Patterns
 

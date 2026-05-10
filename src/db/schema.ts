@@ -92,3 +92,49 @@ export const githubPullRequestLinks = sqliteTable('github_pull_request_links', {
   updatedAt: integer('updatedAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
 });
 
+// ===== PKI Authentication Tables =====
+
+// User Public Keys table - stores Ed25519 public keys for PKI authentication
+export const userPublicKeys = sqliteTable('user_public_keys', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull(),
+  publicKey: text('publicKey').notNull(), // Ed25519 public key in hex format
+  label: text('label').notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+  revokedAt: integer('revokedAt', { mode: 'timestamp' }),
+});
+
+// API Keys table - stores hashed API keys for programmatic MCP access
+export const apiKeys = sqliteTable('api_keys', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull(),
+  keyHash: text('keyHash').notNull(), // bcrypt hash of the raw key
+  keyPrefix: text('keyPrefix').notNull(), // first 8 chars for display
+  label: text('label').notNull(),
+  scopes: text('scopes', { mode: 'json' }).$type<string[]>().notNull(), // array of MCP tool names or '*'
+  lastUsedAt: integer('lastUsedAt', { mode: 'timestamp' }),
+  expiresAt: integer('expiresAt', { mode: 'timestamp' }),
+  revokedAt: integer('revokedAt', { mode: 'timestamp' }),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+});
+
+// Refresh Tokens table - stores hashed refresh tokens for JWT renewal
+export const refreshTokens = sqliteTable('refresh_tokens', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull(),
+  tokenHash: text('tokenHash').notNull(), // bcrypt hash of the raw token
+  expiresAt: integer('expiresAt', { mode: 'timestamp' }).notNull(),
+  revokedAt: integer('revokedAt', { mode: 'timestamp' }),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+});
+
+// Nonces table - stores challenge nonces for PKI authentication
+export const nonces = sqliteTable('nonces', {
+  id: text('id').primaryKey(),
+  publicKey: text('publicKey').notNull(), // the public key this nonce is for
+  nonce: text('nonce').notNull().unique(),
+  expiresAt: integer('expiresAt', { mode: 'timestamp' }).notNull(),
+  usedAt: integer('usedAt', { mode: 'timestamp' }),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+});
+

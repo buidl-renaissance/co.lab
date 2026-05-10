@@ -7,6 +7,7 @@ import {
 } from '@/lib/mcp/types';
 import { globalToolRegistry } from '@/lib/mcp/registry';
 import { registerMcpTools, toolDefinitions } from '@/lib/mcp/config';
+import { validateMcpRequest, checkToolAccess, McpUser } from '@/lib/mcp/auth';
 
 const rateLimitWindowMs = 60_000;
 const rateLimitMaxRequests = 60;
@@ -50,29 +51,21 @@ export default async function handler(
 
   registerMcpTools();
 
-  const apiKey = process.env.MCP_API_KEY;
-  if (apiKey) {
-    const headerKey =
-      req.headers['x-mcp-api-key'] ||
-      req.headers['x-mcp-api-key'.toLowerCase()];
-    const authHeader = req.headers.authorization;
-    const bearer = authHeader?.startsWith('Bearer ')
-      ? authHeader.slice('Bearer '.length)
-      : undefined;
-
-    if (headerKey !== apiKey && bearer !== apiKey) {
-      res
-        .status(401)
-        .json(
-          makeError(
-            null,
-            401,
-            'Unauthorized MCP request: invalid or missing API key',
-          ),
-        );
-      return;
-    }
+  const authResult = await validateMcpRequest(req);
+  if (!authResult.success || !authResult.user) {
+    res
+      .status(401)
+      .json(
+        makeError(
+          null,
+          401,
+          authResult.error || 'Unauthorized MCP request',
+        ),
+      );
+    return;
   }
+
+  const mcpUser: McpUser = authResult.user;
 
   const ip =
     (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() ||
@@ -132,6 +125,17 @@ export default async function handler(
         arguments?: unknown;
       };
 
+      const toolDef = toolDefinitions.find((t) => t.name === name);
+      if (toolDef) {
+        const accessCheck = checkToolAccess(mcpUser, name, toolDef.requiredScope);
+        if (!accessCheck.allowed) {
+          res
+            .status(403)
+            .json(makeError(id, 403, accessCheck.error || 'Access denied'));
+          return;
+        }
+      }
+
       const result = await globalToolRegistry.callTool({
         name,
         arguments: args as JsonValue | undefined,
@@ -162,6 +166,8 @@ export default async function handler(
         method,
         id,
         ip,
+        userId: mcpUser.userId,
+        authMethod: mcpUser.authMethod,
         durationMs,
       }),
     );
