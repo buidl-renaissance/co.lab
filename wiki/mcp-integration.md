@@ -127,6 +127,28 @@ Invokes a tool by name with arguments.
 
 ## Available Tools
 
+Co.Lab exposes 11 MCP tools organized into three categories:
+
+### Tool Summary
+
+| Category | Tool | Description |
+|----------|------|-------------|
+| Collaboration | `listCollaborations` | List all collaborations |
+| Collaboration | `getCollaboration` | Get by ID |
+| Collaboration | `createCollaborationFromTranscript` | Create from transcript |
+| Collaboration | `createCollaboration` | Create with full control |
+| Collaboration | `updateCollaboration` | Update by ID |
+| Collaboration | `deleteCollaboration` | Delete by ID |
+| Collaboration | `listCollaborationsByUsername` | List by username |
+| User | `getUserByFid` | Look up user by Farcaster ID |
+| User | `getUserByUsername` | Look up user by username |
+| GitHub | `listGithubRepos` | List linked repos |
+| GitHub | `getGithubIssueLinks` | Get issue links for collaboration |
+
+---
+
+## Collaboration Tools
+
 ### listCollaborations
 
 Lists all collaborations in the system.
@@ -218,7 +240,7 @@ Retrieves a specific collaboration by ID.
 
 ### createCollaborationFromTranscript
 
-Creates a new collaboration from a transcript and template.
+Creates a new collaboration from a transcript and template (simplified form).
 
 **Arguments:**
 | Name | Type | Required | Description |
@@ -261,6 +283,331 @@ Creates a new collaboration from a transcript and template.
         ...
       }
     }
+  }
+}
+```
+
+---
+
+### createCollaboration
+
+Creates a new collaboration with full control over all fields.
+
+**Arguments:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `title` | string | Yes | Collaboration title |
+| `templateId` | string | Yes | Template identifier |
+| `templateName` | string | Yes | Template display name |
+| `description` | string | No | Description |
+| `participants` | string[] | No | Array of usernames |
+| `answers` | object | No | Key-value answers |
+| `status` | string | No | `active`, `completed`, or `archived` |
+| `summary` | string | No | Summary text |
+| `createdByUsername` | string | No | Creator username |
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "createCollaboration",
+    "arguments": {
+      "title": "Community Art Show",
+      "templateId": "event",
+      "templateName": "Event Planning",
+      "description": "Planning a local art exhibition",
+      "participants": ["alice", "bob"],
+      "status": "active",
+      "createdByUsername": "alice"
+    }
+  }
+}
+```
+
+---
+
+### updateCollaboration
+
+Updates an existing collaboration by ID.
+
+**Arguments:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | string | Yes | Collaboration UUID |
+| `title` | string | No | Updated title |
+| `description` | string | No | Updated description |
+| `status` | string | No | `active`, `completed`, or `archived` |
+| `summary` | string | No | Updated summary |
+| `participants` | string[] | No | Updated participants |
+| `answers` | object | No | Updated answers |
+| `analysis` | object | No | Updated analysis |
+| `transcripts` | string[] | No | Updated transcripts |
+| `eventDetails` | object | No | Updated event details |
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "tools/call",
+  "params": {
+    "name": "updateCollaboration",
+    "arguments": {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "status": "completed",
+      "summary": "Event successfully planned and executed"
+    }
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "content": {
+    "success": true,
+    "data": { /* updated collaboration */ }
+  }
+}
+```
+
+---
+
+### deleteCollaboration
+
+Deletes a collaboration by ID.
+
+**Arguments:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | string | Yes | Collaboration UUID |
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "method": "tools/call",
+  "params": {
+    "name": "deleteCollaboration",
+    "arguments": {
+      "id": "123e4567-e89b-12d3-a456-426614174000"
+    }
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "content": {
+    "success": true,
+    "deleted": true
+  }
+}
+```
+
+---
+
+### listCollaborationsByUsername
+
+Lists all collaborations for a specific user.
+
+**Arguments:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `username` | string | Yes | Username to filter by |
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "tools/call",
+  "params": {
+    "name": "listCollaborationsByUsername",
+    "arguments": {
+      "username": "alice"
+    }
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "content": {
+    "success": true,
+    "data": [ /* collaborations where alice is a participant */ ]
+  }
+}
+```
+
+---
+
+## User Tools
+
+### getUserByFid
+
+Looks up a user by their Farcaster ID.
+
+**Arguments:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `fid` | string | Yes | Farcaster ID |
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "method": "tools/call",
+  "params": {
+    "name": "getUserByFid",
+    "arguments": {
+      "fid": "12345"
+    }
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "content": {
+    "success": true,
+    "data": {
+      "id": "uuid",
+      "fid": "12345",
+      "username": "alice",
+      "displayName": "Alice",
+      "pfpUrl": "https://...",
+      "createdAt": "ISO date",
+      "updatedAt": "ISO date"
+    }
+  }
+}
+```
+
+---
+
+### getUserByUsername
+
+Looks up a user by their username.
+
+**Arguments:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `username` | string | Yes | Username |
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "method": "tools/call",
+  "params": {
+    "name": "getUserByUsername",
+    "arguments": {
+      "username": "alice"
+    }
+  }
+}
+```
+
+**Response:** Same format as `getUserByFid`
+
+---
+
+## GitHub Tools
+
+### listGithubRepos
+
+Lists all linked GitHub repositories.
+
+**Arguments:** None
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 11,
+  "method": "tools/call",
+  "params": {
+    "name": "listGithubRepos",
+    "arguments": {}
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "content": {
+    "success": true,
+    "data": [
+      {
+        "id": "uuid",
+        "owner": "org-name",
+        "name": "repo-name",
+        "displayName": "My Repository",
+        "projectId": "project-uuid",
+        "isDefault": false,
+        "createdAt": "ISO date",
+        "updatedAt": "ISO date"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### getGithubIssueLinks
+
+Gets all GitHub issue links for a specific collaboration.
+
+**Arguments:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `collaborationId` | string | Yes | Collaboration UUID |
+
+**Request Example:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 12,
+  "method": "tools/call",
+  "params": {
+    "name": "getGithubIssueLinks",
+    "arguments": {
+      "collaborationId": "123e4567-e89b-12d3-a456-426614174000"
+    }
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "content": {
+    "success": true,
+    "data": [
+      {
+        "id": "uuid",
+        "collaborationId": "123e4567-e89b-12d3-a456-426614174000",
+        "githubRepoId": "repo-uuid",
+        "issueNumber": 42,
+        "issueUrl": "https://github.com/org/repo/issues/42",
+        "issueState": "open",
+        "lastSyncedAt": "ISO date",
+        "createdAt": "ISO date",
+        "updatedAt": "ISO date"
+      }
+    ]
   }
 }
 ```
