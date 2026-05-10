@@ -135,7 +135,14 @@ Primary authentication is via Farcaster Mini App SDK:
 
 ## Security Considerations
 
-1. **API Authentication**: MCP endpoint supports optional API key via `MCP_API_KEY`
-2. **Rate Limiting**: In-memory rate limiting (60 requests/minute per IP)
-3. **Input Validation**: Request body validation on all endpoints
-4. **CORS**: Configured for cross-origin requests where needed
+1. **API Authentication**: MCP endpoint supports multiple auth methods:
+   - Simple API key via `MCP_API_KEY` environment variable
+   - PKI authentication via Ed25519 keypairs (enabled with `MCP_USE_PKI_AUTH=true`)
+2. **PKI Auth Flow**: Challenge/response with Ed25519 signatures:
+   - Register public key → Request nonce → Sign nonce → Receive JWT + refresh token
+   - JWTs expire in 15 minutes, refresh tokens rotate every 30 days
+   - Named, scoped API keys for programmatic access
+3. **Rate Limiting**: In-memory rate limiting (60 requests/minute per IP)
+4. **Input Validation**: Request body validation on all endpoints
+5. **CORS**: Configured for cross-origin requests where needed
+6. **Token Security**: Refresh tokens and API keys are hashed before storage
