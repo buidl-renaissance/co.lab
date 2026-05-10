@@ -6,6 +6,8 @@ Co.Lab is a voice-first project planning tool for creative teams. Transform free
 
 At Co.Lab, we believe that the best ideas come from natural conversations. Our mission is to bridge the gap between free-flowing discussions and structured project management, making it easier for teams to capture, organize, and act on their collaborative ideas.
 
+📚 **[View the Wiki](./wiki/README.md)** for detailed documentation on architecture, API routes, database schema, and developer guides.
+
 ## Features
 
 - **Talk It Out**: Capture your collaborative conversations naturally, without interrupting your creative flow.
