@@ -67,14 +67,24 @@ co.lab/
 
 ## MCP Integration
 
-The `/api/mcp` endpoint allows AI agents to interact with collaborations:
+The `/api/mcp` endpoint allows AI agents to interact with Co.Lab data through 11 tools:
 
-```typescript
-// Available tools
-- listCollaborations: List all collaborations
-- getCollaboration: Get by ID
-- createCollaborationFromTranscript: Create from transcript
-```
+**Collaboration Tools:**
+- `listCollaborations` - List all collaborations
+- `getCollaboration` - Get by ID
+- `createCollaborationFromTranscript` - Create from transcript
+- `createCollaboration` - Create with full control
+- `updateCollaboration` - Update by ID
+- `deleteCollaboration` - Delete by ID
+- `listCollaborationsByUsername` - List by username
+
+**User Tools:**
+- `getUserByFid` - Look up user by Farcaster ID
+- `getUserByUsername` - Look up user by username
+
+**GitHub Tools:**
+- `listGithubRepos` - List linked repos
+- `getGithubIssueLinks` - Get issue links for collaboration
 
 See [MCP Integration](./mcp-integration.md) for full documentation.
 

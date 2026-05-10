@@ -209,3 +209,18 @@ export async function getIssueLinksForCollaboration(
     updatedAt: row.updatedAt || new Date(),
   })) as GitHubIssueLink[];
 }
+
+export async function getAllGitHubRepos(): Promise<GitHubRepo[]> {
+  const rows = await db.select().from(githubRepos);
+  
+  return rows.map((row) => ({
+    id: row.id,
+    owner: row.owner,
+    name: row.name,
+    displayName: row.displayName,
+    projectId: row.projectId,
+    isDefault: row.isDefault,
+    createdAt: row.createdAt || new Date(),
+    updatedAt: row.updatedAt || new Date(),
+  })) as GitHubRepo[];
+}
