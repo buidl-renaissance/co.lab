@@ -92,3 +92,47 @@ export const githubPullRequestLinks = sqliteTable('github_pull_request_links', {
   updatedAt: integer('updatedAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
 });
 
+// =====================
+// PKI Auth Tables
+// =====================
+
+// User Public Keys table: stores registered Ed25519 public keys
+export const userPublicKeys = sqliteTable('user_public_keys', {
+  id: text('id').primaryKey(),
+  userId: text('user_id'),
+  publicKey: text('public_key').notNull(),
+  label: text('label'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+});
+
+// Nonces table: single-use nonces for challenge/response auth
+export const nonces = sqliteTable('nonces', {
+  id: text('id').primaryKey(),
+  keyId: text('key_id').notNull(),
+  nonce: text('nonce').notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  used: integer('used', { mode: 'boolean' }).default(false).notNull(),
+});
+
+// Refresh Tokens table: rotating refresh tokens
+export const refreshTokens = sqliteTable('refresh_tokens', {
+  id: text('id').primaryKey(),
+  keyId: text('key_id').notNull(),
+  tokenHash: text('token_hash').notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  revoked: integer('revoked', { mode: 'boolean' }).default(false).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+});
+
+// API Keys table: named, scoped API keys for MCP access
+export const apiKeys = sqliteTable('api_keys', {
+  id: text('id').primaryKey(),
+  keyId: text('key_id').notNull(),
+  name: text('name').notNull(),
+  keyHash: text('key_hash').notNull(),
+  scopes: text('scopes', { mode: 'json' }).$type<string[]>().default([]).notNull(),
+  lastUsedAt: integer('last_used_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+  revoked: integer('revoked', { mode: 'boolean' }).default(false).notNull(),
+});
+

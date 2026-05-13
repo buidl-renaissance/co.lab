@@ -7,6 +7,11 @@ import {
 } from '@/lib/mcp/types';
 import { globalToolRegistry } from '@/lib/mcp/registry';
 import { registerMcpTools, toolDefinitions } from '@/lib/mcp/config';
+import {
+  authenticateMcpRequest,
+  checkToolScope,
+  AuthenticatedUser,
+} from '@/lib/mcp/auth-middleware';
 
 const rateLimitWindowMs = 60_000;
 const rateLimitMaxRequests = 60;
@@ -50,27 +55,42 @@ export default async function handler(
 
   registerMcpTools();
 
-  const apiKey = process.env.MCP_API_KEY;
-  if (apiKey) {
-    const headerKey =
-      req.headers['x-mcp-api-key'] ||
-      req.headers['x-mcp-api-key'.toLowerCase()];
-    const authHeader = req.headers.authorization;
-    const bearer = authHeader?.startsWith('Bearer ')
-      ? authHeader.slice('Bearer '.length)
-      : undefined;
+  let authenticatedUser: AuthenticatedUser | undefined;
 
-    if (headerKey !== apiKey && bearer !== apiKey) {
+  const usePkiAuth = process.env.MCP_USE_PKI_AUTH === 'true';
+
+  if (usePkiAuth) {
+    const authResult = await authenticateMcpRequest(req);
+    if (!authResult.authenticated) {
       res
-        .status(401)
-        .json(
-          makeError(
-            null,
-            401,
-            'Unauthorized MCP request: invalid or missing API key',
-          ),
-        );
+        .status(authResult.statusCode || 401)
+        .json(makeError(null, authResult.statusCode || 401, authResult.error || 'Unauthorized'));
       return;
+    }
+    authenticatedUser = authResult.user;
+  } else {
+    const apiKey = process.env.MCP_API_KEY;
+    if (apiKey) {
+      const headerKey =
+        req.headers['x-mcp-api-key'] ||
+        req.headers['x-mcp-api-key'.toLowerCase()];
+      const authHeader = req.headers.authorization;
+      const bearer = authHeader?.startsWith('Bearer ')
+        ? authHeader.slice('Bearer '.length)
+        : undefined;
+
+      if (headerKey !== apiKey && bearer !== apiKey) {
+        res
+          .status(401)
+          .json(
+            makeError(
+              null,
+              401,
+              'Unauthorized MCP request: invalid or missing API key',
+            ),
+          );
+        return;
+      }
     }
   }
 
@@ -131,6 +151,16 @@ export default async function handler(
         name: string;
         arguments?: unknown;
       };
+
+      if (authenticatedUser) {
+        const scopeCheck = checkToolScope(authenticatedUser, name);
+        if (!scopeCheck.allowed) {
+          res
+            .status(403)
+            .json(makeError(id, 403, scopeCheck.error || 'Access denied'));
+          return;
+        }
+      }
 
       const result = await globalToolRegistry.callTool({
         name,

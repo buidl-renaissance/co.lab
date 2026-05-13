@@ -279,7 +279,7 @@ Uploads an image file to DigitalOcean Spaces.
 
 ## Authentication APIs
 
-### Verify Auth
+### Verify Auth (Farcaster)
 
 **POST** `/api/auth/verify`
 
@@ -312,6 +312,186 @@ Verifies Farcaster authentication (Quick Auth JWT or SIWF).
     "displayName": "Alice",
     "pfpUrl": "https://..."
   }
+}
+```
+
+---
+
+## PKI Authentication APIs
+
+See [PKI Authentication](./pki-authentication.md) for complete documentation.
+
+### Register Public Key
+
+**POST** `/api/auth/register-key`
+
+Registers an Ed25519 public key for PKI authentication.
+
+**Request Body:**
+```json
+{
+  "publicKey": "base64url-encoded-32-byte-ed25519-public-key",
+  "userId": "optional-user-id",
+  "label": "optional-key-label"
+}
+```
+
+**Response:**
+```json
+{
+  "keyId": "uuid",
+  "publicKey": "...",
+  "label": "My Key",
+  "createdAt": "ISO date"
+}
+```
+
+---
+
+### Request Challenge
+
+**POST** `/api/auth/challenge`
+
+Generates a single-use nonce (60s TTL) for signature verification.
+
+**Request Body:**
+```json
+{
+  "keyId": "uuid from registration"
+}
+```
+
+**Response:**
+```json
+{
+  "nonce": "base64url-encoded-random-nonce",
+  "expiresAt": "ISO date"
+}
+```
+
+---
+
+### Verify PKI Signature
+
+**POST** `/api/auth/pki-verify`
+
+Verifies Ed25519 signature and issues tokens.
+
+**Request Body:**
+```json
+{
+  "keyId": "uuid",
+  "nonce": "nonce from challenge",
+  "signature": "base64url-encoded-signature"
+}
+```
+
+**Response:**
+```json
+{
+  "accessToken": "JWT (15min)",
+  "refreshToken": "clbrt_... (30d)",
+  "expiresIn": 900,
+  "tokenType": "Bearer"
+}
+```
+
+---
+
+### Refresh Token
+
+**POST** `/api/auth/refresh`
+
+Rotates refresh token and issues new access token.
+
+**Request Body:**
+```json
+{
+  "refreshToken": "clbrt_..."
+}
+```
+
+**Response:**
+```json
+{
+  "accessToken": "new JWT",
+  "refreshToken": "new clbrt_...",
+  "expiresIn": 900,
+  "tokenType": "Bearer"
+}
+```
+
+---
+
+### Create API Key
+
+**POST** `/api/auth/api-keys`
+
+Creates a named, scoped API key. Requires JWT authentication.
+
+**Headers:** `Authorization: Bearer <accessToken>`
+
+**Request Body:**
+```json
+{
+  "name": "My MCP Client",
+  "scopes": ["*"]
+}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "name": "My MCP Client",
+  "key": "clb_abc123...",
+  "scopes": ["*"],
+  "createdAt": "ISO date"
+}
+```
+
+**Note:** The raw key is only returned once at creation.
+
+---
+
+### List API Keys
+
+**GET** `/api/auth/api-keys`
+
+Lists all active API keys for the authenticated user.
+
+**Headers:** `Authorization: Bearer <accessToken>`
+
+**Response:**
+```json
+{
+  "apiKeys": [
+    {
+      "id": "uuid",
+      "name": "My MCP Client",
+      "scopes": ["*"],
+      "lastUsedAt": "ISO date or null",
+      "createdAt": "ISO date"
+    }
+  ]
+}
+```
+
+---
+
+### Revoke API Key
+
+**DELETE** `/api/auth/api-keys/[keyId]`
+
+Revokes an API key.
+
+**Headers:** `Authorization: Bearer <accessToken>`
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "API key revoked successfully"
 }
 ```
 

@@ -11,6 +11,7 @@ Welcome to the Co.Lab documentation wiki. Co.Lab is a voice-first project planni
 | [Project Structure](./project-structure.md) | Directory layout and code organization |
 | [API Routes](./api-routes.md) | Complete REST API documentation |
 | [MCP Integration](./mcp-integration.md) | Model Context Protocol endpoint and available tools |
+| [PKI Authentication](./pki-authentication.md) | Ed25519 keypair authentication for MCP |
 | [Database](./database.md) | Database schema and operations |
 | [Getting Started](./getting-started.md) | Local development setup guide |
 | [Tools](./tools.md) | Development tools and utilities |
