@@ -62,6 +62,16 @@ export const templateQuestions = {
     "How will you measure success and user satisfaction?",
     "What technologies or platforms will you use?",
   ],
+  irlgame: [
+    "What type of IRL game or experience are you designing? (e.g. scavenger hunt, puzzle trail, team challenge, mystery event)",
+    "Where will the game take place? (specific venue, neighborhood, or city-wide?)",
+    "How many players or teams will participate?",
+    "What is the core mechanic — how do players progress or win?",
+    "What physical or digital props, clues, or checkpoints are needed?",
+    "How will players check in, score points, or verify progress?",
+    "What is the timeline — setup, play window, and wrap-up?",
+    "Is there a narrative or theme tying the game together?",
+  ],
 };
 
 export const defaultTemplates = [
@@ -106,6 +116,13 @@ export const defaultTemplates = [
     tag: "Technology",
     description:
       "Develop user-focused web applications with collaborative planning, feature prioritization, and user feedback integration.",
+  },
+  {
+    id: "irlgame",
+    name: "Design a Collaborative IRL Game",
+    tag: "Play",
+    description:
+      "Design and run city-wide or venue-based IRL games — scavenger hunts, puzzle trails, team challenges, and mystery experiences — with collaborative planning and player coordination.",
   },
 ].map((t) => ({
   ...t,
