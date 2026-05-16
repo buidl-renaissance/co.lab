@@ -48,6 +48,7 @@ export interface McpToolDefinition {
   description: string;
   inputSchema?: JsonValue;
   outputSchema?: JsonValue;
+  requiredScope?: string;
 }
 
 export interface McpToolListResult {

@@ -345,6 +345,233 @@ Retrieves the currently authenticated user.
 
 ---
 
+## PKI Authentication APIs
+
+### Register Public Key
+
+**POST** `/api/auth/pki/register-key`
+
+Registers an Ed25519 public key for a user.
+
+**Request Body:**
+```json
+{
+  "userId": "string (required)",
+  "publicKey": "string (required, 64-char hex Ed25519 public key)",
+  "label": "string (required)"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "key-uuid",
+    "publicKey": "...",
+    "label": "...",
+    "createdAt": "ISO date"
+  }
+}
+```
+
+---
+
+### Request Challenge
+
+**POST** `/api/auth/pki/challenge`
+
+Requests a challenge nonce for signature verification.
+
+**Request Body:**
+```json
+{
+  "publicKey": "string (required, 64-char hex)"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "nonce": "32-char-random-string",
+    "expiresIn": 120
+  }
+}
+```
+
+**Rate Limit:** 10 requests per minute per IP.
+
+---
+
+### Verify Signature
+
+**POST** `/api/auth/pki/verify`
+
+Verifies the Ed25519 signature and issues tokens.
+
+**Request Body:**
+```json
+{
+  "publicKey": "string (required)",
+  "signature": "string (required, 128-char hex Ed25519 signature)",
+  "nonce": "string (required)"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "JWT",
+    "refreshToken": "64-char-token",
+    "expiresIn": 900,
+    "tokenType": "Bearer"
+  }
+}
+```
+
+---
+
+### Refresh Token
+
+**POST** `/api/auth/pki/refresh`
+
+Rotates the refresh token and issues new access token.
+
+**Request Body:**
+```json
+{
+  "refreshToken": "string (required)"
+}
+```
+
+**Response:** Same as verify endpoint.
+
+---
+
+## API Key Management APIs
+
+All API key management endpoints require a valid access token in the Authorization header.
+
+### List API Keys
+
+**GET** `/api/auth/api-keys`
+
+Lists all active API keys for the authenticated user.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "key-uuid",
+      "keyPrefix": "clb_AbCdEf12",
+      "label": "...",
+      "scopes": ["*"],
+      "lastUsedAt": "ISO date or null",
+      "expiresAt": "ISO date or null",
+      "createdAt": "ISO date"
+    }
+  ]
+}
+```
+
+---
+
+### Create API Key
+
+**POST** `/api/auth/api-keys`
+
+Creates a new API key.
+
+**Request Body:**
+```json
+{
+  "label": "string (required)",
+  "scopes": ["string array (required)"],
+  "expiresAt": "ISO date (optional)"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "key-uuid",
+    "rawKey": "clb_...",
+    "keyPrefix": "clb_AbCdEf12",
+    "label": "...",
+    "scopes": ["*"],
+    "expiresAt": null,
+    "createdAt": "ISO date"
+  }
+}
+```
+
+**Note:** `rawKey` is only returned once. Store it securely.
+
+---
+
+### Revoke API Key
+
+**DELETE** `/api/auth/api-keys/[id]`
+
+Revokes an API key.
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+---
+
+## Public Key Management APIs
+
+### List Public Keys
+
+**GET** `/api/auth/public-keys`
+
+Lists all active public keys for the authenticated user.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "key-uuid",
+      "publicKey": "64-char-hex",
+      "label": "...",
+      "createdAt": "ISO date"
+    }
+  ]
+}
+```
+
+---
+
+### Revoke Public Key
+
+**DELETE** `/api/auth/public-keys/[id]`
+
+Revokes a public key.
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+---
+
 ## Frame APIs
 
 ### Frame Start
