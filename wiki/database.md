@@ -128,6 +128,10 @@ CREATE TABLE collaborations (
 | `shareToken` | TEXT | UUID v4 for link-based sharing (unique) |
 | `shareMode` | TEXT | `private`, `link`, or `public` |
 | `tags` | JSON | Array of tag strings for filtering |
+| `coverImageUrl` | TEXT | Cover image URL for entity cards |
+| `category` | TEXT | Collaboration category |
+| `capacity` | INTEGER | Maximum number of participants/attendees |
+| `rsvpCount` | INTEGER | Current RSVP count (default: 0) |
 
 **Event Details JSON Structure:**
 ```json
@@ -461,6 +465,7 @@ node scripts/apply-migration.js
 | `0003_add_collaborator_ids.sql` | Add collaboratorIds for efficient queries |
 | `0004_friendly_lightspeed.sql` | Add PKI auth tables (user_public_keys, api_keys, refresh_tokens, nonces) |
 | `0005_add_share_fields.sql` | Add shareToken, shareMode, tags columns for sharing |
+| `0006_add_entity_card_fields.sql` | Add coverImageUrl, category, capacity, rsvpCount columns |
 
 ## Query Patterns
 

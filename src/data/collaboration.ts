@@ -63,6 +63,11 @@ export interface Collaboration {
   shareToken?: string;      // UUID v4 for link sharing
   shareMode?: ShareMode;    // Visibility mode (default: private)
   tags?: string[];          // Collaboration tags for filtering
+  // Entity card fields
+  coverImageUrl?: string;   // Cover image URL for entity cards
+  category?: string;        // Collaboration category
+  capacity?: number;        // Maximum number of participants/attendees
+  rsvpCount?: number;       // Current RSVP count (default: 0)
 }
 
 // Mock data for collaborations

@@ -44,6 +44,11 @@ export const collaborations = sqliteTable('collaborations', {
   shareToken: text('shareToken').unique(),
   shareMode: text('shareMode', { enum: ['private', 'link', 'public'] }).default('private'),
   tags: text('tags', { mode: 'json' }),
+  // Entity card fields
+  coverImageUrl: text('coverImageUrl'),
+  category: text('category'),
+  capacity: integer('capacity'),
+  rsvpCount: integer('rsvpCount').default(0),
 });
 
 // GitHub Accounts table
