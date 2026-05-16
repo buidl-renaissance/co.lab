@@ -39,12 +39,25 @@ Pre-built templates guide collaboration structure:
 For event-type collaborations:
 
 - **Event Details**: Title, date, time, timezone, location, tags
+- **Cover Images**: Optional cover image URL for entity cards
+- **Category & Capacity**: Event categorization and attendee limits
+- **RSVP Tracking**: Track RSVP counts for events
 - **Flyer Generation**: AI-generated promotional flyers via DALL-E 3
 - **Event Publishing**: Publish to external events platform
 - **Sponsor Management**: Track event sponsors with logos
 - **Sub-Events**: Manage activities within a larger event
 
-### 5. Farcaster Integration
+### 5. Collaboration Sharing
+
+Share collaborations via stable tokens or public access:
+
+- **Share Tokens**: Generate UUID v4 tokens for link-based sharing
+- **Share Modes**: `private` (default), `link` (token access), `public` (discoverable)
+- **No Auth Required**: Public and link-shared collaborations can be accessed without authentication
+- **Tag Support**: Add tags to collaborations for filtering and discovery
+- **Share URLs**: Stable, shareable URLs at `/share/[token]`
+
+### 6. Farcaster Integration
 
 Native integration with the Farcaster social protocol:
 
@@ -53,7 +66,7 @@ Native integration with the Farcaster social protocol:
 - **Authentication**: Sign-In With Farcaster (SIWF) and Quick Auth
 - **User Profiles**: Farcaster username, display name, and profile picture
 
-### 6. MCP API for AI Agents
+### 7. MCP API for AI Agents
 
 Model Context Protocol endpoint enables AI agent integration:
 
@@ -66,7 +79,7 @@ Model Context Protocol endpoint enables AI agent integration:
   - `getCollaboration` - Get specific collaboration by ID
   - `createCollaborationFromTranscript` - Create from transcript and template
 
-### 7. PKI Key-Based Authentication
+### 8. PKI Key-Based Authentication
 
 Secure, user-controlled authentication using Ed25519 public key cryptography:
 
@@ -78,7 +91,7 @@ Secure, user-controlled authentication using Ed25519 public key cryptography:
 - **Scope Enforcement**: Fine-grained permissions per tool
 - **Settings UI**: Manage keys at `/settings/api-keys`
 
-### 8. GitHub Integration
+### 9. GitHub Integration
 
 Connect collaborations to GitHub repositories:
 

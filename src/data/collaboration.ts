@@ -27,7 +27,11 @@ export interface EventDetails {
   timezone?: string;   // e.g., "America/New_York"
   location: string;
   flyerUrl?: string;   // DigitalOcean Spaces URL
+  coverImageUrl?: string;  // Cover image for entity cards
   tags?: string[];     // Event tags
+  category?: string;   // Event category (e.g., "music", "art", "tech")
+  capacity?: number;   // Maximum number of attendees
+  rsvpCount?: number;  // Current RSVP count
   eventType?: 'standard' | 'renaissance';
   metadata?: Record<string, unknown>;
   // External events API fields
@@ -37,6 +41,9 @@ export interface EventDetails {
   sponsors?: EventSponsor[];
   activities?: EventActivity[];  // Also accepts "subEvents" from API
 }
+
+// Share mode for collaboration visibility
+export type ShareMode = 'private' | 'link' | 'public';
 
 export interface Collaboration {
   id: string;
@@ -52,6 +59,10 @@ export interface Collaboration {
   transcripts?: string[];
   summary?: string;
   eventDetails?: EventDetails;
+  // Sharing fields
+  shareToken?: string;      // UUID v4 for link sharing
+  shareMode?: ShareMode;    // Visibility mode (default: private)
+  tags?: string[];          // Collaboration tags for filtering
 }
 
 // Mock data for collaborations
