@@ -103,7 +103,10 @@ CREATE TABLE collaborations (
   transcripts TEXT,              -- JSON array
   summary TEXT NOT NULL DEFAULT '',
   createdByUserId TEXT,
-  eventDetails TEXT              -- JSON
+  eventDetails TEXT,             -- JSON
+  shareToken TEXT UNIQUE,        -- UUID for link sharing
+  shareMode TEXT DEFAULT 'private',  -- private, link, public
+  tags TEXT                      -- JSON array
 );
 ```
 
@@ -122,6 +125,9 @@ CREATE TABLE collaborations (
 | `summary` | TEXT | Collaboration summary |
 | `createdByUserId` | TEXT | Creator's username |
 | `eventDetails` | JSON | Event-specific details |
+| `shareToken` | TEXT | UUID v4 for link-based sharing (unique) |
+| `shareMode` | TEXT | `private`, `link`, or `public` |
+| `tags` | JSON | Array of tag strings for filtering |
 
 **Event Details JSON Structure:**
 ```json
@@ -133,7 +139,11 @@ CREATE TABLE collaborations (
   "timezone": "string (optional)",
   "location": "string",
   "flyerUrl": "string (optional)",
+  "coverImageUrl": "string (optional)",
   "tags": ["string"],
+  "category": "string (optional)",
+  "capacity": "number (optional)",
+  "rsvpCount": "number (optional)",
   "eventType": "standard | renaissance",
   "externalEventId": "number (optional)",
   "publishedAt": "ISO date (optional)",
@@ -360,6 +370,29 @@ getCollaborationsByUsername(username: string): Promise<Collaboration[]>
 
 // Delete collaboration
 deleteCollaboration(id: string): Promise<boolean>
+
+// Sharing operations
+getCollaborationByShareToken(shareToken: string): Promise<Collaboration | null>
+generateShareToken(id: string): Promise<{ shareToken: string; shareUrl: string } | null>
+revokeShareToken(id: string): Promise<boolean>
+
+// Paginated list with filters
+listCollaborations(params: CollaborationListParams): Promise<CollaborationListResult>
+
+// Get public collaborations only
+getPublicCollaborations(params: CollaborationListParams): Promise<CollaborationListResult>
+```
+
+**CollaborationListParams:**
+```typescript
+interface CollaborationListParams {
+  q?: string;        // Search query (title, description)
+  template?: string; // Filter by template id
+  status?: string;   // Filter by status
+  tag?: string;      // Filter by tag
+  limit?: number;    // Page size (default 20)
+  offset?: number;   // Pagination offset (default 0)
+}
 ```
 
 ### User Operations
@@ -427,6 +460,7 @@ node scripts/apply-migration.js
 | `0002_add_event_details.sql` | Add eventDetails column |
 | `0003_add_collaborator_ids.sql` | Add collaboratorIds for efficient queries |
 | `0004_friendly_lightspeed.sql` | Add PKI auth tables (user_public_keys, api_keys, refresh_tokens, nonces) |
+| `0005_add_share_fields.sql` | Add shareToken, shareMode, tags columns for sharing |
 
 ## Query Patterns
 

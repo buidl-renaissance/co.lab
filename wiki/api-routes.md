@@ -54,14 +54,36 @@ Creates a new collaboration from a transcript.
 
 **GET** `/api/collaborations`
 
-Lists all collaborations or filters by username.
+Lists all collaborations with support for pagination and filtering.
 
 **Query Parameters:**
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `username` | string | Filter by participant username |
+| `username` | string | Filter by participant username (legacy mode) |
+| `q` | string | Search in title and description |
+| `template` | string | Filter by template ID (e.g., `event`, `artwork`) |
+| `status` | string | Filter by status (`active`, `completed`, `archived`) |
+| `tag` | string | Filter by tag |
+| `limit` | number | Page size (default: 20) |
+| `offset` | number | Pagination offset (default: 0) |
 
-**Response:**
+**Response (with pagination params):**
+```json
+{
+  "success": true,
+  "data": {
+    "collaborations": [
+      { "id": "...", "title": "...", ... }
+    ],
+    "total": 42,
+    "limit": 20,
+    "offset": 0,
+    "hasMore": true
+  }
+}
+```
+
+**Response (legacy mode - username only):**
 ```json
 {
   "success": true,
@@ -74,6 +96,29 @@ Lists all collaborations or filters by username.
 ---
 
 ### Get Collaboration
+
+**GET** `/api/collaborations/[id]`
+
+Retrieves a single collaboration by ID. No authentication required.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "title": "...",
+    "shareToken": "uuid (if shared)",
+    "shareMode": "private | link | public",
+    "tags": ["tag1", "tag2"],
+    ...
+  }
+}
+```
+
+---
+
+### Get Collaboration (Legacy)
 
 **GET** `/api/collaboration/[id]`
 
@@ -147,6 +192,66 @@ Updates an existing transcript at a specific index.
   "transcriptIndex": "number (required)"
 }
 ```
+
+---
+
+## Sharing APIs
+
+### Generate Share Link
+
+**POST** `/api/collaboration/[id]/share`
+
+Generates a share token and sets shareMode to `link`.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "shareToken": "uuid",
+    "shareUrl": "https://co.lab.builddetroit.xyz/share/uuid"
+  }
+}
+```
+
+---
+
+### Revoke Share Link
+
+**DELETE** `/api/collaboration/[id]/share`
+
+Revokes the share token and sets shareMode back to `private`.
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+---
+
+### Get Collaboration by Share Token
+
+**GET** `/api/collaborations/public/[shareToken]`
+
+Retrieves a collaboration by its share token. No authentication required.
+Only works for collaborations with shareMode `link` or `public`.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "title": "...",
+    ...
+  }
+}
+```
+
+**Error Responses:**
+- `404` - Collaboration not found or not shared
 
 ---
 

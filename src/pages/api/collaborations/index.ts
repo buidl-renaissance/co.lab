@@ -1,11 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllCollaborations, getCollaborationsByUsername } from '@/db/collaboration';
+import { 
+  getAllCollaborations, 
+  getCollaborationsByUsername, 
+  listCollaborations,
+  CollaborationListResult 
+} from '@/db/collaboration';
 import { Collaboration } from '@/data/collaboration';
 import { getAuthenticatedUser } from '@/lib/middleware/farcasterUser';
 
 type ResponseData = {
   success: boolean;
-  data?: Collaboration[];
+  data?: Collaboration[] | CollaborationListResult;
   error?: string;
 };
 
@@ -29,9 +34,29 @@ export default async function handler(
 
   if (req.method === 'GET') {
     try {
-      // Check for username query parameter
-      const { username } = req.query;
+      const { username, q, template, status, tag, limit, offset } = req.query;
       
+      // If any pagination/filter params are provided, use the new paginated list
+      const hasPaginationParams = q || template || status || tag || limit || offset;
+      
+      if (hasPaginationParams) {
+        // Use the new paginated list with filters
+        const result = await listCollaborations({
+          q: q as string | undefined,
+          template: template as string | undefined,
+          status: status as string | undefined,
+          tag: tag as string | undefined,
+          limit: limit ? parseInt(limit as string, 10) : undefined,
+          offset: offset ? parseInt(offset as string, 10) : undefined,
+        });
+        
+        return res.status(200).json({
+          success: true,
+          data: result,
+        });
+      }
+      
+      // Legacy behavior: username-based or all collaborations
       let collaborations: Collaboration[];
       
       if (username && typeof username === 'string') {

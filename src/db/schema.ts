@@ -40,6 +40,10 @@ export const collaborations = sqliteTable('collaborations', {
   summary: text('summary').default('').notNull(),
   createdByUserId: text('createdByUserId'),
   eventDetails: text('eventDetails', { mode: 'json' }),
+  // Sharing fields
+  shareToken: text('shareToken').unique(),
+  shareMode: text('shareMode', { enum: ['private', 'link', 'public'] }).default('private'),
+  tags: text('tags', { mode: 'json' }),
 });
 
 // GitHub Accounts table
