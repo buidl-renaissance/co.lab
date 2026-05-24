@@ -49,6 +49,11 @@ export async function createCollaboration(
     shareToken: collaboration.shareToken || null,
     shareMode: collaboration.shareMode || ('private' as const),
     tags: collaboration.tags || null,
+    // Entity card fields
+    coverImageUrl: collaboration.coverImageUrl || null,
+    category: collaboration.category || null,
+    capacity: collaboration.capacity || null,
+    rsvpCount: collaboration.rsvpCount ?? 0,
   };
 
   await db.insert(collaborations).values(newCollaboration);
@@ -65,6 +70,10 @@ export async function createCollaboration(
     summary: collaboration.summary || '',
     shareMode: collaboration.shareMode || 'private',
     tags: collaboration.tags || [],
+    coverImageUrl: collaboration.coverImageUrl,
+    category: collaboration.category,
+    capacity: collaboration.capacity,
+    rsvpCount: collaboration.rsvpCount ?? 0,
   } as Collaboration;
 }
 
@@ -90,6 +99,11 @@ function mapDbResultToCollaboration(result: typeof collaborations.$inferSelect):
     shareToken: result.shareToken || undefined,
     shareMode: (result.shareMode as ShareMode) || 'private',
     tags: (result.tags as string[]) || [],
+    // Entity card fields
+    coverImageUrl: result.coverImageUrl || undefined,
+    category: result.category || undefined,
+    capacity: result.capacity || undefined,
+    rsvpCount: result.rsvpCount ?? 0,
   };
 }
 
@@ -136,6 +150,11 @@ export async function updateCollaboration(
   if (updates.shareToken !== undefined) updateData.shareToken = updates.shareToken;
   if (updates.shareMode !== undefined) updateData.shareMode = updates.shareMode;
   if (updates.tags !== undefined) updateData.tags = updates.tags;
+  // Entity card fields
+  if (updates.coverImageUrl !== undefined) updateData.coverImageUrl = updates.coverImageUrl;
+  if (updates.category !== undefined) updateData.category = updates.category;
+  if (updates.capacity !== undefined) updateData.capacity = updates.capacity;
+  if (updates.rsvpCount !== undefined) updateData.rsvpCount = updates.rsvpCount;
   // Note: createdByUserId is intentionally not updatable after creation
   
   await db

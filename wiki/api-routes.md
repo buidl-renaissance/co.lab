@@ -199,7 +199,7 @@ Updates an existing transcript at a specific index.
 
 ### Generate Share Link
 
-**POST** `/api/collaboration/[id]/share`
+**POST** `/api/collaborations/[id]/share`
 
 Generates a share token and sets shareMode to `link`.
 
@@ -214,11 +214,13 @@ Generates a share token and sets shareMode to `link`.
 }
 ```
 
+Also available at: `POST /api/collaboration/[id]/share` (legacy singular path)
+
 ---
 
 ### Revoke Share Link
 
-**DELETE** `/api/collaboration/[id]/share`
+**DELETE** `/api/collaborations/[id]/share`
 
 Revokes the share token and sets shareMode back to `private`.
 
@@ -228,6 +230,8 @@ Revokes the share token and sets shareMode back to `private`.
   "success": true
 }
 ```
+
+Also available at: `DELETE /api/collaboration/[id]/share` (legacy singular path)
 
 ---
 
