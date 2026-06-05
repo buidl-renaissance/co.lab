@@ -31,6 +31,13 @@ export async function runMcpSelfTest(): Promise<McpSelfTestResult> {
     'getUserByUsername',
     'listGithubRepos',
     'getGithubIssueLinks',
+    // Schema.org Object Tools
+    'upsert_schema_object',
+    'get_schema_object',
+    'search_schema_objects',
+    'list_collaboration_objects',
+    'link_objects',
+    'export_jsonld',
   ];
 
   for (const toolName of expectedTools) {

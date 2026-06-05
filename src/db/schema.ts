@@ -147,3 +147,17 @@ export const nonces = sqliteTable('nonces', {
   createdAt: integer('createdAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
 });
 
+// ===== Schema.org Collaborative Document Storage Tables =====
+
+// Schema Collaborations table - groups schema.org objects into collaborations
+export const schemaCollaborations = sqliteTable('schema_collaborations', {
+  id: text('id').primaryKey(),
+  name: text('name'),
+  description: text('description'),
+  templateId: text('templateId'),
+  chatThreadId: text('chatThreadId'),
+  createdByUserId: text('createdByUserId'),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`).notNull(),
+});
+

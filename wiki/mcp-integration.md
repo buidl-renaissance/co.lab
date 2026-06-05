@@ -168,7 +168,7 @@ Invokes a tool by name with arguments.
 
 ## Available Tools
 
-Co.Lab exposes 11 MCP tools organized into three categories:
+Co.Lab exposes 17 MCP tools organized into four categories:
 
 ### Tool Summary
 
@@ -185,6 +185,14 @@ Co.Lab exposes 11 MCP tools organized into three categories:
 | User | `getUserByUsername` | Look up user by username |
 | GitHub | `listGithubRepos` | List linked repos |
 | GitHub | `getGithubIssueLinks` | Get issue links for collaboration |
+| Schema Objects | `upsert_schema_object` | Create or update schema.org objects |
+| Schema Objects | `get_schema_object` | Fetch schema object by ID |
+| Schema Objects | `search_schema_objects` | Semantic and filtered search |
+| Schema Objects | `list_collaboration_objects` | List all objects in a collaboration |
+| Schema Objects | `link_objects` | Create relationship between objects |
+| Schema Objects | `export_jsonld` | Export collaboration as JSON-LD |
+
+See [Schema Objects](./schema-objects.md) for detailed documentation on the schema.org tools.
 
 ---
 

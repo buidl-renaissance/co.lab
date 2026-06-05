@@ -100,6 +100,26 @@ Connect collaborations to GitHub repositories:
 - **Issue Tracking**: Link GitHub issues to collaborations
 - **PR Tracking**: Monitor pull request status
 
+### 10. Schema.org Document Storage
+
+Structured data layer for storing and searching schema.org-typed objects:
+
+- **Schema Types**: Person, Event, Project, Organization, Place
+- **LanceDB Storage**: Vector database for semantic search
+- **Embeddings**: OpenAI text-embedding-3-small for semantic similarity
+- **Collaboration Grouping**: Group related objects into schema collaborations
+- **Object Relationships**: Link objects with typed relationships (organizer, attendee, member, etc.)
+- **JSON-LD Export**: Export collaborations as valid schema.org JSON-LD for SEO
+- **MCP Tools**: 6 additional tools for AI agents:
+  - `upsert_schema_object` - Create/update schema.org objects
+  - `get_schema_object` - Fetch by ID
+  - `search_schema_objects` - Semantic and filtered search
+  - `list_collaboration_objects` - List all objects in a collaboration
+  - `link_objects` - Create relationship edges
+  - `export_jsonld` - Export as JSON-LD
+
+See [Schema Objects](./schema-objects.md) for full documentation.
+
 ## User Flows
 
 ### Creating a New Collaboration

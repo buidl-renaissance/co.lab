@@ -10,6 +10,7 @@ import {
 } from '@/db/collaboration';
 import { getUserByFid, getUserByUsername } from '@/db/user';
 import { getAllGitHubRepos, getIssueLinksForCollaboration } from '@/db/github';
+import { schemaObjectToolDefinitions, registerSchemaObjectTools } from './schemaObjectTools';
 
 // Tool definitions with rich schemas for discoverability
 
@@ -678,5 +679,14 @@ export function registerMcpTools() {
     },
   );
 
+  // Register schema.org object tools
+  registerSchemaObjectTools();
+
   registered = true;
 }
+
+// Export all tool definitions including schema object tools
+export const allToolDefinitions: McpToolDefinition[] = [
+  ...toolDefinitions,
+  ...schemaObjectToolDefinitions,
+];
