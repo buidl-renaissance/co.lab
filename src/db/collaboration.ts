@@ -323,7 +323,6 @@ export async function listCollaborations(params: CollaborationListParams = {}): 
   // Get total count
   const countQuery = db.select({ count: sql<number>`count(*)` }).from(collaborations);
   if (conditions.length > 0) {
-    // @ts-expect-error - Drizzle typing complexity
     countQuery.where(and(...conditions));
   }
   const countResult = await countQuery;
@@ -381,7 +380,6 @@ export async function getPublicCollaborations(params: Omit<CollaborationListPara
   const countResult = await db
     .select({ count: sql<number>`count(*)` })
     .from(collaborations)
-    // @ts-expect-error - Drizzle typing complexity
     .where(and(...conditions));
   const total = Number(countResult[0]?.count || 0);
   
@@ -389,7 +387,6 @@ export async function getPublicCollaborations(params: Omit<CollaborationListPara
   const results = await db
     .select()
     .from(collaborations)
-    // @ts-expect-error - Drizzle typing complexity
     .where(and(...conditions))
     .orderBy(desc(collaborations.updatedAt))
     .limit(limit)

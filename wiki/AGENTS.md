@@ -67,7 +67,7 @@ co.lab/
 
 ## MCP Integration
 
-The `/api/mcp` endpoint allows AI agents to interact with Co.Lab data through 11 tools:
+The `/api/mcp` endpoint allows AI agents to interact with Co.Lab data through 17 tools:
 
 **Collaboration Tools:**
 - `listCollaborations` - List all collaborations
@@ -86,7 +86,15 @@ The `/api/mcp` endpoint allows AI agents to interact with Co.Lab data through 11
 - `listGithubRepos` - List linked repos
 - `getGithubIssueLinks` - Get issue links for collaboration
 
-See [MCP Integration](./mcp-integration.md) for full documentation.
+**Schema Object Tools:**
+- `upsert_schema_object` - Create/update schema.org objects
+- `get_schema_object` - Fetch by ID
+- `search_schema_objects` - Semantic and filtered search
+- `list_collaboration_objects` - List all objects in a collaboration
+- `link_objects` - Create relationship edges
+- `export_jsonld` - Export as JSON-LD
+
+See [MCP Integration](./mcp-integration.md) and [Schema Objects](./schema-objects.md) for full documentation.
 
 ## Common Tasks
 
